@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 3-5: Symmetry</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Lato:wght@400;700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+/* 1. CORE SETUP */
+* { box-sizing: border-box; }
+body {
+  background-color: #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  margin: 0;
+  padding: 40px 0;
+}
+
+.slide-container {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  font-family: 'Lato', 'Noto Sans SC', sans-serif;
+  height: 720px;
+  width: 1280px;
+  overflow: hidden;
+  padding: 60px 80px;
+  position: relative;
+}
+
+.slide-container::before {
+  content: '';
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+  z-index: 0;
+}
+
+.slide-container > * { position: relative; z-index: 1; }
+
+/* 2. TYPOGRAPHY */
+h1, h2, h3 { 
+  color: #1e293b; 
+  font-family: 'Poppins', 'Noto Sans SC', sans-serif; 
+  margin: 0;
+}
+
+.slide-title {
+  font-size: 52px;
+  font-weight: 700;
+  margin-bottom: 30px;
+  border-left: 12px solid #3b82f6;
+  padding-left: 20px;
+  color: #1e3a8a;
+  line-height: 1.1;
+}
+
+.slide-title small {
+  display: block;
+  font-size: 26px;
+  color: #64748b;
+  font-weight: 400;
+  margin-top: 8px;
+}
+
+p, li { font-size: 26px; line-height: 1.4; color: #334155; margin-bottom: 10px; }
+.bilingual-sub { display: block; font-size: 22px; color: #64748b; font-weight: 400; margin-top: 4px; }
+
+/* 3. LAYOUT TOOLS */
+.content-area {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.two-column {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+
+.tile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+.tile {
+  background: #f8fafc;
+  border-radius: 20px;
+  padding: 30px;
+  border: 1px solid #e2e8f0;
+  text-align: center;
+}
+
+.visual-container {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.05);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+/* 4. INTERACTIVE & ANIMATIONS */
+.symmetry-line { stroke: #ef4444; stroke-width: 3; stroke-dasharray: 6; opacity: 0; transition: opacity 0.3s ease; }
+.symmetry-line.active { opacity: 1; }
+
+.controls-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.toggle-btn {
+  background: #1e3a8a;
+  color: white;
+  padding: 10px 24px;
+  border-radius: 50px;
+  border: none;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toggle-btn:hover { background: #3b82f6; transform: translateY(-2px); }
+
+.practice-box {
+  background: #f1f5f9;
+  border-radius: 24px;
+  padding: 40px;
+  border-left: 15px solid #3b82f6;
+}
+
+.answer-reveal {
+  background: #3b82f6;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  display: inline-block;
+  margin-top: 15px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.answer-text {
+  display: none;
+  margin-top: 20px;
+  font-size: 40px; 
+  color: #059669;
+  font-weight: 700;
+  border-top: 3px dashed #cbd5e1;
+  padding-top: 10px;
+}
+
+/* FIXING COORDINATE ANIMATION - Using CSS Variables for dynamic center */
+#target-rect { 
+    transition: transform 0.8s cubic-bezier(0.45, 0.05, 0.55, 0.95); 
+    transform-origin: 60px 80px; /* Center of (0.5, 1) in SVG units */
+}
+
+.math { font-family: 'Times New Roman', serif; font-style: italic; font-weight: bold; }
+
+</style>
+</head>
+<body>
+
+<!-- Slide 1: Title -->
+<div class="slide-container">
+    <div class="content-area" style="text-align: center;">
+        <h1 style="font-size: 110px; margin-bottom: 0px; color: #1e3a8a;">Symmetry</h1>
+        <h2 style="font-size: 60px; color: #64748b; font-weight: 400; margin-bottom: 40px;">对称性</h2>
+        <div style="width: 200px; height: 12px; background: #3b82f6; margin: 0 auto; border-radius: 6px;"></div>
+        <p style="font-size: 32px; margin-top: 40px; color: #334155;">Lesson 3-5 | 第 3-5 课</p>
+    </div>
+</div>
+
+<!-- Slide 2: Introduction -->
+<div class="slide-container">
+    <h2 class="slide-title">Introduction<small>引言</small></h2>
+    <div class="content-area">
+        <div class="two-column">
+            <div>
+                <p><strong>Symmetry</strong> exists if a <strong>rigid motion</strong> maps a figure onto itself.</p>
+                <p class="bilingual-sub">如果一个“刚性运动”将图形映射到自身，则该图形具有<strong>对称性</strong>。</p>
+                <p>Rigid motions include / 刚性运动包括：</p>
+                <ul style="list-style-type: none; padding: 0;">
+                    <li><i class="fa-solid fa-check" style="color: #3b82f6;"></i> Reflection / 反射</li>
+                    <li><i class="fa-solid fa-check" style="color: #3b82f6;"></i> Translation / 平移</li>
+                    <li><i class="fa-solid fa-check" style="color: #3b82f6;"></i> Rotation / 旋转</li>
+                    <li><i class="fa-solid fa-check" style="color: #3b82f6;"></i> Glide Reflection / 滑移反射</li>
+                </ul>
+            </div>
+            <div class="visual-container">
+                <svg viewBox="0 0 400 300" width="100%">
+                    <polygon points="50,150 150,50 150,250" fill="#dbeafe" stroke="#3b82f6" stroke-width="4" />
+                    <line x1="200" y1="20" x2="200" y2="280" stroke="#ef4444" stroke-width="5" stroke-dasharray="8" />
+                    <polygon points="350,150 250,50 250,250" fill="#dbeafe" stroke="#3b82f6" stroke-width="4" />
+                    <text x="50" y="280" font-size="20">Pre-image / 原像</text>
+                    <text x="250" y="280" font-size="20">Image / 像</text>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 3: Line Symmetry -->
+<div class="slide-container">
+    <h2 class="slide-title">Line Symmetry<small>轴对称</small></h2>
+    <div class="content-area">
+        <p>A figure has <strong>line symmetry</strong> if it maps onto itself by a reflection in a line (line of symmetry).</p>
+        <p class="bilingual-sub">如果图形通过直线的反射映射到自身，则该图形具有<strong>轴对称</strong>（该直线称为对称轴）。</p>
+        <div class="tile-grid">
+            <div class="tile">
+                <h3 style="color:#3b82f6; font-size: 28px;">Bilateral / 两侧对称</h3>
+                <div class="visual-container" style="height: 220px; margin-top: 15px;">
+                    <svg viewBox="0 0 120 120" width="140">
+                        <polygon points="60,10 100,80 60,60 20,80" fill="#dbeafe" stroke="#3b82f6" stroke-width="3"/>
+                        <line x1="60" y1="0" x2="60" y2="120" stroke="#ef4444" stroke-width="4" stroke-dasharray="5"/>
+                    </svg>
+                </div>
+                <p style="margin-top: 15px; font-weight: 700; font-size: 22px;">1 Line / 1 条对称轴</p>
+            </div>
+            <div class="tile">
+                <h3 style="color:#64748b; font-size: 28px;">Asymmetric / 不对称</h3>
+                <div class="visual-container" style="height: 220px; margin-top: 15px;">
+                    <svg viewBox="0 0 120 120" width="140">
+                        <path d="M30,30 Q60,10 80,40 T90,90 Q50,105 20,70 Z" fill="#f1f5f9" stroke="#64748b" stroke-width="3"/>
+                    </svg>
+                </div>
+                <p style="margin-top: 15px; font-weight: 700; font-size: 22px;">0 Lines / 0 条对称轴</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 4: Rotational Symmetry -->
+<div class="slide-container">
+    <h2 class="slide-title">Rotational Symmetry<small>旋转对称</small></h2>
+    <div class="content-area">
+        <div class="two-column">
+            <div>
+                <p>The figure maps onto itself by a rotation between 0° and 360° about the <strong>center of symmetry</strong>.</p>
+                <p class="bilingual-sub">图形绕<strong>对称中心</strong>旋转 0° 到 360° 之间的一个角度后与自身重合。</p>
+                <div class="practice-box" style="margin-top: 20px;">
+                    <p><strong>Hexagon / 六边形</strong></p>
+                    <p>• Order / 阶: 6</p>
+                    <p>• Magnitude / 幅度: 60°</p>
+                </div>
+            </div>
+            <div style="text-align: center;">
+                <div class="visual-container" style="height: 350px;">
+                    <svg viewBox="-75 -75 150 150" width="300">
+                        <polygon points="60,0 30,52 -30,52 -60,0 -30,-52 30,-52" fill="#ecfdf5" stroke="#10b981" stroke-width="5"/>
+                        <circle cx="0" cy="0" r="7" fill="#059669"/>
+                        <g id="hex-lines">
+                            <line x1="-75" y1="0" x2="75" y2="0" class="symmetry-line"/>
+                            <line x1="-37.5" y1="-65" x2="37.5" y2="65" class="symmetry-line"/>
+                            <line x1="37.5" y1="-65" x2="-37.5" y2="65" class="symmetry-line"/>
+                        </g>
+                    </svg>
+                </div>
+                <div class="controls-container">
+                    <button class="toggle-btn" onclick="document.querySelectorAll('#hex-lines .symmetry-line').forEach(l => l.classList.toggle('active'))">Show Symmetry Axes / 显示对称轴</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 5: Coordinate Plane (Interactive) -->
+<div class="slide-container">
+    <h2 class="slide-title">Coordinate Plane Symmetry<small>坐标平面上的对称性</small></h2>
+    <div class="content-area">
+        <div class="two-column">
+            <div>
+                <p><strong>Rectangle at (0.5, 1) / 位于 (0.5, 1) 的矩形</strong></p>
+                <p>Select a rigid motion / 选择一种刚性运动：</p>
+                <div class="controls-container" style="justify-content: flex-start;">
+                    <button class="toggle-btn" onclick="animateCoord('v')">Vertical Reflection / 垂直反射 (x=0.5)</button>
+                    <button class="toggle-btn" onclick="animateCoord('h')">Horizontal Reflection / 水平反射 (y=1)</button>
+                    <button class="toggle-btn" onclick="animateCoord('r')">Rotation 180° / 旋转 180°</button>
+                    <button class="toggle-btn" style="background:#64748b" onclick="animateCoord('reset')">Reset / 重置</button>
+                </div>
+                <div id="math-display" style="margin-top: 25px; font-weight: bold; color: #1e3a8a; font-size: 24px; min-height: 40px;"></div>
+            </div>
+            <div class="visual-container">
+                <svg viewBox="-50 -50 250 250" width="100%">
+                    <!-- Grid System -->
+                    <g stroke="#e2e8f0" stroke-width="1.5">
+                        <line x1="0" y1="0" x2="200" y2="0"/><line x1="0" y1="40" x2="200" y2="40"/><line x1="0" y1="80" x2="200" y2="80"/><line x1="0" y1="120" x2="200" y2="120"/><line x1="0" y1="160" x2="200" y2="160"/>
+                        <line x1="40" y1="0" x2="40" y2="160"/><line x1="80" y1="0" x2="80" y2="160"/><line x1="120" y1="0" x2="120" y2="160"/><line x1="160" y1="0" x2="160" y2="160"/>
+                    </g>
+                    <!-- Axes -->
+                    <line x1="40" y1="200" x2="40" y2="-20" stroke="#475569" stroke-width="3"/> <!-- Y-axis -->
+                    <line x1="0" y1="120" x2="220" y2="120" stroke="#475569" stroke-width="3"/> <!-- X-axis -->
+                    
+                    <g id="target-rect-wrapper">
+                        <rect id="target-rect" x="20" y="40" width="80" height="80" fill="#f5f3ff" stroke="#7c3aed" stroke-width="5" opacity="0.8"/>
+                    </g>
+
+                    <line id="line-v" x1="60" y1="-20" x2="60" y2="200" stroke="#3b82f6" stroke-dasharray="6" stroke-width="3" style="opacity:0; transition:0.4s"/>
+                    <line id="line-h" x1="-10" y1="80" x2="210" y2="80" stroke="#3b82f6" stroke-dasharray="6" stroke-width="3" style="opacity:0; transition:0.4s"/>
+                    
+                    <g id="rot-visual" style="opacity:0; transition:0.4s">
+                         <line x1="10" y1="30" x2="110" y2="130" stroke="#ef4444" stroke-dasharray="3" stroke-width="2"/>
+                         <line x1="110" y1="30" x2="10" y2="130" stroke="#ef4444" stroke-dasharray="3" stroke-width="2"/>
+                         <circle cx="60" cy="80" r="12" fill="none" stroke="#ef4444" stroke-width="2" stroke-dasharray="4" />
+                    </g>
+                    
+                    <circle cx="60" cy="80" r="8" fill="#ef4444" />
+                    <text x="75" y="75" font-size="18" font-weight="bold" fill="#ef4444">(0.5, 1)</text>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 6: Practice 1 -->
+<div class="slide-container">
+    <h2 class="slide-title">Practice Problem 1<small>练习题 1</small></h2>
+    <div class="content-area">
+        <div class="two-column">
+            <div class="practice-box">
+                <p><strong>Equilateral Triangle / 等边三角形</strong></p>
+                <p>How many lines of symmetry? What is the rotational order?</p>
+                <p class="bilingual-sub">有多少条对称轴？旋转对称阶是多少？</p>
+                <div class="answer-reveal" onclick="document.getElementById('ans1').style.display='block'">Show Answer / 显示答案</div>
+                <div id="ans1" class="answer-text">
+                    Lines: 3 | Order: 3<br>
+                    Mag: 120°
+                </div>
+            </div>
+            <div style="text-align: center;">
+                <div class="visual-container" style="height: 350px;">
+                    <svg viewBox="-100 -100 200 200" width="300">
+                        <polygon points="0,-80 69.3,40 -69.3,40" fill="#f0f9ff" stroke="#0ea5e9" stroke-width="5"/>
+                        <circle cx="0" cy="0" r="6" fill="#0ea5e9"/>
+                        <g id="tri-lines">
+                            <line x1="0" y1="-100" x2="0" y2="100" class="symmetry-line"/>
+                            <line x1="0" y1="-100" x2="0" y2="100" class="symmetry-line" style="transform: rotate(120deg)"/>
+                            <line x1="0" y1="-100" x2="0" y2="100" class="symmetry-line" style="transform: rotate(240deg)"/>
+                        </g>
+                    </svg>
+                </div>
+                <div class="controls-center">
+                    <button class="toggle-btn" onclick="document.querySelectorAll('#tri-lines .symmetry-line').forEach(l => l.classList.toggle('active'))">Show Lines / 显示对称轴</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 7: Practice 2 -->
+<div class="slide-container">
+    <h2 class="slide-title">Practice Problem 2<small>练习题 2</small></h2>
+    <div class="content-area">
+        <div class="two-column">
+            <div class="practice-box">
+                <p><strong>Rhombus / 菱形</strong></p>
+                <p>How many lines of symmetry? Magnitude of rotation?</p>
+                <p class="bilingual-sub">有多少条对称轴？旋转幅度是多少？</p>
+                <div class="answer-reveal" onclick="document.getElementById('ans2').style.display='block'">Show Answer / 显示答案</div>
+                <div id="ans2" class="answer-text">
+                    Lines: 2 | Order: 2<br>
+                    Mag: 180°
+                </div>
+            </div>
+            <div style="text-align: center;">
+                <div class="visual-container" style="height: 350px;">
+                    <svg viewBox="-100 -100 200 200" width="300">
+                        <polygon points="0,-85 65,0 0,85 -65,0" fill="#fdf2f8" stroke="#db2777" stroke-width="5"/>
+                        <circle cx="0" cy="0" r="6" fill="#db2777"/>
+                        <g id="rho-lines">
+                            <line x1="0" y1="-100" x2="0" y2="100" class="symmetry-line"/>
+                            <line x1="-100" y1="0" x2="100" y2="0" class="symmetry-line"/>
+                        </g>
+                    </svg>
+                </div>
+                <div class="controls-center">
+                    <button class="toggle-btn" onclick="document.querySelectorAll('#rho-lines .symmetry-line').forEach(l => l.classList.toggle('active'))">Show Lines / 显示对称轴</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+/**
+ * Interactive Mapping Logic
+ * Fixes button functionality by directly manipulating CSS classes 
+ * and handling the transition states.
+ */
+function animateCoord(type) {
+    const rect = document.getElementById('target-rect');
+    const lv = document.getElementById('line-v');
+    const lh = document.getElementById('line-h');
+    const rv = document.getElementById('rot-visual');
+    const mathDisp = document.getElementById('math-display');
+
+    // Remove existing classes to reset transition
+    rect.classList.remove('reflect-v', 'reflect-h', 'rotate-180');
+    
+    // Reset visuals
+    lv.style.opacity = 0;
+    lh.style.opacity = 0;
+    rv.style.opacity = 0;
+    mathDisp.innerText = "";
+
+    // Trigger specific animation on next tick to ensure transition runs
+    setTimeout(() => {
+        switch(type) {
+            case 'v':
+                rect.classList.add('reflect-v');
+                lv.style.opacity = 1;
+                mathDisp.innerHTML = "Reflection / 反射: <span class='math'>(x, y) &rarr; (1 - x, y)</span>";
+                break;
+            case 'h':
+                rect.classList.add('reflect-h');
+                lh.style.opacity = 1;
+                mathDisp.innerHTML = "Reflection / 反射: <span class='math'>(x, y) &rarr; (x, 2 - y)</span>";
+                break;
+            case 'r':
+                rect.classList.add('rotate-180');
+                rv.style.opacity = 1;
+                mathDisp.innerHTML = "Rotation / 旋转: <span class='math'>(x, y) &rarr; (1 - x, 2 - y)</span>";
+                break;
+            case 'reset':
+                // Already reset above
+                mathDisp.innerText = "Reset / 已重置";
+                break;
+        }
+    }, 50);
+}
+</script>
+
+</body>
+</html>
