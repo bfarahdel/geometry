@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quadratic Inequality - Example 2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@400;700&display=swap');
+
+        body {
+            background-color: #0f172a;
+            background-image: radial-gradient(#1e293b 0.5px, transparent 0.5px);
+            background-size: 24px 24px;
+            font-family: 'Inter', 'Noto Sans SC', sans-serif;
+            color: #f1f5f9;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .math-card {
+            width: 100%;
+            max-width: 950px;
+            background: #1e293b;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid #334155;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        #loader {
+            position: absolute;
+            inset: 0;
+            background: #0f172a;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(59, 130, 246, 0.2);
+            border-left-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .graph-container {
+            background: #ffffff;
+            border-radius: 16px;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .equation-box {
+            background: rgba(59, 130, 246, 0.1);
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            text-align: center;
+        }
+
+        .input-field {
+            width: 60px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: 4px 8px;
+            color: #3b82f6;
+            font-weight: bold;
+            text-align: center;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
+
+        .input-correct { border-color: #10b981 !important; color: #10b981 !important; background: rgba(16, 185, 129, 0.1) !important; }
+        .input-error { border-color: #ef4444 !important; animation: shake 0.4s ease-in-out; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .animate-fade { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .lang-btn.active { background-color: #3b82f6; color: white; }
+    </style>
+</head>
+<body>
+
+<div class="math-card">
+    <div id="loader">
+        <div class="spinner mb-4"></div>
+        <div id="loaderText" class="text-blue-400 font-bold text-xs uppercase tracking-[0.2em] animate-pulse">Loading...</div>
+    </div>
+
+    <!-- Header -->
+    <div class="bg-slate-800/80 p-6 border-b border-slate-700 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <span class="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-blue-500/30">Example 2</span>
+            <h1 id="mainTitle" class="text-xl font-bold text-white tracking-tight leading-none">Solve \( ax^2 + bx + c < 0 \) by Graphing</h1>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <div class="flex bg-slate-900 rounded-lg p-1 border border-slate-700">
+                <button onclick="setLanguage('en')" id="enBtn" class="lang-btn active px-3 py-1 text-[10px] font-bold rounded-md transition-all">EN</button>
+                <button onclick="setLanguage('zh')" id="zhBtn" class="lang-btn px-3 py-1 text-[10px] font-bold rounded-md transition-all text-slate-400 hover:text-white">中文</button>
+            </div>
+            <span class="bg-black/20 px-3 py-1.5 rounded-md text-xs font-bold font-mono text-white/90 border border-slate-700"><span id="pageLabel">PAGE</span> 208</span>
+        </div>
+    </div>
+
+    <div class="flex flex-col md:flex-row flex-1">
+        <!-- Visual Column -->
+        <div class="w-full md:w-1/2 p-6 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-slate-700 bg-slate-900/30">
+            <div class="graph-container w-full aspect-square max-w-[400px]">
+                <svg id="graphSvg" viewBox="0 0 240 240" class="w-full h-full">
+                    <defs>
+                        <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e2e8f0" stroke-width="0.5"/>
+                        </pattern>
+                    </defs>
+                    <rect width="240" height="240" fill="url(#grid)" />
+                    <!-- Grid Axes -->
+                    <line x1="0" y1="120" x2="240" y2="120" stroke="#64748b" stroke-width="1.5" />
+                    <line x1="120" y1="0" x2="120" y2="240" stroke="#64748b" stroke-width="1.5" />
+                    
+                    <!-- Labels -->
+                    <text x="230" y="115" font-size="10" fill="#64748b" font-style="italic">x</text>
+                    <text x="125" y="10" font-size="10" fill="#64748b" font-style="italic">y</text>
+                    <text x="110" y="132" font-size="10" fill="#64748b">O</text>
+
+                    <!-- Plot Elements -->
+                    <!-- Updated Shading with higher visibility -->
+                    <path id="parabolaShading" d="" fill="rgba(59, 130, 246, 0.25)" style="display: none;" />
+                    <path id="parabola" d="" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linejoin="round" style="display: none;" />
+
+                    <!-- Roots (Red) -->
+                    <g id="intercepts" style="display: none;">
+                        <circle cx="40" cy="120" r="4" fill="#ef4444" />
+                        <circle cx="160" cy="120" r="4" fill="#ef4444" />
+                        <text x="32" y="135" font-size="9" fill="#ef4444" font-weight="bold">-4</text>
+                        <text x="158" y="135" font-size="9" fill="#ef4444" font-weight="bold">2</text>
+                    </g>
+
+                    <!-- Test Point (Amber) -->
+                    <g id="testPointMark" style="display: none;">
+                        <circle cx="120" cy="120" r="4" fill="#f59e0b" />
+                        <text x="125" y="115" font-size="8" fill="#f59e0b" font-weight="bold">(0, 0)</text>
+                    </g>
+
+                    <!-- Solution Highlighting -->
+                    <line id="solutionLine" x1="40" y1="120" x2="160" y2="120" stroke="#ef4444" stroke-width="3" stroke-dasharray="4,2" style="display: none;" />
+                </svg>
+            </div>
+            <div id="equationDisplay" class="mt-6 font-mono text-xl text-blue-400 font-bold bg-slate-900/80 px-6 py-3 rounded-xl border border-slate-700 shadow-lg">
+                \( x^2 + 2x - 8 < 0 \)
+            </div>
+        </div>
+
+        <!-- content Column -->
+        <div class="w-full md:w-1/2 p-8 flex flex-col">
+            <div id="explanationContainer" class="flex-1 animate-fade">
+                <h2 id="stepTitle" class="text-blue-400 font-bold text-sm uppercase tracking-widest mb-4">Step 1</h2>
+                <div id="stepContent" class="text-slate-200 text-lg leading-relaxed">
+                    <p id="stepText"></p>
+                </div>
+
+                <!-- Interaction Box -->
+                <div id="interactionArea" class="mt-8 p-6 bg-slate-900/80 rounded-2xl border border-slate-700 shadow-xl hidden">
+                    <div id="interactionContent" class="space-y-4">
+                        <!-- Step 1 Inputs -->
+                        <div id="step1Interaction" class="hidden">
+                            <div class="flex flex-wrap items-center gap-3 font-mono text-lg text-white">
+                                <span>(x - <input type="number" id="inputX1" class="input-field" placeholder="?">)</span>
+                                <span>(x + <input type="number" id="inputX2" class="input-field" placeholder="?">) = 0</span>
+                                <button onclick="checkStep1()" id="checkBtn1" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-lg" data-t="check">CHECK</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 3 Inputs -->
+                        <div id="step3Interaction" class="hidden">
+                            <div class="flex flex-wrap items-center gap-3 font-mono text-lg text-white">
+                                <span>0² + 2(0) - 8 < <input type="number" id="inputTest" class="input-field" placeholder="?"></span>
+                                <button onclick="checkStep3()" id="checkBtn3" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-lg" data-t="check">CHECK</button>
+                            </div>
+                        </div>
+
+                        <div id="feedbackRow" class="flex flex-col gap-3">
+                            <div id="feedbackMsg" class="text-sm font-bold hidden"></div>
+                            <button id="showSolutionBtn" class="hidden w-fit text-[10px] bg-slate-700 hover:bg-slate-600 text-slate-300 px-4 py-2 rounded-lg font-bold uppercase tracking-[0.15em]" data-t="solution">Show Solution</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="mt-8 flex items-center justify-between border-t border-slate-700 pt-8">
+                <button id="prevBtn" class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-xs font-bold border border-slate-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m15 18-6-6 6-6"/></svg>
+                    <span data-t="prev">PREV</span>
+                </button>
+                <div id="stepCounter" class="text-slate-500 font-mono text-[11px] font-black uppercase tracking-[0.2em]">Step 1 / 4</div>
+                <button id="nextBtn" class="flex items-center gap-2 px-8 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-xs font-black shadow-lg">
+                    <span id="nextBtnText" data-t="next">NEXT</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const translations = {
+        en: {
+            title: "Solve \\( ax^2 + bx + c < 0 \\) by Graphing",
+            page: "PAGE",
+            prev: "PREV",
+            next: "NEXT",
+            check: "CHECK",
+            restart: "RESTART",
+            solution: "Show Solution",
+            step: "Step",
+            correct: "Correct!",
+            wrong: "Try again...",
+            ansIs: "The answer is",
+            steps: [
+                {
+                    title: "Step 1: Find the Zeros",
+                    text: "Find the x-intercepts by solving the related equation:<div class='equation-box'>$$ x^2 + 2x - 8 = 0 $$</div>Factor the expression to find the roots:"
+                },
+                {
+                    title: "Step 2: Sketch the Graph",
+                    text: "Plot the zeros at \\( -4 \\) and \\( 2 \\). Since the leading coefficient is positive \\( (a=1) \\), the parabola <b>opens up</b>."
+                },
+                {
+                    title: "Step 3: Test a Point",
+                    text: "Pick a test point like the origin <b>(0, 0)</b> to see if it satisfies the inequality:"
+                },
+                {
+                    title: "Step 4: State the Solution",
+                    text: "The solution is where the graph is <b>below</b> the x-axis.<div class='equation-box'>$$ -4 < x < 2 $$</div>"
+                }
+            ]
+        },
+        zh: {
+            title: "通过图解法求解 \\( ax^2 + bx + c < 0 \\)",
+            page: "第",
+            prev: "上一步",
+            next: "下一步",
+            check: "检查",
+            restart: "重新开始",
+            solution: "显示解法",
+            step: "步骤",
+            correct: "正确！",
+            wrong: "再试一次...",
+            ansIs: "答案是",
+            steps: [
+                {
+                    title: "步骤 1: 寻找零点",
+                    text: "通过求解相关方程找到 x 轴截距：<div class='equation-box'>$$ x^2 + 2x - 8 = 0 $$</div>分解因式以找到根："
+                },
+                {
+                    title: "步骤 2: 绘制草图",
+                    text: "在 \\( -4 \\) 和 \\( 2 \\) 处绘制零点。由于首项系数为正 \\( (a=1) \\)，抛物线 <b>开口向上</b>。"
+                },
+                {
+                    title: "步骤 3: 测试点",
+                    text: "选择一个测试点（如原点 <b>(0, 0)</b>）来查看它是否满足不等式："
+                },
+                {
+                    title: "步骤 4: 确定解集",
+                    text: "解集位于图像在 x 轴 <b>下方</b> 的区域。<div class='equation-box'>$$ -4 < x < 2 $$</div>"
+                }
+            ]
+        }
+    };
+
+    let currentLang = 'en';
+    let currentStep = 0;
+    let stepStates = [false, true, false, true]; 
+    let attempts = [0, 0, 0, 0];
+
+    const SCALE = 12;
+    const CX = 120;
+    const CY = 120;
+
+    function toSVG(x, y) {
+        return {
+            x: CX + (x * SCALE),
+            y: CY - (y * SCALE)
+        };
+    }
+
+    function generateParabolaPath() {
+        let path = "";
+        for (let x = -8; x <= 6; x += 0.05) {
+            let y = x * x + 2 * x - 8;
+            let p = toSVG(x, y);
+            if (p.x >= 0 && p.x <= 240 && p.y >= 0 && p.y <= 240) {
+                path += (path === "" ? "M" : "L") + ` ${p.x.toFixed(2)},${p.y.toFixed(2)}`;
+            }
+        }
+        return path;
+    }
+
+    // This is the specific logic from your reference code applied to your graph
+    function generateShading() {
+        const x1 = -4; 
+        const x2 = 2;
+        const pStart = toSVG(x1, 0);
+        let path = `M ${pStart.x},${pStart.y} `;
+        // Trace the curve between intercepts
+        for (let x = x1; x <= x2; x += 0.1) {
+            let y = x * x + 2 * x - 8;
+            let p = toSVG(x, y);
+            path += `L ${p.x.toFixed(2)},${p.y.toFixed(2)} `;
+        }
+        // Close back to the second intercept and then along x-axis
+        const pEnd = toSVG(x2, 0);
+        path += `L ${pEnd.x},${pEnd.y} Z`;
+        return path;
+    }
+
+    function updateStaticElements() {
+        const p1 = toSVG(-4, 0);
+        const p2 = toSVG(2, 0);
+
+        const rootGroup = document.getElementById('intercepts');
+        const rootCircles = rootGroup.querySelectorAll('circle');
+        const rootTexts = rootGroup.querySelectorAll('text');
+        
+        rootCircles[0].setAttribute('cx', p1.x); rootCircles[0].setAttribute('cy', p1.y);
+        rootCircles[1].setAttribute('cx', p2.x); rootCircles[1].setAttribute('cy', p2.y);
+        rootTexts[0].setAttribute('x', p1.x - 8); rootTexts[0].setAttribute('y', p1.y + 15);
+        rootTexts[1].setAttribute('x', p2.x - 4); rootTexts[1].setAttribute('y', p2.y + 15);
+
+        const solLine = document.getElementById('solutionLine');
+        solLine.setAttribute('x1', p1.x);
+        solLine.setAttribute('x2', p2.x);
+        solLine.setAttribute('y1', p1.y);
+        solLine.setAttribute('y2', p2.y);
+    }
+
+    async function updateUI() {
+        const t = translations[currentLang];
+        const step = t.steps[currentStep];
+        
+        document.getElementById('stepTitle').innerText = step.title;
+        document.getElementById('stepText').innerHTML = step.text;
+        document.getElementById('stepCounter').innerText = `${t.step} ${currentStep + 1} / 4`;
+        document.getElementById('nextBtnText').innerText = currentStep === 3 ? t.restart : t.next;
+        document.getElementById('prevBtn').disabled = currentStep === 0;
+        
+        const parabola = document.getElementById('parabola');
+        const intercepts = document.getElementById('intercepts');
+        const testPoint = document.getElementById('testPointMark');
+        const shading = document.getElementById('parabolaShading');
+        const solLine = document.getElementById('solutionLine');
+
+        updateStaticElements();
+        parabola.setAttribute('d', generateParabolaPath());
+        shading.setAttribute('d', generateShading());
+
+        intercepts.style.display = currentStep >= 0 ? "block" : "none";
+        parabola.style.display = currentStep >= 1 ? "block" : "none";
+        testPoint.style.display = currentStep >= 2 ? "block" : "none";
+        
+        // Step 3 and 4 now use the reference-style shading
+        shading.style.display = currentStep >= 2 ? "block" : "none";
+        solLine.style.display = currentStep >= 3 ? "block" : "none";
+
+        const area = document.getElementById('interactionArea');
+        const s1 = document.getElementById('step1Interaction');
+        const s3 = document.getElementById('step3Interaction');
+        const nextBtn = document.getElementById('nextBtn');
+        const showSol = document.getElementById('showSolutionBtn');
+        const feedback = document.getElementById('feedbackMsg');
+
+        area.classList.add('hidden');
+        s1.classList.add('hidden');
+        s3.classList.add('hidden');
+        showSol.classList.add('hidden');
+        feedback.classList.add('hidden');
+        nextBtn.disabled = !stepStates[currentStep];
+
+        if (currentStep === 0) {
+            area.classList.remove('hidden');
+            s1.classList.remove('hidden');
+            if (stepStates[0]) {
+                document.getElementById('inputX1').disabled = true;
+                document.getElementById('inputX2').disabled = true;
+                document.getElementById('checkBtn1').classList.add('hidden');
+            } else {
+                document.getElementById('inputX1').disabled = false;
+                document.getElementById('inputX2').disabled = false;
+                document.getElementById('checkBtn1').classList.remove('hidden');
+                if (attempts[0] >= 2) showSol.classList.remove('hidden');
+            }
+        } else if (currentStep === 2) {
+            area.classList.remove('hidden');
+            s3.classList.remove('hidden');
+            if (stepStates[2]) {
+                document.getElementById('inputTest').disabled = true;
+                document.getElementById('checkBtn3').classList.add('hidden');
+            } else {
+                document.getElementById('inputTest').disabled = false;
+                document.getElementById('checkBtn3').classList.remove('hidden');
+                if (attempts[2] >= 2) showSol.classList.remove('hidden');
+            }
+        }
+
+        await MathJax.typesetPromise();
+    }
+
+    function checkStep1() {
+        const v1 = document.getElementById('inputX1').value;
+        const v2 = document.getElementById('inputX2').value;
+        const feedback = document.getElementById('feedbackMsg');
+        const t = translations[currentLang];
+
+        if (v1 === '2' && v2 === '4') {
+            feedback.innerText = t.correct;
+            feedback.className = "text-emerald-400 text-sm font-bold";
+            feedback.classList.remove('hidden');
+            stepStates[0] = true;
+            document.getElementById('inputX1').classList.add('input-correct');
+            document.getElementById('inputX2').classList.add('input-correct');
+            document.getElementById('checkBtn1').classList.add('hidden');
+            document.getElementById('nextBtn').disabled = false;
+        } else {
+            attempts[0]++;
+            document.getElementById('inputX1').classList.add('input-error');
+            document.getElementById('inputX2').classList.add('input-error');
+            setTimeout(() => {
+                document.getElementById('inputX1').classList.remove('input-error');
+                document.getElementById('inputX2').classList.remove('input-error');
+            }, 400);
+            feedback.innerText = t.wrong;
+            feedback.className = "text-red-400 text-sm font-bold";
+            feedback.classList.remove('hidden');
+            if (attempts[0] >= 2) document.getElementById('showSolutionBtn').classList.remove('hidden');
+        }
+    }
+
+    function checkStep3() {
+        const v = document.getElementById('inputTest').value;
+        const feedback = document.getElementById('feedbackMsg');
+        const t = translations[currentLang];
+
+        if (v === '0') {
+            feedback.innerText = t.correct;
+            feedback.className = "text-emerald-400 text-sm font-bold";
+            feedback.classList.remove('hidden');
+            stepStates[2] = true;
+            document.getElementById('inputTest').classList.add('input-correct');
+            document.getElementById('checkBtn3').classList.add('hidden');
+            document.getElementById('nextBtn').disabled = false;
+        } else {
+            attempts[2]++;
+            document.getElementById('inputTest').classList.add('input-error');
+            setTimeout(() => document.getElementById('inputTest').classList.remove('input-error'), 400);
+            feedback.innerText = t.wrong;
+            feedback.className = "text-red-400 text-sm font-bold";
+            feedback.classList.remove('hidden');
+            if (attempts[2] >= 2) document.getElementById('showSolutionBtn').classList.remove('hidden');
+        }
+    }
+
+    document.getElementById('showSolutionBtn').onclick = () => {
+        const t = translations[currentLang];
+        const feedback = document.getElementById('feedbackMsg');
+        if (currentStep === 0) {
+            document.getElementById('inputX1').value = 2;
+            document.getElementById('inputX2').value = 4;
+            feedback.innerText = `${t.ansIs} (x-2)(x+4)`;
+            stepStates[0] = true;
+            document.getElementById('checkBtn1').classList.add('hidden');
+        } else if (currentStep === 2) {
+            document.getElementById('inputTest').value = 0;
+            feedback.innerText = `${t.ansIs} 0`;
+            stepStates[2] = true;
+            document.getElementById('checkBtn3').classList.add('hidden');
+        }
+        feedback.className = "text-blue-400 text-sm font-bold";
+        feedback.classList.remove('hidden');
+        document.getElementById('showSolutionBtn').classList.add('hidden');
+        document.getElementById('nextBtn').disabled = false;
+        updateUI();
+    };
+
+    document.getElementById('nextBtn').onclick = () => {
+        if (currentStep < 3) {
+            currentStep++;
+            updateUI();
+        } else {
+            currentStep = 0;
+            stepStates = [false, true, false, true];
+            attempts = [0, 0, 0, 0];
+            document.getElementById('inputX1').value = '';
+            document.getElementById('inputX2').value = '';
+            document.getElementById('inputTest').value = '';
+            document.getElementById('inputX1').classList.remove('input-correct', 'input-error');
+            document.getElementById('inputX2').classList.remove('input-correct', 'input-error');
+            document.getElementById('inputTest').classList.remove('input-correct', 'input-error');
+            document.getElementById('inputX1').disabled = false;
+            document.getElementById('inputX2').disabled = false;
+            document.getElementById('inputTest').disabled = false;
+            updateUI();
+        }
+    };
+
+    document.getElementById('prevBtn').onclick = () => { if (currentStep > 0) { currentStep--; updateUI(); } };
+
+    function setLanguage(lang) {
+        currentLang = lang;
+        document.getElementById('enBtn').className = `lang-btn px-3 py-1 text-[10px] font-bold rounded-md transition-all ${lang === 'en' ? 'active' : 'text-slate-400'}`;
+        document.getElementById('zhBtn').className = `lang-btn px-3 py-1 text-[10px] font-bold rounded-md transition-all ${lang === 'zh' ? 'active' : 'text-slate-400'}`;
+        updateUI();
+    }
+
+    window.onload = () => {
+        updateUI();
+        setTimeout(() => {
+            document.getElementById('loader').style.opacity = '0';
+            setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+        }, 800);
+    };
+</script>
+</body>
+</html>
