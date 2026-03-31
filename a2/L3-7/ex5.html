@@ -13,7 +13,7 @@
             }
         };
     </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.min.js"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code&display=swap');
 
@@ -44,7 +44,6 @@
             position: relative;
         }
 
-        /* Loader Styles */
         #loader {
             position: absolute;
             inset: 0;
@@ -57,30 +56,16 @@
             transition: opacity 0.5s ease-out;
         }
 
-        .spinner {
-            width: 48px;
-            height: 48px;
-            border: 4px solid rgba(59, 130, 246, 0.2);
-            border-left-color: #3b82f6;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        #loadingEmoji {
-            font-size: 2.5rem;
-            margin-top: 1rem;
-            height: 3.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: bounce 0.6s infinite alternate;
+        #animalEmoji {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+            animation: bounce 0.4s infinite alternate cubic-bezier(0.455, 0.03, 0.515, 0.955);
         }
 
         @keyframes bounce {
-            from { transform: translateY(0); }
-            to { transform: translateY(-15px); }
+            from { transform: translateY(0) scale(1); }
+            to { transform: translateY(-20px) scale(1.1); }
         }
 
         .equation-box {
@@ -116,6 +101,11 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        .lang-btn.active {
+            background-color: #10b981;
+            color: white;
         }
 
         .number-line-container {
@@ -160,11 +150,11 @@
 <body>
 
 <div class="math-card">
-    <!-- Loader with Spinner and Random Animal Emojis -->
     <div id="loader">
-        <div class="spinner mb-4"></div>
-        <div id="loadingEmoji">🐨</div>
-        <div id="loaderText" class="text-blue-400 font-bold text-xs uppercase tracking-[0.2em] animate-pulse">Loading...</div>
+        <span id="animalEmoji"></span>
+        <div id="loaderContent" class="text-emerald-400 font-bold text-xl uppercase tracking-widest animate-pulse">
+            Loading...
+        </div>
     </div>
 
     <!-- Header -->
@@ -176,8 +166,8 @@
         
         <div class="flex items-center gap-4">
             <div class="flex bg-slate-900 rounded-lg p-1 border border-slate-700">
-                <button onclick="setLanguage('en')" id="enBtn" class="bg-emerald-500 text-white px-3 py-1 text-[10px] font-bold rounded-md transition-all">EN</button>
-                <button onclick="setLanguage('zh')" id="zhBtn" class="px-3 py-1 text-[10px] font-bold rounded-md transition-all text-slate-400 hover:text-white">中文</button>
+                <button onclick="setLanguage('en')" id="enBtn" class="lang-btn active px-3 py-1 text-[10px] font-bold rounded-md transition-all">EN</button>
+                <button onclick="setLanguage('zh')" id="zhBtn" class="lang-btn px-3 py-1 text-[10px] font-bold rounded-md transition-all text-slate-400 hover:text-white">中文</button>
             </div>
             <span class="bg-black/20 px-3 py-1.5 rounded-md text-xs font-bold font-mono text-white/90 border border-slate-700"><span id="pageLabel">PAGE</span> 214</span>
         </div>
@@ -214,13 +204,14 @@
                     <div id="stepText" class="text-slate-200 text-lg leading-relaxed"></div>
                 </div>
 
+                <!-- Interaction Area Step 1 -->
                 <div id="interactionStep1" class="hidden mt-6 p-5 bg-slate-900/50 rounded-xl border border-slate-700">
                     <div class="text-sm text-slate-400 font-medium mb-3" id="factoringLabel"></div>
-                    <div class="flex items-center gap-2 font-mono text-xl text-white">
-                        <span>(x + </span>
-                        <input type="number" id="factor1" class="w-14 bg-slate-800 border border-slate-600 rounded-lg px-2 py-1 text-emerald-400 text-center" placeholder="?">
-                        <span>)(x - </span>
-                        <input type="number" id="factor2" class="w-14 bg-slate-800 border border-slate-600 rounded-lg px-2 py-1 text-emerald-400 text-center" placeholder="?">
+                    <div class="flex items-center gap-1 font-mono text-xl text-white whitespace-nowrap flex-nowrap overflow-x-auto pb-1">
+                        <span>(x +</span>
+                        <input type="number" id="factor1" class="w-12 bg-slate-800 border border-slate-600 rounded-lg px-1 py-1 text-emerald-400 text-center shrink-0" placeholder="?">
+                        <span>)(x -</span>
+                        <input type="number" id="factor2" class="w-12 bg-slate-800 border border-slate-600 rounded-lg px-1 py-1 text-emerald-400 text-center shrink-0" placeholder="?">
                         <span>) = 0</span>
                     </div>
                     <div class="flex flex-col gap-2 mt-4">
@@ -263,8 +254,6 @@
 </div>
 
 <script>
-    const animals = ["🐨", "🐼", "🐻", "🦁", "🐯", "🐱", "🐶", "🦊", "🦝", "🐮", "🐷", "🐸", "🐵", "🐧", "🦉", "🦄", "🐙", "🦋", "🦖"];
-    
     const translations = {
         en: {
             title: "Solving Quadratic Inequalities Algebraically",
@@ -305,7 +294,7 @@
             step: "步骤",
             verify: "验证因式分解",
             factoringLabel: "解相关方程: \\( x^2 - 3x - 18 = 0 \\)",
-            loading: "正在加载...",
+            loading: "加载中...",
             correct: "太棒了！\\( (x+3)(x-6) = 0 \\) 得出 \\( x = -3 \\) 且 \\( x = 6 \\)。",
             revealed: "解答：\\( (x+3)(x-6) = 0 \\) 得出 \\( x = -3 \\) 且 \\( x = 6 \\)。",
             wrong: "不完全正确。找两个相乘等于 -18 且相加等于 -3 的数。",
@@ -333,16 +322,16 @@
     let step1Solved = false;
     let failedAttempts = 0;
     let lastTestedPoint = null;
+    let animalInterval = null;
     const totalSteps = 3;
 
     function setLanguage(lang) {
         currentLang = lang;
-        document.getElementById('enBtn').className = `px-3 py-1 text-[10px] font-bold rounded-md transition-all ${lang === 'en' ? 'bg-emerald-500 text-white' : 'text-slate-400 hover:text-white'}`;
-        document.getElementById('zhBtn').className = `px-3 py-1 text-[10px] font-bold rounded-md transition-all ${lang === 'zh' ? 'bg-emerald-500 text-white' : 'text-slate-400 hover:text-white'}`;
+        document.getElementById('enBtn').className = `lang-btn px-3 py-1 text-[10px] font-bold rounded-md transition-all ${lang === 'en' ? 'active' : 'text-slate-400 hover:text-white'}`;
+        document.getElementById('zhBtn').className = `lang-btn px-3 py-1 text-[10px] font-bold rounded-md transition-all ${lang === 'zh' ? 'active' : 'text-slate-400 hover:text-white'}`;
         const t = translations[lang];
         document.getElementById('mainTitle').innerText = t.title;
         document.getElementById('pageLabel').innerText = t.page;
-        document.getElementById('loaderText').innerText = t.loading;
         document.getElementById('footerText').innerText = `Lesson 3-7: ${t.title}`;
         document.getElementById('factoringLabel').innerText = t.factoringLabel;
         document.getElementById('showSolutionBtn').innerText = t.showSolution;
@@ -481,9 +470,12 @@
         step1Solved = true;
         
         feedback.innerText = isManual ? t.correct : t.revealed;
+        
         feedback.className = "mt-2 text-xs font-bold text-emerald-400 animate-fade";
         feedback.classList.remove('hidden');
+        document.getElementById('factor1').classList.remove('input-error');
         document.getElementById('factor1').classList.add('input-correct');
+        document.getElementById('factor2').classList.remove('input-error');
         document.getElementById('factor2').classList.add('input-correct');
         document.getElementById('nextBtn').disabled = false;
         document.getElementById('showSolutionBtn').classList.add('hidden');
@@ -554,25 +546,30 @@
         }
     };
 
-    function rotateEmojis() {
-        const emojiEl = document.getElementById('loadingEmoji');
-        if (!emojiEl) return;
-        const interval = setInterval(() => {
+    function startAnimalSwap() {
+        const animals = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🦆', '🦉', '🐢', '🐍', '🐲', '🐙', '🐋', '🦒', '🦓', '🐘', '🦏', '🦛', '🐪', '🐫', '🦙', '🦒', '🐃', '🐄', '🐎', '🦓', '🦌', '🦘', '🦥', '🦦', '🦨', '🦡', '🐾'];
+        const emojiSpan = document.getElementById('animalEmoji');
+        
+        const swap = () => {
             const randomAnimal = animals[Math.floor(Math.random() * animals.length)];
-            emojiEl.innerText = randomAnimal;
-        }, 150);
-        return interval;
+            if (emojiSpan) emojiSpan.innerText = randomAnimal;
+        };
+
+        swap(); // initial call
+        animalInterval = setInterval(swap, 400); // swap every 400ms
     }
 
     window.onload = function() {
-        const emojiInterval = rotateEmojis();
+        startAnimalSwap();
         setLanguage('en');
         setTimeout(() => {
-            clearInterval(emojiInterval);
             const loader = document.getElementById('loader');
             loader.style.opacity = '0';
-            setTimeout(() => loader.style.display = 'none', 500);
-        }, 2500);
+            setTimeout(() => {
+                loader.style.display = 'none';
+                clearInterval(animalInterval); // stop swapping when loader is hidden
+            }, 500);
+        }, 3000); // Extended loading slightly to see the swap effect
     };
 </script>
 </body>
