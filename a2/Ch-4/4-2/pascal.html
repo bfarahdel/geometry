@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Pascal's Triangle / 交互式杨辉三角</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-primary: #e0e0e0;
+            --text-secondary: #aaaaaa;
+            --accent-yellow: #f1c40f; 
+            --coefficient-red: #ff4d4d; 
+            --border-color: #333;
+            --highlight-bg: #2c3e50;
+            --parent-highlight: #c0392b;
+            --child-highlight: #d35400;
+            --row-select-bg: rgba(241, 196, 15, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            transition: background 0.3s;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        .title-section h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: var(--text-primary);
+        }
+
+        .title-section h1 span {
+            color: var(--accent-yellow);
+        }
+
+        .lang-toggle {
+            background: var(--card-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .lang-toggle:hover {
+            background: #333;
+        }
+
+        .intro-text {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        input[type="number"] {
+            background: #111;
+            border: 1px solid var(--border-color);
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            width: 60px;
+        }
+
+        /* Triangle Visualization */
+        .triangle-scroll {
+            overflow-x: auto;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        .triangle-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 8px;
+            min-width: max-content;
+            padding: 4px 0;
+            border-radius: 6px;
+            transition: background 0.3s ease;
+        }
+
+        .triangle-row.selected-row {
+            background: var(--row-select-bg);
+        }
+
+        .row-label {
+            width: 120px;
+            text-align: right;
+            padding-right: 20px;
+            font-family: serif;
+            color: var(--text-secondary);
+            font-style: italic;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .selected-row .row-label {
+            color: var(--accent-yellow);
+            font-weight: bold;
+        }
+
+        .node {
+            width: 45px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 4px;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: all 0.2s;
+            cursor: pointer;
+            position: relative;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .node.active {
+            background: var(--child-highlight);
+            color: white !important;
+            transform: scale(1.1);
+            z-index: 2;
+        }
+
+        .node.parent {
+            background: var(--parent-highlight);
+            color: white !important;
+            box-shadow: 0 0 10px rgba(192, 57, 43, 0.5);
+        }
+
+        /* Expansion Box */
+        .expansion-container h3 {
+            margin-top: 0;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .expansion-formula {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 1.4rem;
+            line-height: 2;
+            word-break: break-word;
+        }
+
+        .expansion-formula b {
+            color: var(--coefficient-red);
+            font-weight: bold;
+        }
+
+        .footer-note {
+            font-size: 0.85rem;
+            color: #666;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        /* Tooltip style */
+        .node:hover::after {
+            content: attr(data-coord);
+            position: absolute;
+            bottom: 100%;
+            background: #000;
+            font-size: 10px;
+            padding: 2px 5px;
+            border-radius: 3px;
+            white-space: nowrap;
+            z-index: 10;
+        }
+
+        @media (max-width: 600px) {
+            .row-label { width: 80px; font-size: 0.8rem; }
+            .node { width: 35px; height: 30px; font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body class="lang-en">
+
+    <div class="app-container">
+        <header>
+            <div class="title-section">
+                <h1 id="mainTitle"><span>Pascal's Triangle</span></h1>
+                <p class="intro-text" id="introText">
+                    In the 13th century, the Chinese discovered a pattern of numbers that would later be referred to as Pascal's triangle. This pattern can be used to determine the coefficients of an expanded binomial (a + b)ⁿ.
+                </p>
+            </div>
+            <button class="lang-toggle" onclick="toggleLanguage()">中文 / EN</button>
+        </header>
+
+        <section class="card">
+            <div class="controls">
+                <label for="rowCount" id="labelRows">Rows:</label>
+                <input type="number" id="rowCount" value="6" min="1" max="12" onchange="renderApp()">
+                <span id="hintText" style="font-size: 0.8rem; color: #666;">(Hover numbers to see addition logic)</span>
+            </div>
+
+            <div class="triangle-scroll" id="triangleDisplay">
+                <!-- Triangle generated by JS -->
+            </div>
+        </section>
+
+        <section class="card expansion-container">
+            <h3 id="expansionTitle">Expanded Form</h3>
+            <div id="formulaDisplay" class="expansion-formula">
+                <!-- Formula generated by JS -->
+            </div>
+        </section>
+
+        <div class="footer-note" id="footerNote">
+            Click a row label to see its binomial expansion.
+        </div>
+    </div>
+
+    <script>
+        let currentLang = 'en';
+        let selectedRow = 5;
+
+        const translations = {
+            en: {
+                title: "<span>Pascal's Triangle</span>",
+                intro: "In the 13th century, the Chinese discovered a pattern of numbers that would later be referred to as Pascal's triangle. This pattern can be used to determine the coefficients of an expanded binomial (a + b)ⁿ.",
+                rows: "Rows:",
+                expansion: "Expanded Form",
+                hint: "(Hover numbers to see addition logic)",
+                footer: "Click a row label or any number to see its binomial expansion.",
+                exampleText: "For example, the expanded form of"
+            },
+            zh: {
+                title: "<span>杨辉三角</span>",
+                intro: "早在13世纪，中国人就发现了一种数字模式，后来被称为杨辉三角（国际上称为帕斯卡三角）。这一模式可用于确定二项式展开式 (a + b)ⁿ 的系数。",
+                rows: "行数:",
+                expansion: "展开形式",
+                hint: "(悬停数字以查看加法逻辑)",
+                footer: "点击行标签或数字以查看其二项式展开式。",
+                exampleText: "例如，展开形式为"
+            }
+        };
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'zh' : 'en';
+            document.getElementById('mainTitle').innerHTML = translations[currentLang].title;
+            document.getElementById('introText').innerText = translations[currentLang].intro;
+            document.getElementById('labelRows').innerText = translations[currentLang].rows;
+            document.getElementById('expansionTitle').innerText = translations[currentLang].expansion;
+            document.getElementById('hintText').innerText = translations[currentLang].hint;
+            document.getElementById('footerNote').innerText = translations[currentLang].footer;
+            renderApp();
+        }
+
+        function getPascalValue(n, k) {
+            if (k < 0 || k > n) return 0;
+            if (k === 0 || k === n) return 1;
+            
+            let res = 1;
+            for (let i = 1; i <= k; i++) {
+                res = res * (n - i + 1) / i;
+            }
+            return Math.round(res);
+        }
+
+        function highlightParents(n, k) {
+            clearHighlights();
+            if (n === 0) return;
+
+            const child = document.getElementById(`node-${n}-${k}`);
+            if (child) child.classList.add('active');
+
+            const p1 = document.getElementById(`node-${n-1}-${k-1}`);
+            const p2 = document.getElementById(`node-${n-1}-${k}`);
+
+            if (p1) p1.classList.add('parent');
+            if (p2) p2.classList.add('parent');
+        }
+
+        function clearHighlights() {
+            document.querySelectorAll('.node').forEach(el => {
+                el.classList.remove('active', 'parent');
+            });
+        }
+
+        function updateFormula(n) {
+            selectedRow = n;
+            
+            // Highlight the selected row visually in the triangle
+            document.querySelectorAll('.triangle-row').forEach(row => {
+                row.classList.remove('selected-row');
+            });
+            const selectedRowEl = document.querySelector(`.row-${n}`);
+            if (selectedRowEl) {
+                selectedRowEl.classList.add('selected-row');
+            }
+
+            const display = document.getElementById('formulaDisplay');
+            let html = `(a + b)<sup>${n}</sup> = `;
+            
+            const terms = [];
+            for (let k = 0; k <= n; k++) {
+                let coeff = getPascalValue(n, k);
+                let term = `<b>${coeff}</b>`;
+                
+                let powA = n - k;
+                let powB = k;
+
+                if (powA > 0) term += `a${powA > 1 ? `<sup>${powA}</sup>` : ''}`;
+                if (powB > 0) term += `b${powB > 1 ? `<sup>${powB}</sup>` : ''}`;
+                
+                terms.push(term);
+            }
+
+            display.innerHTML = html + terms.join(' + ');
+        }
+
+        function renderApp() {
+            const count = parseInt(document.getElementById('rowCount').value) || 6;
+            const container = document.getElementById('triangleDisplay');
+            container.innerHTML = '';
+
+            for (let n = 0; n <= count; n++) {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = `triangle-row row-${n}`;
+                
+                // Label
+                const label = document.createElement('div');
+                label.className = 'row-label';
+                label.innerHTML = `(a + b)<sup>${n}</sup>`;
+                label.onclick = () => updateFormula(n);
+                rowDiv.appendChild(label);
+
+                // Nodes
+                for (let k = 0; k <= n; k++) {
+                    const val = getPascalValue(n, k);
+                    const node = document.createElement('div');
+                    node.className = 'node';
+                    node.id = `node-${n}-${k}`;
+                    node.innerText = val;
+                    node.setAttribute('data-coord', `C(${n},${k})`);
+                    
+                    node.onmouseover = () => highlightParents(n, k);
+                    node.onmouseout = clearHighlights;
+                    node.onclick = () => updateFormula(n);
+
+                    rowDiv.appendChild(node);
+                }
+                container.appendChild(rowDiv);
+            }
+            
+            // Ensure selectedRow is within bounds if row count was reduced
+            if (selectedRow > count) selectedRow = count;
+            updateFormula(selectedRow);
+        }
+
+        // Initial Boot
+        window.onload = renderApp;
+    </script>
+</body>
+</html>
