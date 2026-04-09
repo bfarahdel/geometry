@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Divide a Polynomial by a Monomial - Example 1</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code&display=swap');
+
+        body {
+            background-color: #0f172a;
+            background-image: radial-gradient(#1e293b 0.5px, transparent 0.5px);
+            background-size: 24px 24px;
+            font-family: 'Inter', sans-serif;
+            color: #f1f5f9;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .math-card {
+            width: 100%;
+            max-width: 1100px;
+            background: #1e293b;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid #334155;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        #loader {
+            position: absolute;
+            inset: 0;
+            background: #0f172a;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease-out;
+        }
+
+        #animalEmoji {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+            animation: bounce 0.4s infinite alternate cubic-bezier(0.455, 0.03, 0.515, 0.955);
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0) scale(1); }
+            to { transform: translateY(-20px) scale(1.1); }
+        }
+
+        .input-correct {
+            border-color: #16a34a !important;
+            background-color: rgba(22, 163, 74, 0.1) !important;
+            color: #16a34a !important;
+        }
+
+        .input-error {
+            animation: shake 0.4s ease-in-out;
+            border-color: #ef4444 !important;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .animate-fade {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .lang-btn.active {
+            background-color: #16a34a;
+            color: white;
+        }
+
+        .term-box {
+            background: rgba(22, 163, 74, 0.05);
+            border: 1px solid #16a34a;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 0.5rem 0;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .term-box:hover {
+            background: rgba(22, 163, 74, 0.1);
+            transform: translateX(5px);
+        }
+
+        .step-bubble {
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 14px;
+            margin-right: 12px;
+        }
+
+        .division-arrow {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #16a34a;
+            font-size: 1.2rem;
+            margin: 0 0.5rem;
+        }
+
+        .exp-input {
+            width: 2.5rem !important;
+            height: 2rem !important;
+            font-size: 1.1rem !important;
+            font-weight: 600;
+            transform: translateY(-8px);
+            padding: 0 !important;
+        }
+
+        .coeff-input {
+            width: 3.5rem !important;
+            height: 2.5rem !important;
+            font-size: 1.25rem !important;
+            font-weight: 600;
+        }
+
+        input[type="number"] {
+            color: #f1f5f9;
+        }
+
+        /* Color Variety Accents */
+        .accent-blue { color: #60a5fa; }
+        .accent-orange { color: #fb923c; }
+        .accent-purple { color: #c084fc; }
+        .accent-pink { color: #f472b6; }
+        .accent-cyan { color: #22d3ee; }
+        .bg-accent-blue { background-color: #2563eb; }
+        .bg-accent-orange { background-color: #ea580c; }
+        .bg-accent-purple { background-color: #9333ea; }
+
+        /* Rainbow border animation for next button */
+        @keyframes rainbowBorder {
+            0% { border-color: #22c55e; box-shadow: 0 0 20px rgba(34, 197, 94, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.1); }
+            20% { border-color: #3b82f6; box-shadow: 0 0 20px rgba(59, 130, 246, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.1); }
+            40% { border-color: #a855f7; box-shadow: 0 0 20px rgba(168, 85, 247, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.1); }
+            60% { border-color: #f472b6; box-shadow: 0 0 20px rgba(244, 114, 182, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.1); }
+            80% { border-color: #f97316; box-shadow: 0 0 20px rgba(249, 115, 22, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.1); }
+            100% { border-color: #22c55e; box-shadow: 0 0 20px rgba(34, 197, 94, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.1); }
+        }
+
+        .next-btn-ready {
+            animation: rainbowBorder 2s linear infinite !important;
+            border: 3px solid #22c55e !important;
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.1) !important;
+        }
+
+        /* Term box color variants */
+        .term-box:nth-child(1) { border-color: #22c55e; }
+        .term-box:nth-child(2) { border-color: #3b82f6; }
+        .term-box:nth-child(3) { border-color: #a855f7; }
+
+        .term-box:nth-child(1):hover { background: rgba(34, 197, 94, 0.1); }
+        .term-box:nth-child(2):hover { background: rgba(59, 130, 246, 0.1); }
+        .term-box:nth-child(3):hover { background: rgba(168, 85, 247, 0.1); }
+
+        .result-correct { color: #4ade80; }
+    </style>
+</head>
+<body>
+
+<div class="math-card">
+    <div id="loader">
+        <span id="animalEmoji"></span>
+        <div id="loaderContent" class="text-green-400 font-bold text-xl uppercase tracking-widest animate-pulse">
+            Loading...
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="bg-slate-800/80 p-6 border-b border-slate-700 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <span class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-green-500/30">Example 1</span>
+            <h1 id="mainTitle" class="text-xl font-bold text-white tracking-tight leading-none">Divide a Polynomial by a Monomial</h1>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <div class="flex bg-slate-900 rounded-lg p-1 border border-slate-700">
+                <button onclick="setLanguage('en')" id="enBtn" class="lang-btn active px-3 py-1 text-[10px] font-bold rounded-md transition-all">EN</button>
+                <button onclick="setLanguage('zh')" id="zhBtn" class="lang-btn px-3 py-1 text-[10px] font-bold rounded-md transition-all text-slate-400 hover:text-white">中文</button>
+            </div>
+            <span class="bg-black/20 px-3 py-1.5 rounded-md text-xs font-bold font-mono text-white/90 border border-slate-700"><span id="pageLabel">PAGE</span> 242</span>
+        </div>
+    </div>
+
+    <div class="flex flex-col md:flex-row flex-1">
+        <!-- Visualization Side -->
+        <div class="w-full md:w-3/5 p-8 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-slate-700 bg-slate-900/30">
+            <div id="problemDisplay" class="text-2xl sm:text-3xl font-light text-slate-100 mb-8 text-center">
+                Simplify \( \displaystyle\frac{6x^4y^3 + 12x^3y^2 - 18x^2y}{3xy} \)
+            </div>
+            
+            <div id="termsContainer" class="w-full space-y-3">
+                <!-- Term 1 -->
+                <div class="term-box" id="term1Box">
+                    <div class="flex items-center justify-center gap-4 flex-wrap">
+                        <span class="text-slate-400 text-2xl">\( \frac{6x^4y^3}{3xy} \)</span>
+                        <span class="division-arrow text-green-400">→</span>
+                        <span id="term1Result" class="text-green-400 font-bold text-xl hidden">\( 2x^3y^2 \)</span>
+                        <div id="term1Input" class="flex items-center gap-2">
+                            <div class="flex flex-col items-center">
+                                <input type="number" id="t1Coeff" class="coeff-input bg-slate-800 border border-slate-600 rounded-lg text-center" placeholder="?" autocomplete="off">
+                                <span class="text-[10px] text-slate-500 mt-1">coeff</span>
+                            </div>
+                            <span class="text-slate-300 text-4xl font-light">\( x \)</span>
+                            <div class="flex flex-col items-center">
+                                <input type="number" id="t1XExp" class="exp-input bg-slate-800 border border-slate-600 rounded text-center" placeholder="?" autocomplete="off">
+                            </div>
+                            <span class="text-slate-300 text-4xl font-light">\( y \)</span>
+                            <div class="flex flex-col items-center">
+                                <input type="number" id="t1YExp" class="exp-input bg-slate-800 border border-slate-600 rounded text-center" placeholder="?" autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Term 2 -->
+                <div class="term-box" id="term2Box">
+                    <div class="flex items-center justify-center gap-4 flex-wrap">
+                        <span class="text-slate-400 text-2xl">\( \frac{12x^3y^2}{3xy} \)</span>
+                        <span class="division-arrow text-blue-400">→</span>
+                        <span id="term2Result" class="text-blue-400 font-bold text-xl hidden">\( 4x^2y \)</span>
+                        <div id="term2Input" class="flex items-center gap-2 hidden">
+                            <div class="flex flex-col items-center">
+                                <input type="number" id="t2Coeff" class="coeff-input bg-slate-800 border border-slate-600 rounded-lg text-center" placeholder="?" autocomplete="off">
+                                <span class="text-[10px] text-slate-500 mt-1">coeff</span>
+                            </div>
+                            <span class="text-slate-300 text-4xl font-light">\( x \)</span>
+                            <div class="flex flex-col items-center">
+                                <input type="number" id="t2XExp" class="exp-input bg-slate-800 border border-slate-600 rounded text-center" placeholder="?" autocomplete="off">
+                            </div>
+                            <span class="text-slate-300 text-4xl font-light">\( y \)</span>
+                            <div class="flex flex-col items-center">
+                                <input type="number" id="t2YExp" class="exp-input bg-slate-800 border border-slate-600 rounded text-center" placeholder="?" autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Term 3 -->
+                <div class="term-box" id="term3Box">
+                    <div class="flex items-center justify-center gap-4 flex-wrap">
+                        <span class="text-slate-400 text-2xl">\( \frac{-18x^2y}{3xy} \)</span>
+                        <span class="division-arrow text-purple-400">→</span>
+                        <span id="term3Result" class="text-purple-400 font-bold text-xl hidden">\( -6x \)</span>
+                        <div id="term3Input" class="flex items-center gap-2 hidden">
+                            <div class="flex flex-col items-center">
+                                <input type="number" id="t3Coeff" class="coeff-input bg-slate-800 border border-slate-600 rounded-lg text-center" placeholder="?" autocomplete="off">
+                                <span class="text-[10px] text-slate-500 mt-1">coeff</span>
+                            </div>
+                            <span class="text-slate-300 text-4xl font-light">\( x \)</span>
+                            <div class="flex flex-col items-center">
+                                <input type="number" id="t3XExp" class="exp-input bg-slate-800 border border-slate-600 rounded text-center" placeholder="?" autocomplete="off">
+                            </div>
+                            <span class="text-xs text-slate-500 ml-2" id="yZeroNote">(y⁰ = 1)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="finalAnswerBox" class="hidden mt-8 p-6 bg-green-500/10 rounded-xl border-2 border-green-500/50 text-center w-full">
+                <p id="finalAnswerLabel" class="text-slate-400 text-sm uppercase font-bold tracking-widest mb-3">Final Answer</p>
+                <div class="text-2xl text-white font-bold">
+                    \( 2x^3y^2 + 4x^2y - 6x \)
+                </div>
+            </div>
+        </div>
+
+        <!-- Instruction Side -->
+        <div class="w-full md:w-2/5 p-8 flex flex-col bg-slate-800/20">
+            <div id="explanationContainer" class="flex-1 animate-fade">
+                <div class="flex items-center mb-4">
+                    <div id="stepIcon" class="step-bubble bg-green-600 text-white">1</div>
+                    <h2 id="stepTitle" class="text-green-400 font-bold text-sm uppercase tracking-widest">Step 1</h2>
+                </div>
+                
+                <div id="stepContent" class="space-y-4">
+                    <div id="stepText" class="text-slate-200 text-lg leading-relaxed"></div>
+                </div>
+
+                <!-- Interaction Area -->
+                <div id="interactionArea" class="mt-6 space-y-3">
+                    <button id="checkBtn" class="w-full bg-green-600 hover:bg-green-500 py-3 rounded-lg text-sm font-bold transition-all" data-t="verify">
+                        Check Answer
+                    </button>
+                    <button id="showSolutionBtn" class="hidden w-full bg-slate-700 hover:bg-slate-600 py-2 rounded-lg text-[10px] font-bold text-slate-300 uppercase tracking-widest transition-all" data-t="showSolution">
+                        Show Solution
+                    </button>
+                    <div id="feedback" class="mt-2 text-sm font-bold hidden"></div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="mt-8 flex items-center justify-between border-t border-slate-700 pt-6">
+                <button id="prevBtn" class="flex items-center gap-1 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-xs font-semibold">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+                    <span data-t="prev">PREV</span>
+                </button>
+                <div id="stepCounter" class="text-slate-500 font-mono text-[10px] font-bold uppercase tracking-widest">Step 1 / 3</div>
+                <button id="nextBtn" class="flex items-center gap-1 px-6 py-2 rounded-xl bg-green-600 hover:bg-green-500 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-xs font-bold">
+                    <span id="nextBtnText" data-t="next">NEXT</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="footerText" class="bg-slate-900 px-8 py-3 flex justify-center text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] border-t border-slate-800">
+        Lesson 4-3: Dividing Polynomials
+    </div>
+</div>
+
+<script>
+    const translations = {
+        en: {
+            title: "Divide a Polynomial by a Monomial",
+            page: "PAGE",
+            prev: "PREV",
+            next: "NEXT",
+            restart: "RESTART",
+            step: "Step",
+            verify: "Check Answer",
+            showSolution: "Show Solution",
+            loading: "Loading...",
+            correct: "Correct! Great job!",
+            revealed: "Solution shown.",
+            wrong: "Not quite. Remember: divide coefficients and subtract exponents with the same base.",
+            yZeroHint: "Remember: <span class='math-inline'>y<sup>1-1</sup> = y<sup>0</sup> = 1</span>, so the y term disappears!",
+            steps: [
+                {
+                    title: "Step 1: Divide First Term",
+                    text: "Divide the first term <b>6x<sup>4</sup>y<sup>3</sup></b> by <b>3xy</b>.<br><br>Divide coefficients: <b>6 ÷ 3 = 2</b><br>Subtract exponents: <b>x<sup>4-1</sup> = x<sup>3</sup></b>, <b>y<sup>3-1</sup> = y<sup>2</sup></b>"
+                },
+                {
+                    title: "Step 2: Divide Second Term",
+                    text: "Divide <b>12x<sup>3</sup>y<sup>2</sup></b> by <b>3xy</b>.<br><br>Divide coefficients: <b>12 ÷ 3 = 4</b><br>Subtract exponents: <b>x<sup>3-1</sup> = x<sup>2</sup></b>, <b>y<sup>2-1</sup> = y<sup>1</sup> = y</b>"
+                },
+                {
+                    title: "Step 3: Divide Third Term",
+                    text: "Divide <b>-18x<sup>2</sup>y</b> by <b>3xy</b>.<br><br>Divide coefficients: <b>-18 ÷ 3 = -6</b><br>Subtract exponents: <b>x<sup>2-1</sup> = x<sup>1</sup> = x</b><br><br><b>Important:</b> <b>y<sup>1-1</sup> = y<sup>0</sup> = 1</b> (the y disappears!)"
+                }
+            ],
+            finalAnswerLabel: "Final Answer"
+        },
+        zh: {
+            title: "多项式除以单项式",
+            page: "第",
+            prev: "上一步",
+            next: "下一步",
+            restart: "重新开始",
+            step: "步骤",
+            verify: "检查答案",
+            showSolution: "显示解答",
+            loading: "加载中...",
+            correct: "正确！干得漂亮！",
+            revealed: "解答已显示。答案如上所示。",
+            wrong: "不完全正确。记住：系数相除，同底数幂相减。",
+            yZeroHint: "记住：<span class='math-inline'>y<sup>1-1</sup> = y<sup>0</sup> = 1</span>，所以 y 项消失了！",
+            steps: [
+                {
+                    title: "步骤 1: 除第一项",
+                    text: "将第一项 <b>6x<sup>4</sup>y<sup>3</sup></b> 除以 <b>3xy</b>。<br><br>系数相除：<b>6 ÷ 3 = 2</b><br>幂相减：<b>x<sup>4-1</sup> = x<sup>3</sup></b>, <b>y<sup>3-1</sup> = y<sup>2</sup></b>"
+                },
+                {
+                    title: "步骤 2: 除第二项",
+                    text: "将 <b>12x<sup>3</sup>y<sup>2</sup></b> 除以 <b>3xy</b>。<br><br>系数相除：<b>12 ÷ 3 = 4</b><br>幂相减：<b>x<sup>3-1</sup> = x<sup>2</sup></b>, <b>y<sup>2-1</sup> = y<sup>1</sup> = y</b>"
+                },
+                {
+                    title: "步骤 3: 除第三项",
+                    text: "将 <b>-18x<sup>2</sup>y</b> 除以 <b>3xy</b>。<br><br>系数相除：<b>-18 ÷ 3 = -6</b><br>幂相减：<b>x<sup>2-1</sup> = x<sup>1</sup> = x</b><br><br><b>重要：</b><b>y<sup>1-1</sup> = y<sup>0</sup> = 1</b>（y 消失了！）"
+                }
+            ],
+            finalAnswerLabel: "最终答案"
+        }
+    };
+
+    let currentLang = 'en';
+    let currentStep = 0;
+    let failedAttempts = 0;
+    let animalInterval = null;
+    const totalSteps = 3;
+
+    const answers = [
+        { coeff: 2, xExp: 3, yExp: 2 },
+        { coeff: 4, xExp: 2, yExp: 1 },
+        { coeff: -6, xExp: 1 }
+    ];
+
+    function setLanguage(lang) {
+        currentLang = lang;
+        document.getElementById('enBtn').className = `lang-btn px-3 py-1 text-[10px] font-bold rounded-md transition-all ${lang === 'en' ? 'active' : 'text-slate-400 hover:text-white'}`;
+        document.getElementById('zhBtn').className = `lang-btn px-3 py-1 text-[10px] font-bold rounded-md transition-all ${lang === 'zh' ? 'active' : 'text-slate-400 hover:text-white'}`;
+        const t = translations[lang];
+        document.getElementById('mainTitle').innerText = t.title;
+        document.getElementById('pageLabel').innerText = t.page;
+        document.getElementById('footerText').innerText = `Lesson 4-3: ${t.title}`;
+        document.getElementById('finalAnswerLabel').innerText = t.finalAnswerLabel;
+        document.querySelectorAll('[data-t]').forEach(el => {
+            const key = el.getAttribute('data-t');
+            if (t[key]) el.innerText = t[key];
+        });
+        
+        
+        updateUI();
+    }
+
+    function getInputValues(step) {
+        if (step === 0) {
+            return {
+                coeff: parseInt(document.getElementById('t1Coeff').value),
+                xExp: parseInt(document.getElementById('t1XExp').value),
+                yExp: parseInt(document.getElementById('t1YExp').value)
+            };
+        } else if (step === 1) {
+            return {
+                coeff: parseInt(document.getElementById('t2Coeff').value),
+                xExp: parseInt(document.getElementById('t2XExp').value),
+                yExp: parseInt(document.getElementById('t2YExp').value)
+            };
+        } else {
+            return {
+                coeff: parseInt(document.getElementById('t3Coeff').value),
+                xExp: parseInt(document.getElementById('t3XExp').value)
+            };
+        }
+    }
+
+    function checkAnswer() {
+        const t = translations[currentLang];
+        const ans = answers[currentStep];
+        const input = getInputValues(currentStep);
+        const feedback = document.getElementById('feedback');
+
+        let isCorrect = false;
+        if (currentStep === 0 || currentStep === 1) {
+            isCorrect = input.coeff === ans.coeff && input.xExp === ans.xExp && input.yExp === ans.yExp;
+        } else {
+            isCorrect = input.coeff === ans.coeff && input.xExp === ans.xExp;
+        }
+
+        if (isCorrect) {
+            feedback.innerHTML = t.correct;
+            feedback.className = "mt-2 text-sm font-bold text-green-400 animate-fade";
+            feedback.classList.remove('hidden');
+            
+            // Highlight current inputs
+            if (currentStep === 0) {
+                ['t1Coeff', 't1XExp', 't1YExp'].forEach(id => {
+                    document.getElementById(id).classList.add('input-correct');
+                });
+            } else if (currentStep === 1) {
+                ['t2Coeff', 't2XExp', 't2YExp'].forEach(id => {
+                    document.getElementById(id).classList.add('input-correct');
+                });
+            } else {
+                ['t3Coeff', 't3XExp'].forEach(id => {
+                    document.getElementById(id).classList.add('input-correct');
+                });
+            }
+            
+            // Show the result and hide inputs
+            document.getElementById(`term${currentStep + 1}Result`).classList.remove('hidden');
+            document.getElementById(`term${currentStep + 1}Input`).classList.add('hidden');
+            
+            document.getElementById('showSolutionBtn').classList.add('hidden');
+            const nextBtn = document.getElementById('nextBtn');
+            nextBtn.disabled = false;
+            nextBtn.classList.add('next-btn-ready');
+            
+            // Show final answer after step 3
+            if (currentStep === 2) {
+                document.getElementById('finalAnswerBox').classList.remove('hidden');
+            }
+        } else {
+            failedAttempts++;
+            feedback.innerHTML = t.wrong + (currentStep === 2 ? '<br><br>' + t.yZeroHint : '');
+            feedback.className = "mt-2 text-sm font-bold text-red-400";
+            feedback.classList.remove('hidden');
+            
+            // Shake animation on inputs
+            if (currentStep === 0) {
+                ['t1Coeff', 't1XExp', 't1YExp'].forEach(id => {
+                    document.getElementById(id).classList.add('input-error');
+                });
+                setTimeout(() => {
+                    ['t1Coeff', 't1XExp', 't1YExp'].forEach(id => {
+                        document.getElementById(id).classList.remove('input-error');
+                    });
+                }, 500);
+            } else if (currentStep === 1) {
+                ['t2Coeff', 't2XExp', 't2YExp'].forEach(id => {
+                    document.getElementById(id).classList.add('input-error');
+                });
+                setTimeout(() => {
+                    ['t2Coeff', 't2XExp', 't2YExp'].forEach(id => {
+                        document.getElementById(id).classList.remove('input-error');
+                    });
+                }, 500);
+            } else {
+                ['t3Coeff', 't3XExp'].forEach(id => {
+                    document.getElementById(id).classList.add('input-error');
+                });
+                setTimeout(() => {
+                    ['t3Coeff', 't3XExp'].forEach(id => {
+                        document.getElementById(id).classList.remove('input-error');
+                    });
+                }, 500);
+            }
+            
+            if (failedAttempts >= 3) {
+                document.getElementById('showSolutionBtn').classList.remove('hidden');
+            }
+        }
+        
+    }
+
+    function showSolution() {
+        const t = translations[currentLang];
+        const ans = answers[currentStep];
+        
+        if (currentStep === 0) {
+            document.getElementById('t1Coeff').value = ans.coeff;
+            document.getElementById('t1XExp').value = ans.xExp;
+            document.getElementById('t1YExp').value = ans.yExp;
+        } else if (currentStep === 1) {
+            document.getElementById('t2Coeff').value = ans.coeff;
+            document.getElementById('t2XExp').value = ans.xExp;
+            document.getElementById('t2YExp').value = ans.yExp;
+        } else {
+            document.getElementById('t3Coeff').value = ans.coeff;
+            document.getElementById('t3XExp').value = ans.xExp;
+        }
+        
+        checkAnswer();
+        
+        const feedback = document.getElementById('feedback');
+        feedback.innerHTML = t.revealed;
+    }
+
+    async function updateUI() {
+        const t = translations[currentLang];
+        const step = t.steps[currentStep];
+        const container = document.getElementById('explanationContainer');
+        
+        container.classList.remove('animate-fade');
+        void container.offsetWidth; 
+        container.classList.add('animate-fade');
+
+        document.getElementById('stepIcon').innerText = currentStep + 1;
+        document.getElementById('stepTitle').innerText = step.title;
+        document.getElementById('stepText').innerHTML = step.text;
+        document.getElementById('stepCounter').innerText = `${t.step} ${currentStep + 1} / ${totalSteps}`;
+
+        // Show/hide input sections based on current step
+        for (let i = 0; i < 3; i++) {
+            const inputDiv = document.getElementById(`term${i + 1}Input`);
+            const resultSpan = document.getElementById(`term${i + 1}Result`);
+            
+            if (i === currentStep) {
+                inputDiv.classList.remove('hidden');
+                resultSpan.classList.add('hidden');
+            } else if (i < currentStep) {
+                inputDiv.classList.add('hidden');
+                resultSpan.classList.remove('hidden');
+            } else {
+                inputDiv.classList.add('hidden');
+                resultSpan.classList.add('hidden');
+            }
+        }
+
+        // Enable next button only if step is solved
+        const nextBtn = document.getElementById('nextBtn');
+        const isSolved = currentStep === 0 ? 
+            document.getElementById('t1Coeff').classList.contains('input-correct') :
+            currentStep === 1 ?
+            document.getElementById('t2Coeff').classList.contains('input-correct') :
+            document.getElementById('t3Coeff').classList.contains('input-correct');
+        
+        nextBtn.disabled = !isSolved && currentStep < 3;
+        
+        // Add/remove rainbow border when step is ready
+        if (isSolved && currentStep < 3) {
+            nextBtn.classList.add('next-btn-ready');
+        } else {
+            nextBtn.classList.remove('next-btn-ready');
+        }
+
+        document.getElementById('nextBtnText').innerText = currentStep === totalSteps - 1 ? t.restart : t.next;
+        document.getElementById('prevBtn').disabled = currentStep === 0;
+
+    }
+
+    document.getElementById('checkBtn').onclick = checkAnswer;
+    document.getElementById('showSolutionBtn').onclick = showSolution;
+
+    document.getElementById('nextBtn').onclick = () => {
+        if (currentStep < totalSteps - 1) {
+            currentStep++;
+            failedAttempts = 0;
+            document.getElementById('feedback').classList.add('hidden');
+            document.getElementById('showSolutionBtn').classList.add('hidden');
+            document.getElementById('nextBtn').classList.remove('next-btn-ready');
+            updateUI();
+        } else {
+            // Restart
+            currentStep = 0;
+            failedAttempts = 0;
+            
+            // Reset all inputs
+            ['t1Coeff', 't1XExp', 't1YExp', 't2Coeff', 't2XExp', 't2YExp', 't3Coeff', 't3XExp'].forEach(id => {
+                const el = document.getElementById(id);
+                el.value = '';
+                el.classList.remove('input-correct');
+            });
+            
+            // Hide all results
+            for (let i = 1; i <= 3; i++) {
+                document.getElementById(`term${i}Result`).classList.add('hidden');
+            }
+            
+            document.getElementById('finalAnswerBox').classList.add('hidden');
+            document.getElementById('feedback').classList.add('hidden');
+            document.getElementById('showSolutionBtn').classList.add('hidden');
+            document.getElementById('nextBtn').classList.remove('next-btn-ready');
+            
+            updateUI();
+        }
+    };
+
+    document.getElementById('prevBtn').onclick = () => {
+        if (currentStep > 0) {
+            currentStep--;
+            failedAttempts = 0;
+            document.getElementById('feedback').classList.add('hidden');
+            document.getElementById('showSolutionBtn').classList.add('hidden');
+            updateUI();
+        }
+    };
+
+    function startAnimalSwap() {
+        const animals = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🤨', '🐅', '🦁', '🐄', '🐷', '🐸', '🐵', '🐔', '🐧', '🦆', '🦉', '🐢', '🐍', '🐉', '🐙', '🐋', '🦒', '🦓', '🐘', '🦏', '🦋', '🐪', '🐫', '🦙', '🦒', '🐃', '🐄', '🐎', '🦓', '🦌', '🦘', '🦥', '🦦', '🦨', '🦡', '🐾'];
+        const emojiSpan = document.getElementById('animalEmoji');
+        
+        const swap = () => {
+            const randomAnimal = animals[Math.floor(Math.random() * animals.length)];
+            if (emojiSpan) emojiSpan.innerText = randomAnimal;
+        };
+
+        swap();
+        animalInterval = setInterval(swap, 400);
+    }
+
+    window.onload = function() {
+        // Clear any auto-filled values from browser cache
+        ['t1Coeff', 't1XExp', 't1YExp', 't2Coeff', 't2XExp', 't2YExp', 't3Coeff', 't3XExp'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+        startAnimalSwap();
+        setLanguage('en');
+        setTimeout(() => {
+            const loader = document.getElementById('loader');
+            loader.style.opacity = '0';
+            setTimeout(() => {
+                loader.style.display = 'none';
+                clearInterval(animalInterval);
+            }, 500);
+        }, 2000);
+    };
+</script>
+
+</body>
+</html>
