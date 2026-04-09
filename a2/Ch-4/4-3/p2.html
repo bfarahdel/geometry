@@ -148,32 +148,32 @@
     <div class="flex flex-col md:flex-row flex-1">
         <div class="w-full md:w-3/5 p-8 flex flex-col items-center justify-center bg-slate-900/30 border-r border-slate-700">
             <div id="problemDisplay" class="text-2xl font-light mb-8">
-                Divide \( 2x^3 - 7x^2 - 4x \) by \( 2x \)
+                Find \( (3a^2b - 6ab + 5ab^2)(ab)^{-1} \)
             </div>
             
             <div class="division-grid text-xl">
                 <div class="div-quotient">
-                    <span id="q1" class="invisible">x²</span><span id="q2" class="invisible"> - 3.5x</span><span id="q3" class="invisible"> - 2</span>
+                    <span id="q1" class="invisible">3a</span><span id="q2" class="invisible"> - 6</span><span id="q3" class="invisible"> + 5b</span>
                 </div>
 
-                <div class="div-divisor">2x</div>
+                <div class="div-divisor">ab</div>
                 <div class="div-bracket"></div>
-                <div class="div-dividend">2x³ - 7x² - 4x</div>
+                <div class="div-dividend">3a²b - 6ab + 5ab²</div>
 
                 <div id="vis-step1" class="hidden contents">
-                    <div class="step-row">(-) 2x³</div>
+                    <div class="step-row">(-) 3a²b</div>
                     <div class="sub-line"></div>
-                    <div class="text-slate-400" style="grid-column: 3; margin-top: 4px;">-7x² - 4x</div>
+                    <div class="text-slate-400" style="grid-column: 3; margin-top: 4px;">-6ab + 5ab²</div>
                 </div>
 
                 <div id="vis-step2" class="hidden contents">
-                    <div class="step-row">(-) -7x²</div>
+                    <div class="step-row">(-) -6ab</div>
                     <div class="sub-line"></div>
-                    <div class="text-slate-400" style="grid-column: 3; margin-top: 4px;">-4x</div>
+                    <div class="text-slate-400" style="grid-column: 3; margin-top: 4px;">5ab²</div>
                 </div>
 
                 <div id="vis-step3" class="hidden contents">
-                    <div class="step-row">(-) -4x</div>
+                    <div class="step-row">(-) 5ab²</div>
                     <div class="sub-line"></div>
                     <div class="text-pink-400 font-bold" style="grid-column: 3; margin-top: 4px;">0</div>
                 </div>
@@ -214,21 +214,21 @@
         en: {
             title: "Dividing by a Monomial",
             correctMsg: "Correct! Proceed to the next step.",
-            finalMsg: "Complete! The quotient is x² - 3.5x - 2.\nCode: lion",
+            finalMsg: "Complete! The quotient is 3a - 6 + 5b.\nCode: lion",
             steps: [
-                { t: "Step 1: First Term", p: "Divide 2x³ by 2x:", ans: "x^2", text: "Divide the first term of the dividend by the monomial divisor. The coefficients cancel (2÷2=1) and x³÷x=x²." },
-                { t: "Step 2: Second Term", p: "Divide -7x² by 2x:", ans: "-3.5x", text: "Divide -7 by 2 to get -3.5, and x²÷x=x." },
-                { t: "Step 3: Third Term", p: "Divide -4x by 2x:", ans: "-2", text: "Divide -4 by 2 to get -2, and x÷x=1." }
+                { t: "Step 1: First Term", p: "Divide 3a²b by ab:", ans: "3a", text: "Divide the first term. The b cancels and a²÷a=a." },
+                { t: "Step 2: Second Term", p: "Divide -6ab by ab:", ans: "-6", text: "Both a and b cancel out, leaving just -6." },
+                { t: "Step 3: Third Term", p: "Divide 5ab² by ab:", ans: "5b", text: "The a cancels and b²÷b=b." }
             ]
         },
         zh: {
             title: "单项式除法",
             correctMsg: "正确！请继续下一步。",
-            finalMsg: "完成！商式为 x² - 3.5x - 2。\nCode: lion",
+            finalMsg: "完成！商式为 3a - 6 + 5b。\nCode: lion",
             steps: [
-                { t: "步骤 1: 第一项", p: "用 2x³ 除以 2x:", ans: "x^2", text: "将被除数的第一项除以单项式除数。系数相消（2÷2=1），x³÷x=x²。" },
-                { t: "步骤 2: 第二项", p: "用 -7x² 除以 2x:", ans: "-3.5x", text: "-7 除以 2 得到 -3.5，x²÷x=x。" },
-                { t: "步骤 3: 第三项", p: "用 -4x 除以 2x:", ans: "-2", text: "-4 除以 2 得到 -2，x÷x=1。" }
+                { t: "步骤 1: 第一项", p: "用 3a²b 除以 ab:", ans: "3a", text: "除第一项。b 相消，a²÷a=a。" },
+                { t: "步骤 2: 第二项", p: "用 -6ab 除以 ab:", ans: "-6", text: "a 和 b 都相消，只剩下 -6。" },
+                { t: "步骤 3: 第三项", p: "用 5ab² 除以 ab:", ans: "5b", text: "a 相消，b²÷b=b。" }
             ]
         }
     };
@@ -313,11 +313,7 @@
         const val = document.getElementById('mainInput').value.trim().toLowerCase().replace(/\s/g, '');
         const expected = step.ans.toLowerCase().replace(/\s/g, '');
         
-        // Also accept -7/2x as alternative to -3.5x
         let isCorrect = val === expected;
-        if (currentStep === 1 && !isCorrect) {
-            isCorrect = val === '-7/2x' || val === '-7/2' || val === '-3.5';
-        }
         
         if (isCorrect) { 
             handleSuccess(); 
