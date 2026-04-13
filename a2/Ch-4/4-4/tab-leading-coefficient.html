@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polynomial Classifications</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Fira+Code:wght@400;500&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        .math-font {
+            font-family: 'Fira Code', monospace;
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+        }
+
+        .table-row-hover:hover {
+            background-color: rgba(51, 65, 85, 0.5);
+            transition: background-color 0.2s ease;
+        }
+
+        .highlight-green { color: #4ade80; }
+        .highlight-red { color: #f87171; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-5xl glass-card overflow-hidden shadow-2xl">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b border-slate-700 bg-slate-800/50">
+                        <th class="px-6 py-4 text-sm font-semibold uppercase tracking-wider text-slate-400">Polynomial</th>
+                        <th class="px-6 py-4 text-sm font-semibold uppercase tracking-wider text-slate-400">Expression</th>
+                        <th class="px-6 py-4 text-sm font-semibold uppercase tracking-wider text-red-400 text-center">Degree</th>
+                        <th class="px-6 py-4 text-sm font-semibold uppercase tracking-wider text-emerald-400 text-right">Leading Coefficient</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-700/50">
+                    <!-- Constant -->
+                    <tr class="table-row-hover">
+                        <td class="px-6 py-5 font-medium">Constant</td>
+                        <td class="px-6 py-5 math-font"><span class="highlight-green font-bold">12</span></td>
+                        <td class="px-6 py-5 text-center font-bold">0</td>
+                        <td class="px-6 py-5 text-right font-medium">12</td>
+                    </tr>
+                    <!-- Linear -->
+                    <tr class="table-row-hover">
+                        <td class="px-6 py-5 font-medium">Linear</td>
+                        <td class="px-6 py-5 math-font"><span class="highlight-green">4</span><span class="highlight-red italic">x</span> − 9</td>
+                        <td class="px-6 py-5 text-center font-bold">1</td>
+                        <td class="px-6 py-5 text-right font-medium">4</td>
+                    </tr>
+                    <!-- Quadratic -->
+                    <tr class="table-row-hover">
+                        <td class="px-6 py-5 font-medium">Quadratic</td>
+                        <td class="px-6 py-5 math-font"><span class="highlight-green">5</span><span class="highlight-red italic">x</span><sup><span class="highlight-red">2</span></sup> − 6<span class="italic">x</span> − 9</td>
+                        <td class="px-6 py-5 text-center font-bold">2</td>
+                        <td class="px-6 py-5 text-right font-medium">5</td>
+                    </tr>
+                    <!-- Cubic -->
+                    <tr class="table-row-hover">
+                        <td class="px-6 py-5 font-medium">Cubic</td>
+                        <td class="px-6 py-5 math-font"><span class="highlight-green">8</span><span class="highlight-red italic">x</span><sup><span class="highlight-red">3</span></sup> + 12<span class="italic">x</span><sup>2</sup> − 3<span class="italic">x</span> + 1</td>
+                        <td class="px-6 py-5 text-center font-bold">3</td>
+                        <td class="px-6 py-5 text-right font-medium">8</td>
+                    </tr>
+                    <!-- General -->
+                    <tr class="bg-slate-800/30">
+                        <td class="px-6 py-6 font-semibold text-slate-300">General</td>
+                        <td class="px-6 py-6 math-font italic">
+                            <span class="highlight-green">a<sub>n</sub></span><span class="highlight-red">x<sup>n</sup></span> + a<sub>n-1</sub>x<sup>n-1</sup> + ... + a<sub>1</sub>x + a<sub>0</sub>
+                        </td>
+                        <td class="px-6 py-6 text-center font-bold highlight-red italic">n</td>
+                        <td class="px-6 py-6 text-right font-bold highlight-green italic">a<sub>n</sub></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="px-6 py-4 bg-slate-900/50 text-xs text-slate-500 border-t border-slate-700">
+            Note: The degree is the highest power of the variable, and the leading coefficient is the multiplier of that term.
+        </div>
+    </div>
+
+</body>
+</html>
