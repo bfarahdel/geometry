@@ -593,37 +593,45 @@
         </div>
     </div>
 
-    <div class="slide-container" id="slide15">
-        <span class="page-header">Solution: Question 3</span>
-        <h2 class="slide-title">sin 75° and tan 75°</h2>
-        <div class="content-area" style="overflow-y: auto;">
-            <div class="scroll-container">
-                <div class="step-item" style="display: block;">
-                    <div class="step-card">
-                        <strong>a) sin 75° = sin(45° + 30°)</strong>
-                        <span class="step-math-line" style="font-size: 1.4vw;">= sin 45° cos 30° + cos 45° sin 30°</span>
-                        <span class="step-math-line" style="color:#15803d; font-size: 1.4vw;">= (√2/2)(√3/2) + (√2/2)(1/2) = (√6 + √2)/4</span>
-                    </div>
-                </div>
-                <div class="step-item" id="s15step2">
-                    <div class="step-card" style="border-left-color: #10b981; background: #f0fdf4;">
-                        <strong>b) tan 75° = tan(45° + 30°)</strong>
-                        <span class="step-math-line" style="font-size: 1.4vw;">= (tan 45° + tan 30°)/(1 - tan 45° tan 30°)</span>
-                        <span class="step-math-line" style="color:#15803d; font-size: 1.4vw;">= (1 + √3/3)/(1 - √3/3) = 2 + √3</span>
-                    </div>
+<div class="slide-container" id="slide15">
+    <span class="page-header">Solution: Question 3</span>
+    <h2 class="slide-title">sin 75° and tan 75°</h2>
+    <div class="content-area" style="overflow-y: auto;">
+        <div class="ref-table-box">
+            <table>
+                <tr><th colspan="2">Reference</th></tr>
+                <tr><td>sin(A±B)</td><td>sinA cosB ± cosA sinB</td></tr>
+                <tr><td>tan(A±B)</td><td>(tanA ± tanB) / (1 ∓ tanA tanB)</td></tr>
+            </table>
+        </div>
+        <div class="scroll-container">
+            <div class="step-item" style="display: block;">
+                <div class="step-card">
+                    <strong>a) sin 75° = sin(45° + 30°)</strong>
+                    <span class="step-math-line" style="font-size: 1.4vw;">= sin 45° cos 30° + cos 45° sin 30°</span>
+                    <span class="step-math-line" style="color:#15803d; font-size: 1.4vw;">= (√2/2)(√3/2) + (√2/2)(1/2) = (√6 + √2)/4</span>
                 </div>
             </div>
-            <div style="display: flex; gap: 1vw; justify-content: center; padding: 0.5vw 0 1vw 0;">
-                <button class="reveal-btn" id="s15nextBtn" onclick="nextWS('s15', 2)">Next Step <i class="fa-solid fa-chevron-down"></i></button>
-                <button class="reveal-btn" style="background: #64748b;" onclick="resetWS('s15', 2)">Reset</button>
+            <div class="step-item" id="s15step2">
+                <div class="step-card" style="border-left-color: #10b981; background: #f0fdf4;">
+                    <strong>b) tan 75° = tan(45° + 30°)</strong>
+                    <span class="step-math-line" style="font-size: 1.4vw;">= (tan 45° + tan 30°)/(1 - tan 45° tan 30°)</span>
+                    <span class="step-math-line" style="color:#15803d; font-size: 1.4vw;">= (1 + √3/3)/(1 - √3/3) = 2 + √3</span>
+                </div>
             </div>
         </div>
+        <div style="display: flex; gap: 1vw; justify-content: center; padding: 0.5vw 0 1vw 0;">
+            <button class="reveal-btn" id="s15nextBtn" onclick="nextWS('s15', 2)">Next Step <i class="fa-solid fa-chevron-down"></i></button>
+            <button class="reveal-btn" style="background: #64748b;" onclick="resetWS('s15', 2)">Reset</button>
+        </div>
     </div>
+</div>
 
-    <div class="slide-container" id="slide16">
-        <span class="page-header">Solution: Question 4</span>
-        <h2 class="slide-title">Finding cos(x - 60°)</h2>
-        <div class="content-area">
+<div class="slide-container" id="slide16">
+    <span class="page-header">Solution: Question 4</span>
+    <h2 class="slide-title">Finding cos(x - 60°)</h2>
+    <div class="content-area">
+        <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 2vw; align-items: start;">
             <div class="scroll-container">
                 <div class="step-item" style="display: block;">
                     <div class="step-card">
@@ -635,68 +643,84 @@
                 <div class="step-item" id="s16step2">
                     <div class="step-card">
                         <strong>Step 2: Find sin x</strong>
-                        <p>Since 0° < x < 90°, x is in Quadrant I (all positive).</p>
-                        <span class="step-math-line">sin² x = 1 - (4/5)² = 1 - 16/25 = 9/25</span>
-                        <p style="text-align:center;">sin x = √(9/25) = <b>3/5</b></p>
+                        <p>Since 0° < x < 90°, x is in Quadrant I.</p>
+                        <span class="step-math-line">sin² x = 1 - (4/5)² = 9/25</span>
+                        <p style="text-align:center;">sin x = <b>3/5</b></p>
                     </div>
                 </div>
                 <div class="step-item" id="s16step3">
                     <div class="step-card">
                         <strong>Step 3: Substitute & Calculate</strong>
-                        <span class="step-math-line" style="font-size: 1.4vw;">= (4/5)(1/2) + (3/5)(√3/2)</span>
-                        <span class="step-math-line" style="font-size: 1.4vw;">= 4/10 + (3√3)/10</span>
+                        <span class="step-math-line" style="font-size: 1.2vw;">= (4/5)(1/2) + (3/5)(√3/2)</span>
                     </div>
                 </div>
                 <div class="step-item" id="s16step4">
                     <div class="step-card" style="border-left-color: #10b981; background: #f0fdf4;">
                         <strong>Step 4: Final Value</strong>
-                        <span class="step-math-line" style="color: #15803d;">
-                            <math display="block">
-                                <mfrac><mrow><mn>4</mn><mo>+</mo><mn>3</mn><sqrt><mn>3</mn></sqrt></mrow><mn>10</mn></mfrac>
-                            </math>
-                        </span>
+                        <span class="step-math-line" style="color: #15803d;">(4 + 3√3)/10</span>
                     </div>
                 </div>
             </div>
-            <div style="display: flex; gap: 1vw; justify-content: center; padding: 0.5vw 0 1vw 0;">
-                <button class="reveal-btn" id="s16nextBtn" onclick="nextWS('s16', 4)">Next Step <i class="fa-solid fa-chevron-down"></i></button>
-                <button class="reveal-btn" style="background: #64748b;" onclick="resetWS('s16', 4)">Reset</button>
+
+            <div class="geom-figure-wrapper" style="background: #fff; border-radius: 1vw; border: 1px solid #e2e8f0; padding: 1.5vw; text-align: center;">
+                <svg viewBox="0 0 100 80" style="width: 100%; height: auto;">
+                    <path d="M 20,70 L 80,70 L 80,25 Z" fill="none" stroke="#2563eb" stroke-width="2"/>
+                    <path d="M 75,70 L 75,65 L 80,65" fill="none" stroke="#aaa" stroke-width="1"/>
+                    <text x="50" y="78" font-size="6" font-weight="700">adj = 4</text>
+                    <text x="80" y="50" font-size="6" font-weight="700">opp = 3</text>
+                    <text x="40" y="45" font-size="6" font-weight="700" transform="rotate(-37, 45, 45)">hyp = 5</text>
+                    <path d="M 30,70 A 10,10 0 0,0 26,65" fill="none" stroke="#2563eb" stroke-width="1"/>
+                    <text x="32" y="68" font-size="7" fill="#2563eb" font-weight="bold">x</text>
+                </svg>
+                <p style="font-size: 1.1vw; color: #64748b; margin-top: 1vw;">Pythagorean Triple: 3-4-5</p>
             </div>
         </div>
+
+        <div style="display: flex; gap: 1vw; justify-content: center; padding: 1vw 0;">
+            <button class="reveal-btn" id="s16nextBtn" onclick="nextWS('s16', 4)">Next Step <i class="fa-solid fa-chevron-down"></i></button>
+            <button class="reveal-btn" style="background: #64748b;" onclick="resetWS('s16', 4)">Reset</button>
+        </div>
     </div>
+</div>
 
     <div class="slide-container" id="slide17">
         <h2 class="slide-title">Lesson Summary: Key Formulae</h2>
-        <div class="content-area">
-            <div class="formula-summary-grid" style="grid-template-columns: repeat(3, 1fr); margin-top: 2vw;">
-                <div class="formula-card" style="background: #f8fafc; border: 1px solid #e2e8f0;">
-                    <h4 style="color: #2563eb;">Sine (Same Sign)</h4>
-                    <div style="padding: 1vw; font-size: 1.5vw;">
-                        <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
-                            <mi>sin</mi><mo>(</mo><mi>A</mi><mo>&#177;</mo><mi>B</mi><mo>)</mo><mo>=</mo><mspace linebreak="newline"/><mi>sin</mi><mi>A</mi><mi>cos</mi><mi>B</mi><mo>&#177;</mo><mi>cos</mi><mi>A</mi><mi>sin</mi><mi>B</mi>
+        <div class="content-area" style="overflow-y: auto; padding: 1vw 4vw;">
+            <div class="formula-summary-rows" style="display: flex; flex-direction: column; gap: 1.5vw; width: 100%;">
+                
+                <div class="formula-card" style="background: #f8fafc; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content:建设; padding: 1vw 2vw; border-radius: 1vw; gap: 3vw;">
+                    <h4 style="color: #2563eb; width: 25%; margin: 0; text-align: left;">Sine (Same Sign)</h4>
+                    <div style="font-size: 1.8vw; flex-grow: 1; text-align: center;">
+                        <math xmlns="http://www.w3.org/1998/Math/MathML">
+                            <mi>sin</mi><mo>(</mo><mi>A</mi><mo>&#177;</mo><mi>B</mi><mo>)</mo><mo>=</mo><mi>sin</mi><mi>A</mi><mi>cos</mi><mi>B</mi><mo>&#177;</mo><mi>cos</mi><mi>A</mi><mi>sin</mi><mi>B</mi>
                         </math>
                     </div>
                 </div>
-                <div class="formula-card" style="background: #f8fafc; border: 1px solid #e2e8f0;">
-                    <h4 style="color: #ea580c;">Cosine (Opposite Sign)</h4>
-                    <div style="padding: 1vw; font-size: 1.5vw;">
-                        <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
-                            <mi>cos</mi><mo>(</mo><mi>A</mi><mo>&#177;</mo><mi>B</mi><mo>)</mo><mo>=</mo><mspace linebreak="newline"/><mi>cos</mi><mi>A</mi><mi>cos</mi><mi>B</mi><mo>&#8723;</mo><mi>sin</mi><mi>A</mi><mi>sin</mi><mi>B</mi>
+
+                <div class="formula-card" style="background: #f8fafc; border: 1px solid #e2e8f0; display: flex; align-items: center; padding: 1vw 2vw; border-radius: 1vw; gap: 3vw;">
+                    <h4 style="color: #ea580c; width: 25%; margin: 0; text-align: left;">Cosine (Opposite Sign)</h4>
+                    <div style="font-size: 1.8vw; flex-grow: 1; text-align: center;">
+                        <math xmlns="http://www.w3.org/1998/Math/MathML">
+                            <mi>cos</mi><mo>(</mo><mi>A</mi><mo>&#177;</mo><mi>B</mi><mo>)</mo><mo>=</mo><mi>cos</mi><mi>A</mi><mi>cos</mi><mi>B</mi><mo>&#8723;</mo><mi>sin</mi><mi>A</mi><mi>sin</mi><mi>B</mi>
                         </math>
                     </div>
                 </div>
-                <div class="formula-card" style="background: #f8fafc; border: 1px solid #e2e8f0;">
-                    <h4 style="color: #10b981;">Tangent</h4>
-                    <div style="padding: 1vw; font-size: 1.5vw;">
-                        <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
-                            <mi>tan</mi><mo>(</mo><mi>A</mi><mo>&#177;</mo><mi>B</mi><mo>)</mo><mo>=</mo><mspace linebreak="newline"/>
+
+                <div class="formula-card" style="background: #f8fafc; border: 1px solid #e2e8f0; display: flex; align-items: center; padding: 1vw 2vw; border-radius: 1vw; gap: 3vw;">
+                    <h4 style="color: #10b981; width: 25%; margin: 0; text-align: left;">Tangent</h4>
+                    <div style="font-size: 1.8vw; flex-grow: 1; text-align: center;">
+                        <math xmlns="http://www.w3.org/1998/Math/MathML">
+                            <mi>tan</mi><mo>(</mo><mi>A</mi><mo>&#177;</mo><mi>B</mi><mo>)</mo><mo>=</mo>
                             <mfrac><mrow><mi>tan</mi><mi>A</mi><mo>&#177;</mo><mi>tan</mi><mi>B</mi></mrow><mrow><mn>1</mn><mo>&#8723;</mo><mi>tan</mi><mi>A</mi><mi>tan</mi><mi>B</mi></mrow></mfrac>
                         </math>
                     </div>
                 </div>
+
             </div>
-            <div style="margin-top: 4vw; text-align: center;">
-                <p style="font-size: 1.8vw; color: #64748b; font-weight: 600;">Remember: Use these to find <span style="color: #2563eb;">exact values</span> for non-special angles!</p>
+            <div style="margin-top: 2vw; text-align: center;">
+                <p style="font-size: 1.5vw; color: #64748b; font-weight: 600;">
+                    Remember: Use these to find <span style="color: #2563eb;">exact values</span> for non-special angles!
+                </p>
             </div>
         </div>
     </div>
