@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formal Extrema Mapping - Example 2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { background-color: #0f172a; font-family: 'Inter', sans-serif; color: #f1f5f9; min-height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; padding: 20px; }
+        .math-card { width: 100%; max-width: 1000px; background: #1e293b; border-radius: 24px; border: 1px solid #334155; overflow: hidden; display: flex; flex-direction: column; }
+        
+        /* Interactive Elements */
+        .point-marker { cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); stroke: #1e293b; stroke-width: 2px; opacity: 0.8; }
+        .point-marker:hover { r: 9; opacity: 1; filter: brightness(1.2); }
+        .max-active { fill: #f87171 !important; stroke: #fff !important; filter: drop-shadow(0 0 12px #f87171); r: 8; opacity: 1; }
+        .min-active { fill: #60a5fa !important; stroke: #fff !important; filter: drop-shadow(0 0 12px #60a5fa); r: 8; opacity: 1; }
+        
+        .lang-btn.active { background-color: #fbbf24; color: #0f172a; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        .error-shake { animation: shake 0.2s ease-in-out 2; }
+    </style>
+</head>
+<body>
+
+<div class="math-card" id="mainContainer">
+    <div class="bg-slate-800/80 p-6 border-b border-slate-700 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <span class="bg-amber-500/20 text-amber-400 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-amber-500/30">Example 2</span>
+            <h1 id="mainTitle" class="text-xl font-bold text-white tracking-tight">Locating Relative Extrema</h1>
+        </div>
+        <div class="flex bg-slate-900 rounded-lg p-1 border border-slate-700">
+            <button onclick="setLanguage('en')" id="enBtn" class="lang-btn active px-3 py-1 text-[10px] font-bold rounded-md transition-all">EN</button>
+            <button onclick="setLanguage('zh')" id="zhBtn" class="lang-btn px-3 py-1 text-[10px] font-bold rounded-md transition-all text-slate-400">中文</button>
+        </div>
+    </div>
+
+    <div class="flex flex-col lg:flex-row">
+        <div class="w-full lg:w-1/2 p-8 flex flex-col items-center justify-center bg-slate-900/30 border-b lg:border-b-0 lg:border-r border-slate-700">
+            <div class="mb-6 text-center">
+                <p class="text-amber-400 font-serif italic text-lg">$f(x) = x^3 - 4x^2 - 2x + 3$</p>
+            </div>
+            
+            <svg viewBox="0 0 300 300" class="w-full max-w-[380px]">
+                <defs>
+                    <linearGradient id="curveGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#fbbf24" />
+                        <stop offset="100%" stop-color="#d97706" />
+                    </linearGradient>
+                </defs>
+
+                <g stroke="#334155" stroke-width="0.5" stroke-dasharray="2,2">
+                    <line x1="20" y1="0" x2="20" y2="300" /> 
+                    <line x1="60" y1="0" x2="60" y2="300" /> 
+                    <line x1="140" y1="0" x2="140" y2="300" /> 
+                    <line x1="180" y1="0" x2="180" y2="300" /> 
+                    <line x1="220" y1="0" x2="220" y2="300" /> 
+                    <line x1="260" y1="0" x2="260" y2="300" /> 
+                </g>
+                
+                <line x1="0" y1="150" x2="300" y2="150" stroke="#94a3b8" stroke-width="2" /> 
+                <line x1="100" y1="0" x2="100" y2="300" stroke="#94a3b8" stroke-width="2" /> 
+
+                <path d="M20,280 C60,180 80,135 100,135 C140,135 180,210 220,210 C260,210 280,50 300,0" 
+                      fill="none" stroke="url(#curveGrad)" stroke-width="4" stroke-linecap="round" />
+
+                <circle id="ptMax" onclick="selectPoint('max')" cx="100" cy="135" r="6" fill="#475569" class="point-marker"/> 
+                <circle id="ptMin" onclick="selectPoint('min')" cx="220" cy="210" r="6" fill="#475569" class="point-marker"/> 
+                
+                <text x="110" y="25" class="text-[10px] fill-slate-500 font-bold">f(x)</text>
+                <text x="285" y="140" class="text-[10px] fill-slate-500 font-bold">x</text>
+            </svg>
+            
+            <p id="instruction" class="mt-6 text-slate-400 text-sm text-center italic">Identify the coordinates of the relative maximum and relative minimum.</p>
+        </div>
+
+        <div class="w-full lg:w-1/2 p-8 flex flex-col bg-slate-800/20">
+            <h2 id="stepTitle" class="text-amber-400 font-bold text-sm uppercase mb-4">Location Principle Analysis</h2>
+            
+            <div class="bg-slate-900/60 p-5 rounded-xl border border-slate-700 mb-6">
+                <div class="overflow-hidden rounded-lg border border-slate-800">
+                    <table class="w-full text-center text-xs">
+                        <thead class="bg-slate-800 text-slate-400">
+                            <tr><th class="p-2">x</th><th class="p-2">f(x)</th><th class="p-2">Observation</th></tr>
+                        </thead>
+                        <tbody class="text-slate-300 font-mono">
+                            <tr class="border-b border-slate-800"><td>-1</td><td>0</td><td class="text-slate-500">Increasing</td></tr>
+                            <tr class="bg-red-500/10 border-b border-slate-800">
+                                <td>0</td><td>3</td><td class="text-red-400 font-bold">Rel. Maximum</td>
+                            </tr>
+                            <tr class="border-b border-slate-800"><td>1</td><td>-2</td><td class="text-slate-500">Decreasing</td></tr>
+                            <tr class="border-b border-slate-800"><td>2</td><td>-9</td><td class="text-slate-500">Decreasing</td></tr>
+                            <tr class="bg-blue-500/10 border-b border-slate-800">
+                                <td>3</td><td>-12</td><td class="text-blue-400 font-bold">Rel. Minimum</td>
+                            </tr>
+                            <tr class="border-b border-slate-800"><td>4</td><td>-4</td><td class="text-slate-500">Increasing</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="feedbackBox" class="flex-grow flex flex-col justify-center items-center p-6 rounded-xl border-2 border-dashed border-slate-700 bg-slate-900/20">
+                <p id="statusMsg" class="text-slate-400 text-sm text-center">Select markers on the graph to identify relative extrema.</p>
+            </div>
+
+            <button id="mainBtn" onclick="resetSim()" class="w-full mt-6 bg-slate-700 hover:bg-slate-600 text-white font-bold py-4 rounded-xl transition-all">
+                Reset Exercise
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let foundMax = false;
+    let foundMin = false;
+    let currentLang = 'en';
+
+    const content = {
+        en: {
+            title: "Locating Relative Extrema",
+            instr: "Identify the coordinates of the relative maximum and relative minimum.",
+            btn: "Reset Exercise",
+            maxFound: "Relative Maximum identified at $(0, 3)$.",
+            minFound: "Relative Minimum identified at $(3, -12)$.",
+            bothFound: "Correct! The relative maximum is at $x=0$ and the relative minimum is near $x=3$.",
+            wait: "Select markers on the graph to identify relative extrema."
+        },
+        zh: {
+            title: "定位相对极值",
+            instr: "识别相对极大值和相对极小值的坐标。",
+            btn: "重置练习",
+            maxFound: "在 $(0, 3)$ 处识别出相对极大值。",
+            minFound: "在 $(3, -12)$ 处识别出相对极小值。",
+            bothFound: "正确！相对极大值位于 $x=0$，相对极小值位于 $x=3$ 附近。",
+            wait: "在图表上选择标记以识别相对极值。"
+        }
+    };
+
+    function setLanguage(lang) {
+        currentLang = lang;
+        document.getElementById('enBtn').classList.toggle('active', lang === 'en');
+        document.getElementById('zhBtn').classList.toggle('active', lang === 'zh');
+        document.getElementById('mainTitle').innerText = content[lang].title;
+        document.getElementById('instruction').innerText = content[lang].instr;
+        document.getElementById('mainBtn').innerText = content[lang].btn;
+        updateStatus();
+    }
+
+    function selectPoint(type) {
+        if(type === 'max') {
+            foundMax = true;
+            document.getElementById('ptMax').classList.add('max-active');
+        } else {
+            foundMin = true;
+            document.getElementById('ptMin').classList.add('min-active');
+        }
+        updateStatus();
+    }
+
+    function updateStatus() {
+        const msg = document.getElementById('statusMsg');
+        const box = document.getElementById('feedbackBox');
+        
+        if (foundMax && foundMin) {
+            msg.innerHTML = `<span class="text-amber-400 font-bold text-lg">✓ ${content[currentLang].bothFound}</span>`;
+            box.classList.replace('border-slate-700', 'border-amber-500');
+        } else if (foundMax) {
+            msg.innerHTML = `<span class="text-red-400 font-bold">${content[currentLang].maxFound}</span>`;
+        } else if (foundMin) {
+            msg.innerHTML = `<span class="text-blue-400 font-bold">${content[currentLang].minFound}</span>`;
+        } else {
+            msg.innerText = content[currentLang].wait;
+            box.classList.add('border-slate-700');
+        }
+        MathJax.typesetPromise();
+    }
+
+    function resetSim() {
+        foundMax = false;
+        foundMin = false;
+        document.getElementById('ptMax').classList.remove('max-active');
+        document.getElementById('ptMin').classList.remove('min-active');
+        document.getElementById('feedbackBox').classList.replace('border-amber-500', 'border-slate-700');
+        updateStatus();
+    }
+
+    window.onload = () => MathJax.typesetPromise();
+</script>
+</body>
+</html>
