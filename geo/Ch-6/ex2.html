@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Properties of Rectangles - Interactive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { background-color: #0f172a; font-family: 'Inter', sans-serif; color: #f1f5f9; min-height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; padding: 20px; }
+        .math-card { width: 100%; max-width: 1100px; background: #1e293b; border-radius: 24px; border: 1px solid #334155; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+        .equation-box { background: rgba(132, 204, 22, 0.05); border: 1px solid #84cc16; border-radius: 12px; padding: 1.5rem; margin: 1rem 0; text-align: center; }
+        
+        .interaction-container { font-size: clamp(0.875rem, 2vw, 1.1rem); }
+        .input-row { display: flex; align-items: center; gap: 0.75rem; white-space: nowrap; width: 100%; }
+
+        .math-input-field {
+            flex-grow: 1; min-width: 0; background-color: #1e293b; border: 1px solid #475569;
+            border-radius: 0.5rem; padding: 0.5rem 1rem; color: #84cc16; font-family: monospace;
+        }
+
+        .input-correct { border-color: #10b981 !important; background-color: rgba(16, 185, 129, 0.1) !important; color: #10b981 !important; }
+        .input-revealed { border-color: #eab308 !important; background-color: rgba(234, 179, 8, 0.1) !important; color: #eab308 !important; }
+        .input-error { border-color: #ef4444 !important; animation: shake 0.2s ease-in-out 0s 2; }
+        
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        .lang-btn.active { background-color: #84cc16; color: #0f172a; }
+        #loader { position: absolute; inset: 0; background: #0f172a; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease-out; }
+        
+        /* Labels for the diagram */
+        .angle-label { font-size: 10px; font-weight: bold; font-family: monospace; }
+    </style>
+</head>
+<body>
+
+<div id="templates" style="display:none;">
+    <div id="en-step1">In rectangle \( JKLM \), all corners are \( 90^\circ \). Since opposite sides are parallel, the diagonal creates alternate interior angles. Thus, \( \angle KJL \) and \( \angle JLK \) are complementary: \( m\angle KJL + m\angle JLK = 90^\circ \).</div>
+    <div id="en-step2">Substitute the given expressions into our geometric equation: <div class='equation-box'>\( (2x + 4) + (7x + 5) = 90 \)</div> Combine the like terms on the left side to simplify the equation.</div>
+    <div id="en-step3">Now that we have the simplified equation \( 9x + 9 = 90 \), isolate the variable to find the value of \( x \).</div>
+    <div id="en-final">Solving \( 9x + 9 = 90 \) leads to \( 9x = 81 \), and finally \( x = 9 \).</div>
+
+    <div id="zh-step1">在矩形 \( JKLM \) 中，所有内角均为 \( 90^\circ \)。由于对边平行，对角线形成了内错角。因此，\( \angle KJL \) 和 \( \angle JLK \) 是互余的：\( m\angle KJL + m\angle JLK = 90^\circ \)。</div>
+    <div id="zh-step2">将已知表达式代入方程：<div class='equation-box'>\( (2x + 4) + (7x + 5) = 90 \)</div> 合并左侧同类项以简化方程。</div>
+    <div id="zh-step3">现在我们得到了简化后的方程 \( 9x + 9 = 90 \)，请解出 \( x \) 的值。</div>
+    <div id="zh-final">求解 \( 9x + 9 = 90 \) 得出 \( 9x = 81 \)，最终 \( x = 9 \)。</div>
+</div>
+
+<div class="math-card">
+    <div id="loader">
+        <span id="animalEmoji" style="font-size: 5rem; margin-bottom: 1rem;">🦒</span>
+        <div class="text-lime-400 font-bold text-xl uppercase tracking-widest animate-pulse">Loading Geometry...</div>
+    </div>
+
+    <div class="bg-slate-800/80 p-6 border-b border-slate-700 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <span class="bg-lime-500/20 text-lime-400 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-lime-500/30">Example 2</span>
+            <h1 class="text-xl font-bold text-white tracking-tight">Properties of Rectangles</h1>
+        </div>
+        <div class="flex bg-slate-900 rounded-lg p-1 border border-slate-700">
+            <button onclick="setLanguage('en')" id="enBtn" class="lang-btn active px-3 py-1 text-[10px] font-bold rounded-md transition-all">EN</button>
+            <button onclick="setLanguage('zh')" id="zhBtn" class="lang-btn px-3 py-1 text-[10px] font-bold rounded-md transition-all text-slate-400">中文</button>
+        </div>
+    </div>
+
+    <div class="flex flex-col md:flex-row flex-1">
+        <div class="w-full md:w-1/2 p-8 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-slate-700 bg-slate-900/30">
+            <svg viewBox="0 0 300 200" class="w-full max-w-[380px]">
+                <rect x="50" y="40" width="200" height="120" fill="none" stroke="#94a3b8" stroke-width="2" />
+                
+                <line x1="50" y1="40" x2="250" y2="160" stroke="#60a5fa" stroke-width="2" stroke-dasharray="4" opacity="0.6" />
+                
+                <path d="M 80 40 A 30 30 0 0 1 74 54" fill="none" stroke="#f59e0b" stroke-width="2" />
+                <path d="M 226 146 A 30 30 0 0 1 250 130" fill="none" stroke="#38bdf8" stroke-width="2" />
+
+                <text x="35" y="40" fill="white" font-weight="bold">J</text>
+                <text x="255" y="40" fill="white" font-weight="bold">K</text>
+                <text x="255" y="175" fill="white" font-weight="bold">L</text>
+                <text x="35" y="175" fill="white" font-weight="bold">M</text>
+
+                <text x="85" y="55" fill="#f59e0b" class="angle-label">2x+4</text>
+                <text x="190" y="145" fill="#38bdf8" class="angle-label">7x+5</text>
+            </svg>
+            <div class="mt-8 p-4 bg-slate-900/50 rounded-xl border border-slate-700 font-mono text-sm text-center">
+                <span style="color:#f59e0b">\( m\angle KJL = 2x + 4 \)</span><br>
+                <span style="color:#38bdf8">\( m\angle JLK = 7x + 5 \)</span>
+            </div>
+        </div>
+
+        <div class="w-full md:w-1/2 p-8 flex flex-col bg-slate-800/20">
+            <div class="flex-1 interaction-container">
+                <div class="flex items-center mb-4">
+                    <div id="stepNum" class="w-8 h-8 rounded bg-lime-600 text-slate-900 flex items-center justify-center font-bold mr-3">1</div>
+                    <h2 id="stepTitle" class="text-lime-400 font-bold text-sm uppercase tracking-widest">Step 1</h2>
+                </div>
+                <div id="stepText" class="text-slate-200 text-lg leading-relaxed mb-6"></div>
+
+                <div id="interactionBox" class="hidden p-5 bg-slate-900/50 rounded-xl border border-slate-700">
+                    <div id="promptText" class="text-sm text-slate-400 mb-4 font-medium uppercase tracking-tighter"></div>
+                    <div class="input-row">
+                        <span id="inputPrefix" class="text-white font-mono font-bold">x =</span>
+                        <input type="text" id="userInput" class="math-input-field" placeholder="Type here...">
+                        <button id="checkBtn" class="bg-lime-600 hover:bg-lime-500 text-slate-900 px-6 py-2 rounded-lg font-bold text-sm transition-all">Check</button>
+                    </div>
+                    <div id="feedback" class="mt-4 text-sm font-bold hidden"></div>
+                </div>
+            </div>
+
+            <div class="mt-8 flex items-center justify-between border-t border-slate-700 pt-6">
+                <button id="prevBtn" class="text-xs font-bold text-slate-400 hover:text-white disabled:opacity-30">PREV</button>
+                <div id="stepCounter" class="text-slate-500 font-mono text-[10px] tracking-widest uppercase">Step 1 / 3</div>
+                <button id="nextBtn" class="bg-lime-600 hover:bg-lime-500 text-slate-900 px-6 py-2 rounded-xl font-bold text-xs transition-all">NEXT</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentLang = 'en', currentStep = 0, attempts = 0;
+    let solvedSteps = { 1: false, 2: false };
+    let revealedSteps = { 1: false, 2: false };
+
+    function setLanguage(l) {
+        currentLang = l;
+        document.getElementById('enBtn').classList.toggle('active', l === 'en');
+        document.getElementById('zhBtn').classList.toggle('active', l === 'zh');
+        updateUI();
+    }
+
+    function updateUI() {
+        const stepKey = `${currentLang}-step${currentStep + 1}`;
+        const template = document.getElementById(stepKey);
+        
+        if (currentStep === 2 && solvedSteps[2]) {
+            document.getElementById('stepText').innerHTML = document.getElementById(`${currentLang}-final`).innerHTML;
+        } else {
+            document.getElementById('stepText').innerHTML = template.innerHTML;
+        }
+
+        document.getElementById('stepNum').innerText = currentStep + 1;
+        document.getElementById('stepTitle').innerText = (currentLang === 'en' ? 'Step ' : '步骤 ') + (currentStep + 1);
+        document.getElementById('stepCounter').innerText = (currentLang === 'en' ? 'STEP ' : '步骤 ') + (currentStep + 1) + ' / 3';
+        
+        const interaction = document.getElementById('interactionBox');
+        const input = document.getElementById('userInput');
+        const prefix = document.getElementById('inputPrefix');
+        const feedback = document.getElementById('feedback');
+        
+        interaction.classList.add('hidden');
+        prefix.style.display = 'none';
+        feedback.classList.add('hidden');
+        input.classList.remove('input-correct', 'input-error', 'input-revealed');
+        input.disabled = false;
+        input.value = '';
+
+        if (currentStep === 1) {
+            interaction.classList.remove('hidden');
+            document.getElementById('promptText').innerText = currentLang === 'en' ? 'Simplify the left side:' : '简化等式左侧:';
+            if (solvedSteps[1]) markSolved(!revealedSteps[1]);
+        } else if (currentStep === 2) {
+            interaction.classList.remove('hidden');
+            prefix.style.display = 'inline-block';
+            document.getElementById('promptText').innerText = currentLang === 'en' ? 'Solve for x:' : '解出 x:';
+            if (solvedSteps[2]) markSolved(!revealedSteps[2]);
+        }
+
+        document.getElementById('prevBtn').disabled = currentStep === 0;
+        document.getElementById('nextBtn').innerText = currentStep === 2 ? (currentLang === 'en' ? 'RESTART' : '重新开始') : 'NEXT';
+        updateNextButton();
+
+        if (window.MathJax) MathJax.typesetPromise();
+    }
+
+    function updateNextButton() {
+        const next = document.getElementById('nextBtn');
+        if (currentStep === 0) next.disabled = false;
+        if (currentStep === 1) next.disabled = !solvedSteps[1];
+        if (currentStep === 2) next.disabled = !solvedSteps[2];
+    }
+
+    function markSolved(isCorrectSolve) {
+        const input = document.getElementById('userInput');
+        input.disabled = true;
+        input.classList.remove('input-correct', 'input-revealed');
+        input.classList.add(isCorrectSolve ? 'input-correct' : 'input-revealed');
+        if (currentStep === 1) input.value = "9x + 9";
+        if (currentStep === 2) input.value = "9";
+    }
+
+    document.getElementById('checkBtn').onclick = () => {
+        const val = document.getElementById('userInput').value.replace(/\s+/g, '').toLowerCase();
+        const fb = document.getElementById('feedback');
+        const input = document.getElementById('userInput');
+        fb.classList.remove('hidden');
+        input.classList.remove('input-error');
+
+        let isCorrect = false;
+        let correctAnswer = (currentStep === 1) ? "9x + 9" : "9";
+
+        if (currentStep === 1) isCorrect = (val === '9x+9' || val === '9+9x');
+        else if (currentStep === 2) isCorrect = (val === '9');
+
+        if (isCorrect) {
+            solvedSteps[currentStep] = true;
+            revealedSteps[currentStep] = false;
+            fb.innerText = currentLang === 'en' ? "Correct!" : "正确！";
+            fb.className = "mt-4 text-sm font-bold text-emerald-400";
+            markSolved(true);
+            updateNextButton();
+            if (currentStep === 2) updateUI();
+        } else {
+            attempts++;
+            input.classList.add('input-error');
+            setTimeout(() => input.classList.remove('input-error'), 400);
+
+            if (attempts >= 3) {
+                fb.innerText = (currentLang === 'en' ? "The answer is " : "答案是 ") + correctAnswer;
+                fb.className = "mt-4 text-sm font-bold text-yellow-500";
+                solvedSteps[currentStep] = true;
+                revealedSteps[currentStep] = true;
+                markSolved(false);
+                updateNextButton();
+                if (currentStep === 2) updateUI();
+            } else {
+                fb.innerText = currentLang === 'en' ? "Try again" : "请重试";
+                fb.className = "mt-4 text-sm font-bold text-red-400";
+            }
+        }
+    };
+
+    document.getElementById('nextBtn').onclick = () => {
+        if (currentStep < 2) { currentStep++; attempts = 0; }
+        else { currentStep = 0; attempts = 0; solvedSteps = { 1: false, 2: false }; revealedSteps = { 1: false, 2: false }; }
+        updateUI();
+    };
+
+    document.getElementById('prevBtn').onclick = () => { if (currentStep > 0) { currentStep--; attempts = 0; updateUI(); } };
+
+    window.onload = () => {
+        setTimeout(() => {
+            document.getElementById('loader').style.opacity = '0';
+            setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+        }, 800);
+        updateUI();
+    };
+</script>
+</body>
+</html>
