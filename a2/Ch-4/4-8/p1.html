@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synthetic Substitution - f(4)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code&display=swap');
+
+        body {
+            background-color: #0f172a; 
+            background-image: radial-gradient(#1e293b 0.5px, transparent 0.5px);
+            background-size: 24px 24px;
+            font-family: 'Inter', sans-serif;
+            color: #f1f5f9;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .math-card {
+            width: 100%;
+            max-width: 1100px;
+            background: #1e293b;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid #334155;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .synthetic-table {
+            display: grid;
+            grid-template-columns: 60px 20px repeat(4, 75px);
+            font-family: 'Fira Code', monospace;
+            gap: 10px;
+            text-align: center;
+            font-size: 1.875rem;
+            margin: 2rem auto;
+            align-items: center;
+        }
+
+        .box-r { border: 2px solid #f59e0b; border-radius: 8px; color: #f59e0b; padding: 2px; }
+        .coeff-row { color: #94a3b8; }
+        .multiply-row { color: #10b981; min-height: 40px; font-size: 1.5rem; }
+        .result-row { color: #3b82f6; font-weight: bold; border-top: 2px solid #64748b; padding-top: 10px; }
+        .remainder-pipe { border-left: 2px solid #475569; margin-left: -5px; }
+
+        .input-correct { border-color: #10b981 !important; background: rgba(16, 185, 129, 0.1); }
+        .input-assisted { border-color: #f59e0b !important; background: rgba(245, 158, 11, 0.1); color: #f59e0b !important; }
+        .input-error { animation: shake 0.4s; border-color: #f43f5e !important; }
+
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+        #loader {
+            position: absolute; inset: 0; background: #0f172a; z-index: 100;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .step-input {
+            width: 160px; background: #0f172a; border: 2px solid #475569; border-radius: 8px;
+            padding: 10px; text-align: center; color: #f1f5f9; transition: all 0.3s ease;
+        }
+
+        .lang-btn.active { background-color: #3b82f6; color: white; }
+    </style>
+</head>
+<body>
+
+<div class="math-card">
+    <div id="loader">
+        <span id="animalEmoji" class="text-6xl mb-4"></span>
+        <div class="text-blue-400 font-bold animate-pulse">Loading Exercise...</div>
+    </div>
+
+    <div class="bg-slate-800/80 p-6 border-b border-slate-700 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <span class="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-blue-500/30">Problem 1</span>
+            <h1 id="mainTitle" class="text-xl font-bold text-white">Synthetic Substitution</h1>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="flex bg-slate-900 rounded-lg p-1 border border-slate-700">
+                <button onclick="setLanguage('en')" id="enBtn" class="lang-btn active px-3 py-1 text-[10px] font-bold rounded-md">EN</button>
+                <button onclick="setLanguage('zh')" id="zhBtn" class="lang-btn px-3 py-1 text-[10px] font-bold rounded-md text-slate-400">中文</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex flex-col md:flex-row flex-1">
+        <div class="w-full md:w-7/12 p-8 flex flex-col items-center justify-center bg-slate-900/30 border-r border-slate-700">
+            <div id="problemDisplay" class="text-2xl font-light mb-8 text-center px-4">
+                If \( f(x) = 2x^3 - 5x^2 - x + 14 \), find \( f(4) \).
+            </div>
+            
+            <div class="synthetic-table">
+                <div id="vis-r" class="box-r invisible">4</div>
+                <div></div>
+                <div class="coeff-row">2</div>
+                <div class="coeff-row">-5</div>
+                <div class="coeff-row">-1</div>
+                <div class="coeff-row">14</div>
+
+                <div></div><div></div>
+                <div class="multiply-row"></div>
+                <div id="m1" class="multiply-row invisible">8</div>
+                <div id="m2" class="multiply-row invisible">12</div>
+                <div id="m3" class="multiply-row invisible">44</div>
+
+                <div></div><div></div>
+                <div id="r1" class="result-row invisible">2</div>
+                <div id="r2" class="result-row invisible">3</div>
+                <div id="r3" class="result-row invisible">11</div>
+                <div id="r4" class="result-row remainder-pipe invisible">58</div>
+            </div>
+        </div>
+
+        <div class="w-full md:w-5/12 p-8 flex flex-col bg-slate-800/20">
+            <div id="stepContent" class="flex-1">
+                <h2 id="stepTitle" class="text-amber-400 font-bold uppercase text-sm mb-4"></h2>
+                <p id="stepText" class="text-slate-200 text-lg mb-6"></p>
+                
+                <div id="inputArea" class="bg-slate-900/50 p-6 rounded-xl border border-slate-700">
+                    <div id="formulaPrompt" class="text-xl mb-4 font-medium"></div>
+                    <input type="text" id="mainInput" class="step-input text-2xl" placeholder="?" autocomplete="off">
+                    <button id="checkBtn" class="mt-4 w-full bg-blue-600 py-3 rounded-lg font-bold transition-colors hover:bg-blue-700">Check Answer</button>
+                    
+                    <button id="solveBtn" class="mt-2 w-full border border-amber-500/50 text-amber-500 py-2 rounded-lg font-medium text-sm hidden hover:bg-amber-500/10 transition-all">
+                        Show Solution
+                    </button>
+
+                    <div id="feedbackContainer" class="mt-4 p-4 rounded-lg bg-slate-900 border border-slate-700 hidden text-center">
+                        <p id="feedback" class="text-base font-bold"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 flex items-center justify-between border-t border-slate-700 pt-6">
+                <button id="prevBtn" class="opacity-50 text-slate-400 font-medium" disabled>PREV</button>
+                <span id="stepCounter" class="text-xs font-mono text-slate-500"></span>
+                <button id="nextBtn" class="bg-blue-600 px-6 py-2 rounded-lg font-bold opacity-30" disabled>NEXT</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const translations = {
+        en: {
+            title: "Synthetic Substitution",
+            correctMsg: "Correct! Proceed to the next step.",
+            assistedMsg: "Answer provided. Proceed to the next step.",
+            finalMsg: "Complete! Therefore, f(4) = 58.",
+            finalResultLine: "Result: f(4) = ",
+            steps: [
+                { t: "Step 1: Setup", p: "The value being substituted is:", ans: "4", text: "Write the coefficients (2, -5, -1, 14). Place the substitution value 4 in the box. The first coefficient (2) drops down automatically." },
+                { t: "Step 2: Multiply & Add", p: "Calculate -5 + (2 * 4):", ans: "3", text: "Multiply the dropped value by 4 and add it to the next coefficient (-5)." },
+                { t: "Step 3: Repeat", p: "Calculate -1 + (3 * 4):", ans: "11", text: "Multiply the new sum (3) by 4 and add it to the next coefficient (-1)." },
+                { t: "Step 4: Final Value", p: "Calculate 14 + (11 * 4):", ans: "58", text: "Finally, multiply 11 by 4 and add it to 14 to find the remainder." }
+            ]
+        },
+        zh: {
+            title: "综合代入法",
+            correctMsg: "正确！请继续下一步。",
+            assistedMsg: "已提供答案。请继续下一步。",
+            finalMsg: "完成！因此，f(4) = 58。",
+            finalResultLine: "结果: f(4) = ",
+            steps: [
+                { t: "步骤 1: 设置", p: "被代入的值为:", ans: "4", text: "写出系数 (2, -5, -1, 14)。将代入值 4 放入方框中。第一个系数 (2) 直接落下。" },
+                { t: "步骤 2: 乘法与加法", p: "计算 -5 + (2 * 4):", ans: "3", text: "将落下的数字乘以 4，然后与下一个系数 (-5) 相加。" },
+                { t: "步骤 3: 重复步骤", p: "计算 -1 + (3 * 4):", ans: "11", text: "将新的和 (3) 乘以 4，然后与下一个系数 (-1) 相加。" },
+                { t: "步骤 4: 最终结果", p: "计算 14 + (11 * 4):", ans: "58", text: "最后，将 11 乘以 4 并加到 14 上以求出余数。" }
+            ]
+        }
+    };
+
+    let currentLang = 'en';
+    let currentStep = 0;
+    let failureCount = 0; 
+    let stepState = [false, false, false, false]; 
+    let assistedState = [false, false, false, false]; 
+    const animals = ['🚀', '🧠', '⭐', '📐', '🔢'];
+
+    function setLanguage(lang) {
+        currentLang = lang;
+        document.getElementById('enBtn').classList.toggle('active', lang === 'en');
+        document.getElementById('zhBtn').classList.toggle('active', lang === 'zh');
+        updateUI();
+    }
+
+    function updateUI() {
+        const step = translations[currentLang].steps[currentStep];
+        const feedbackEl = document.getElementById('feedback');
+        document.getElementById('stepTitle').innerText = step.t;
+        document.getElementById('stepText').innerText = step.text;
+        
+        if (currentStep === 3 && stepState[3]) {
+            document.getElementById('formulaPrompt').innerText = translations[currentLang].finalResultLine;
+        } else {
+            document.getElementById('formulaPrompt').innerText = step.p;
+        }
+        
+        document.getElementById('stepCounter').innerText = `STEP ${currentStep + 1} / 4`;
+        
+        if (!stepState[currentStep]) {
+            failureCount = 0;
+            document.getElementById('solveBtn').classList.add('hidden');
+            document.getElementById('checkBtn').classList.remove('hidden');
+            document.getElementById('feedbackContainer').classList.add('hidden');
+            document.getElementById('mainInput').classList.remove('input-correct', 'input-assisted');
+            document.getElementById('mainInput').value = '';
+            document.getElementById('nextBtn').disabled = true;
+            document.getElementById('nextBtn').style.opacity = "0.3";
+        } else {
+            document.getElementById('mainInput').value = step.ans;
+            document.getElementById('checkBtn').classList.add('hidden');
+            document.getElementById('solveBtn').classList.add('hidden');
+            document.getElementById('feedbackContainer').classList.remove('hidden');
+            
+            if (assistedState[currentStep]) {
+                document.getElementById('mainInput').classList.add('input-assisted');
+                feedbackEl.innerText = translations[currentLang].assistedMsg;
+                feedbackEl.className = "text-base font-bold text-amber-500";
+            } else {
+                document.getElementById('mainInput').classList.add('input-correct');
+                feedbackEl.innerText = translations[currentLang].correctMsg;
+                feedbackEl.className = "text-base font-bold text-emerald-400";
+            }
+
+            if (currentStep === 3) {
+                feedbackEl.innerText = translations[currentLang].finalMsg;
+                document.getElementById('nextBtn').disabled = true;
+                document.getElementById('nextBtn').style.opacity = "0.1";
+            } else {
+                document.getElementById('nextBtn').disabled = false;
+                document.getElementById('nextBtn').style.opacity = "1";
+            }
+        }
+
+        const prevBtn = document.getElementById('prevBtn');
+        prevBtn.disabled = currentStep === 0;
+        prevBtn.style.opacity = currentStep === 0 ? "0.5" : "1";
+
+        if (window.renderMathInElement) {
+            renderMathInElement(document.getElementById('problemDisplay'));
+        }
+    }
+
+    function handleSuccess(isAssisted = false) {
+        stepState[currentStep] = true;
+        assistedState[currentStep] = isAssisted;
+        
+        if (currentStep >= 0) { document.getElementById('vis-r').classList.remove('invisible'); document.getElementById('r1').classList.remove('invisible'); }
+        if (currentStep >= 1) { document.getElementById('m1').classList.remove('invisible'); document.getElementById('r2').classList.remove('invisible'); }
+        if (currentStep >= 2) { document.getElementById('m2').classList.remove('invisible'); document.getElementById('r3').classList.remove('invisible'); }
+        if (currentStep >= 3) { document.getElementById('m3').classList.remove('invisible'); document.getElementById('r4').classList.remove('invisible'); }
+        updateUI();
+    }
+
+    document.getElementById('checkBtn').onclick = () => {
+        const step = translations[currentLang].steps[currentStep];
+        const val = document.getElementById('mainInput').value.trim();
+        if (val === step.ans) { 
+            handleSuccess(false); 
+        } 
+        else {
+            failureCount++;
+            document.getElementById('mainInput').classList.add('input-error');
+            setTimeout(() => document.getElementById('mainInput').classList.remove('input-error'), 400);
+            if (failureCount === 2) document.getElementById('solveBtn').classList.remove('hidden');
+            else if (failureCount >= 3) handleSuccess(true);
+        }
+    };
+
+    document.getElementById('solveBtn').onclick = () => { handleSuccess(true); };
+    document.getElementById('nextBtn').onclick = () => { if (currentStep < 3) { currentStep++; updateUI(); } };
+    document.getElementById('prevBtn').onclick = () => { if (currentStep > 0) { currentStep--; updateUI(); } };
+
+    (function startApp() {
+        document.getElementById('animalEmoji').innerText = animals[Math.floor(Math.random() * animals.length)];
+        updateUI();
+        setTimeout(() => {
+            const loader = document.getElementById('loader');
+            loader.style.opacity = '0';
+            setTimeout(() => loader.style.display = 'none', 500);
+        }, 800);
+    })();
+</script>
+</body>
+</html>
