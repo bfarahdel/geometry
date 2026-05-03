@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Properties of Kites - Interactive Exercise</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { background-color: #0f172a; font-family: 'Inter', sans-serif; color: #f1f5f9; min-height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; padding: 20px; }
+        .math-card { width: 100%; max-width: 1100px; background: #1e293b; border-radius: 24px; border: 1px solid #334155; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+        .equation-box { background: rgba(234, 88, 12, 0.05); border: 1px solid #ea580c; border-radius: 12px; padding: 1.5rem; margin: 1rem 0; text-align: center; }
+        .interaction-container { font-size: clamp(0.875rem, 2vw, 1.1rem); }
+        .input-row { display: flex; align-items: center; gap: 0.75rem; white-space: nowrap; width: 100%; }
+        .math-input-field { flex-grow: 1; min-width: 0; background-color: #1e293b; border: 1px solid #475569; border-radius: 0.5rem; padding: 0.5rem 1rem; color: #fb923c; font-family: monospace; }
+        .input-correct { border-color: #ea580c !important; background-color: rgba(234, 88, 12, 0.1) !important; color: #fb923c !important; }
+        .input-revealed { border-color: #ca8a04 !important; background-color: rgba(202, 138, 4, 0.1) !important; color: #facc15 !important; }
+        .input-error { border-color: #b91c1c !important; animation: shake 0.2s ease-in-out 0s 2; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        .lang-btn.active { background-color: #9a3412; color: #ffffff; }
+        #loader { position: absolute; inset: 0; background: #0f172a; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease-out; }
+        .diag-label { font-size: 14px; font-weight: bold; font-family: sans-serif; fill: white; }
+        .value-label { font-size: 14px; font-weight: bold; font-family: sans-serif; fill: #fb923c; }
+        .tick-single { stroke: #6366f1; stroke-width: 2.5; } 
+        .tick-double { stroke: #10b981; stroke-width: 2.5; } 
+    </style>
+</head>
+<body>
+
+<div id="templates" style="display:none;">
+    <div id="en-step1">A kite is a quadrilateral with specific angle properties. Sum of all interior angles is always 360°. Referencing the diagram for <b>Example 4a</b>, what is the measure of angle G?</div>
+    <div id="zh-step1">菱形（筝形）是具有特定角度属性的四边形。所有内角之和始终为 360°。参考 <b>示例 4a</b> 的图表，角 G 的度数是多少？</div>
+    <div id="en-step2">In a kite, exactly one pair of opposite angles is congruent. Since \(\angle G \neq \angle J\), then \(\angle F \cong \angle H\). <div class='equation-box'>\( m\angle F + 128 + m\angle F + 72 = 360 \)</div> Simplify and solve for \(m\angle F\).</div>
+    <div id="zh-step2">在菱形中，恰好有一对对角是全等的。由于 \(\angle G \neq \angle J\)，因此 \(\angle F \cong \angle H\)。<div class='equation-box'>\( m\angle F + 128 + m\angle F + 72 = 360 \)</div> 简化并求解 \(m\angle F\)。</div>
+    <div id="en-final">By simplifying \(2m\angle F + 200 = 360\), we find that \(m\angle F = 80\).</div>
+    <div id="zh-final">通过简化 \(2m\angle F + 200 = 360\)，我们得出 \(m\angle F = 80\)。</div>
+</div>
+
+<div class="math-card">
+    <div id="loader">
+        <span id="emojiLoader" style="font-size: 5rem; margin-bottom: 1rem;">🪁</span>
+        <div class="text-slate-500 font-bold text-xl uppercase tracking-widest animate-pulse">Loading...</div>
+    </div>
+
+    <div class="bg-slate-800/80 p-6 border-b border-slate-700 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <span class="bg-slate-900/50 text-slate-400 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-slate-700">Example 4a</span>
+            <h1 class="text-xl font-bold text-white tracking-tight">Kite Angle Properties</h1>
+        </div>
+        <div class="flex bg-slate-900 rounded-lg p-1 border border-slate-700">
+            <button onclick="setLanguage('en')" id="enBtn" class="lang-btn active px-3 py-1 text-[10px] font-bold rounded-md transition-all">EN</button>
+            <button onclick="setLanguage('zh')" id="zhBtn" class="lang-btn px-3 py-1 text-[10px] font-bold rounded-md transition-all text-slate-400">中文</button>
+        </div>
+    </div>
+
+    <div class="flex flex-col md:flex-row flex-1">
+        <div class="w-full md:w-1/2 p-8 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-slate-700 bg-slate-900/30">
+            <svg viewBox="0 0 320 200" class="w-full max-w-[380px]">
+                <path d="M 40 80 L 160 30 L 280 80 L 160 170 Z" fill="none" stroke="#94a3b8" stroke-width="2" />
+                
+                <!-- Side Marking Ticks -->
+                <g transform="translate(100, 55) rotate(-22)"><line x1="0" y1="-8" x2="0" y2="8" class="tick-single" /></g>
+                <g transform="translate(220, 55) rotate(22)"><line x1="0" y1="-8" x2="0" y2="8" class="tick-single" /></g>
+                <g transform="translate(100, 125) rotate(37)"><line x1="-3" y1="-8" x2="-3" y2="8" class="tick-double" /><line x1="3" y1="-8" x2="3" y2="8" class="tick-double" /></g>
+                <g transform="translate(220, 125) rotate(-37)"><line x1="-3" y1="-8" x2="-3" y2="8" class="tick-double" /><line x1="3" y1="-8" x2="3" y2="8" class="tick-double" /></g>
+
+                <!-- Corner labels -->
+                <text x="25" y="85" class="diag-label">F</text>
+                <text x="155" y="25" class="diag-label">G</text>
+                <text x="285" y="85" class="diag-label">H</text>
+                <text x="155" y="185" class="diag-label">J</text>
+                
+                <!-- Angle G -->
+                <text x="148" y="58" class="value-label" style="fill:white;">128°</text>
+                <path d="M 140 38 A 25 25 0 0 0 180 38" fill="none" stroke="#6366f1" stroke-width="1.5" />
+
+                <!-- Angle J -->
+                <text x="153" y="160" class="value-label" style="fill:white;">72°</text>
+                <path d="M 140 155 A 25 25 0 0 1 180 155" fill="none" stroke="#6366f1" stroke-width="1.5" />
+            </svg>
+        </div>
+
+        <div class="w-full md:w-1/2 p-8 flex flex-col bg-slate-800/20">
+            <div class="flex-1 interaction-container">
+                <div class="flex items-center mb-4">
+                    <div id="stepNum" class="w-8 h-8 rounded bg-orange-700 text-white flex items-center justify-center font-bold mr-3">1</div>
+                    <h2 id="stepTitle" class="text-orange-600 font-bold text-sm uppercase tracking-widest">Step 1</h2>
+                </div>
+                <div id="stepText" class="text-slate-200 text-lg leading-relaxed mb-6"></div>
+                <div id="interactionBox" class="hidden p-5 bg-slate-900/50 rounded-xl border border-slate-700">
+                    <div id="promptText" class="text-sm text-slate-400 mb-4 font-medium uppercase tracking-tighter"></div>
+                    <div class="input-row">
+                        <span id="inputPrefix" class="text-white font-mono font-bold"></span>
+                        <input type="text" id="userInput" class="math-input-field" placeholder="...">
+                        <button id="checkBtn" class="bg-orange-700 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-bold text-sm transition-all">Check</button>
+                    </div>
+                    <div id="feedback" class="mt-4 text-sm font-bold hidden"></div>
+                </div>
+            </div>
+            <div class="mt-8 flex items-center justify-between border-t border-slate-700 pt-6">
+                <button id="prevBtn" class="text-xs font-bold text-slate-400 hover:text-white disabled:opacity-30">PREV</button>
+                <div id="stepCounter" class="text-slate-500 font-mono text-[10px] tracking-widest uppercase">Step 1 / 2</div>
+                <button id="nextBtn" class="bg-orange-900 hover:bg-orange-800 text-white px-6 py-2 rounded-xl font-bold text-xs transition-all">NEXT</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentLang = 'en', currentStep = 0, attempts = 0;
+    let solvedSteps = { 1: false, 2: false };
+    let revealedSteps = { 1: false, 2: false }; 
+
+    function setLanguage(l) {
+        currentLang = l;
+        document.getElementById('enBtn').classList.toggle('active', l === 'en');
+        document.getElementById('zhBtn').classList.toggle('active', l === 'zh');
+        updateUI();
+    }
+
+    function updateUI() {
+        const stepKey = `${currentLang}-step${currentStep + 1}`;
+        document.getElementById('stepText').innerHTML = (currentStep === 1 && solvedSteps[2]) 
+            ? document.getElementById(`${currentLang}-final`).innerHTML : document.getElementById(stepKey).innerHTML;
+        document.getElementById('stepNum').innerText = currentStep + 1;
+        document.getElementById('stepTitle').innerText = (currentLang === 'en' ? 'Step ' : '步骤 ') + (currentStep + 1);
+        document.getElementById('stepCounter').innerText = (currentLang === 'en' ? 'Step ' : '步骤 ') + (currentStep + 1) + ' / 2';
+        const interaction = document.getElementById('interactionBox');
+        const input = document.getElementById('userInput');
+        const prefix = document.getElementById('inputPrefix');
+        const feedback = document.getElementById('feedback');
+        const nextBtn = document.getElementById('nextBtn');
+        interaction.classList.remove('hidden');
+        feedback.classList.add('hidden');
+        input.classList.remove('input-correct', 'input-revealed', 'input-error');
+        input.disabled = false;
+        input.value = '';
+        if (currentStep === 0) {
+            prefix.innerText = "m∠G = ";
+            document.getElementById('promptText').innerText = currentLang === 'en' ? "Enter value for angle G:" : "输入角 G 的值：";
+            if (solvedSteps[1]) markSolved("128", revealedSteps[1]);
+        } else if (currentStep === 1) {
+            prefix.innerText = "m∠F = ";
+            document.getElementById('promptText').innerText = currentLang === 'en' ? "Calculate value for angle F:" : "计算角 F 的值：";
+            if (solvedSteps[2]) markSolved("80", revealedSteps[2]);
+        }
+        document.getElementById('prevBtn').disabled = currentStep === 0;
+        nextBtn.disabled = !solvedSteps[currentStep + 1];
+        nextBtn.innerText = (currentStep === 1 && solvedSteps[2]) ? (currentLang === 'en' ? 'RESTART' : '重新开始') : (currentLang === 'en' ? 'NEXT' : '下一步');
+        if (window.MathJax) MathJax.typesetPromise();
+    }
+
+    function markSolved(val, isRevealed) {
+        const input = document.getElementById('userInput');
+        const fb = document.getElementById('feedback');
+        input.disabled = true;
+        input.value = val;
+        if (isRevealed) {
+            input.classList.add('input-revealed');
+            fb.innerText = (currentLang === 'en' ? "The answer is " : "答案是 ") + val;
+            fb.className = "mt-4 text-sm font-bold text-yellow-600";
+        } else {
+            input.classList.add('input-correct');
+            fb.innerText = currentLang === 'en' ? "Correct!" : "正确！";
+            fb.className = "mt-4 text-sm font-bold text-orange-600";
+        }
+        fb.classList.remove('hidden');
+    }
+
+    document.getElementById('checkBtn').onclick = () => {
+        const val = document.getElementById('userInput').value.trim();
+        const fb = document.getElementById('feedback');
+        fb.classList.remove('hidden');
+        let isCorrect = (currentStep === 0 && val === "128") || (currentStep === 1 && val === "80");
+        if (isCorrect) {
+            solvedSteps[currentStep + 1] = true;
+            markSolved(val, false);
+            document.getElementById('nextBtn').disabled = false;
+            if (currentStep === 1) updateUI();
+        } else {
+            attempts++;
+            document.getElementById('userInput').classList.add('input-error');
+            setTimeout(() => document.getElementById('userInput').classList.remove('input-error'), 400);
+            if (attempts >= 3) {
+                const answer = currentStep === 0 ? "128" : "80";
+                solvedSteps[currentStep + 1] = true;
+                revealedSteps[currentStep + 1] = true;
+                markSolved(answer, true);
+                document.getElementById('nextBtn').disabled = false;
+                if (currentStep === 1) updateUI();
+            } else {
+                fb.innerText = currentLang === 'en' ? "Try again" : "请重试";
+                fb.className = "mt-4 text-sm font-bold text-red-600";
+            }
+        }
+    };
+
+    document.getElementById('nextBtn').onclick = () => {
+        if (currentStep < 1) { currentStep++; attempts = 0; updateUI(); } 
+        else { currentStep = 0; attempts = 0; solvedSteps = { 1: false, 2: false }; revealedSteps = { 1: false, 2: false }; updateUI(); }
+    };
+    document.getElementById('prevBtn').onclick = () => { if (currentStep > 0) { currentStep--; updateUI(); } };
+
+    window.onload = () => {
+        setTimeout(() => {
+            document.getElementById('loader').style.opacity = '0';
+            setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+        }, 1000);
+        updateUI();
+    };
+</script>
+</body>
+</html>
