@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Example 1b - Complex Roots</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body { 
+            background-color: #0f172a; 
+            font-family: 'Inter', sans-serif; 
+            color: #f1f5f9; 
+            min-height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            margin: 0; 
+            padding: 20px; 
+        }
+
+        .math-card { 
+            width: 100%; 
+            max-width: 1000px; 
+            background: #1e293b; 
+            border-radius: 24px; 
+            border: 1px solid #334155; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .header {
+            background: #0f172a;
+            padding: 1.5rem;
+            border-bottom: 1px solid #334155;
+        }
+
+        .lang-toggle {
+            display: flex;
+            gap: 0.5rem;
+            background: #1e293b;
+            padding: 0.25rem;
+            border-radius: 0.5rem;
+            border: 1px solid #334155;
+        }
+
+        .lang-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 600;
+            font-size: 0.75rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .lang-btn.active {
+            background: #7c3aed;
+            color: #0f172a;
+        }
+
+        .lang-btn:not(.active) {
+            background: transparent;
+            color: #94a3b8;
+        }
+
+        /* Loading Screen */
+        #loadingScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+
+        #loadingScreen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-emoji {
+            font-size: 4rem;
+            animation: bounce 1s infinite;
+        }
+
+        .loading-text {
+            margin-top: 1rem;
+            font-size: 1.25rem;
+            color: #7c3aed;
+            font-weight: 600;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .graph-point { cursor: pointer; fill: #334155; stroke: #475569; stroke-width: 2px; transition: fill 0.2s; }
+        .graph-point:hover { fill: #94a3b8; }
+        .graph-point.selected { fill: #7c3aed; stroke: #f1f5f9; r: 7; }
+        
+        .input-fail { border-color: #eab308 !important; background-color: rgba(234, 179, 8, 0.1) !important; }
+        
+        .step-container { display: none; }
+        .step-container.active { display: block; }
+
+        .check-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-size: 0.875rem;
+        }
+        .check-btn:not(:disabled) {
+            background: #7c3aed;
+            color: #0f172a;
+        }
+        .check-btn:not(:disabled):hover {
+            background: #6d28d9;
+        }
+        .check-btn:disabled {
+            background: #475569;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        /* Multiselect Options */
+        .multiselect-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin: 1rem 0;
+        }
+
+        .multiselect-option {
+            background: #0f172a;
+            border: 2px solid #334155;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .multiselect-option:hover {
+            border-color: #7c3aed;
+        }
+
+        .multiselect-option.selected {
+            border-color: #7c3aed;
+            background: #0f172a;
+        }
+
+        .multiselect-option.correct {
+            border-color: #22c55e;
+            background: #0f172a;
+        }
+
+        .multiselect-option.incorrect {
+            border-color: #ef4444;
+            background: #0f172a;
+        }
+
+        /* Inline input for factoring */
+        .inline-input {
+            background: #1e293b;
+            border: 2px solid #7c3aed;
+            border-radius: 0.375rem;
+            padding: 0.25rem 0.5rem;
+            color: #f1f5f9;
+            font-size: 1.125rem;
+            text-align: center;
+            width: 80px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .inline-input:focus {
+            outline: none;
+            border-color: #a855f7;
+        }
+
+        .math-text {
+            color: #c084fc;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loading Screen -->
+    <div id="loadingScreen">
+        <div class="loading-emoji" id="loadingEmoji">🦄</div>
+        <div class="loading-text" data-en="Loading..." data-zh="加载中...">Loading...</div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="math-card" id="mainContainer">
+        <!-- Header -->
+        <div class="header flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <span class="bg-purple-600/20 text-purple-400 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-purple-600/30">Example 1b</span>
+                <h1 id="mainTitle" class="text-xl font-bold text-white tracking-tight">Find All Roots of the Equation</h1>
+            </div>
+            <div class="lang-toggle">
+                <button onclick="setLanguage('en')" id="enBtn" class="lang-btn active">EN</button>
+                <button onclick="setLanguage('zh')" id="zhBtn" class="lang-btn">中文</button>
+            </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row">
+            <!-- Left Column: Graph -->
+            <div class="w-full lg:w-1/2 p-8 flex flex-col items-center justify-center bg-slate-900/30 border-b lg:border-b-0 lg:border-r border-slate-700">
+                <div class="mb-6 text-center">
+                    <p class="text-purple-400 font-bold text-3xl mb-2">$x^3 + 25x = 0$</p>
+                    <p class="text-slate-400 text-sm">f(x) = x³ + 25x</p>
+                </div>
+                
+                <svg viewBox="0 0 320 320" class="w-full max-w-[320px]" id="graphSvg">
+                    <g stroke="#334155" stroke-width="1" stroke-dasharray="2,2">
+                        <line x1="0" y1="40" x2="320" y2="40" /><line x1="0" y1="80" x2="320" y2="80" /><line x1="0" y1="120" x2="320" y2="120" />
+                        <line x1="0" y1="200" x2="320" y2="200" /><line x1="0" y1="240" x2="320" y2="240" /><line x1="0" y1="280" x2="320" y2="280" />
+                        <line x1="40" y1="0" x2="40" y2="320" /><line x1="80" y1="0" x2="80" y2="320" /><line x1="120" y1="0" x2="120" y2="320" />
+                        <line x1="160" y1="0" x2="160" y2="320" /><line x1="200" y1="0" x2="200" y2="320" /><line x1="280" y1="0" x2="280" y2="320" />
+                    </g>
+                    <line x1="0" y1="160" x2="320" y2="160" stroke="#94a3b8" stroke-width="2" /> 
+                    <line x1="160" y1="0" x2="160" y2="320" stroke="#94a3b8" stroke-width="2" /> 
+                    
+                    <!-- Cubic curve x^3 + 25x -->
+                    <path d="M20,290 C80,260 120,200 160,160 C200,120 240,60 300,30" fill="none" stroke="#7c3aed" stroke-width="3" />
+                    
+                    <text x="155" y="180" class="text-[10px] fill-slate-500 font-bold">0</text>
+                    <text x="290" y="175" class="text-[10px] fill-slate-500 font-bold">x</text>
+                    <text x="165" y="20" class="text-[10px] fill-slate-500 font-bold">f(x)</text>
+                    
+                    <g id="clickablePoints">
+                        <circle cx="80" cy="160" r="6" class="graph-point" onclick="selectPoint(this, -4)"></circle>
+                        <circle cx="120" cy="160" r="6" class="graph-point" onclick="selectPoint(this, -2)"></circle>
+                        <circle cx="160" cy="160" r="6" class="graph-point" onclick="selectPoint(this, 0)"></circle>
+                        <circle cx="200" cy="160" r="6" class="graph-point" onclick="selectPoint(this, 2)"></circle>
+                        <circle cx="240" cy="160" r="6" class="graph-point" onclick="selectPoint(this, 4)"></circle>
+                    </g>
+                </svg>
+                
+                <div class="mt-8 p-5 bg-slate-800/50 rounded-xl border border-slate-700 w-full">
+                    <p id="complexRootsHeader" class="text-purple-400 font-bold uppercase text-[10px] block mb-1">Complex Roots</p>
+                    <p id="complexRootsText" class="text-slate-300 text-base leading-relaxed">
+                        Complex roots always occur in conjugate pairs. If $a + bi$ is a root, then $a - bi$ is also a root.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Right Column: Steps -->
+            <div class="w-full lg:w-1/2 p-8 flex flex-col bg-slate-800/20">
+                <form autocomplete="off" onsubmit="return false;">
+                    <!-- Step 1: Factor -->
+                    <div id="step1" class="step-container active">
+                        <span class="text-[10px] font-bold text-purple-400 uppercase tracking-widest">Step 1: Factor the Equation</span>
+                        <p id="s1-task" class="text-slate-300 text-base my-4">Factor $x$ out of $x^3 + 25x = 0$.</p>
+                        <div class="bg-slate-950 p-6 rounded-lg border border-slate-700 mb-6 text-center text-purple-400 font-mono text-2xl">
+                            <span class="math-text">x(x² + </span><input type="text" id="math_val_1" autocomplete="off" placeholder="?" class="inline-input"><span class="math-text">) = 0</span>
+                        </div>
+                        <div id="msg1" class="text-sm mt-2 min-h-[1.25rem]"></div>
+                        <div id="hint1" class="hidden text-sm text-yellow-500 mt-1 font-bold">The correct expression is $x^2 + 25$.</div>
+                        
+                        <div class="flex gap-2 mt-4">
+                            <button type="button" onclick="validateInput('1')" class="check-btn w-2/3">Check Answer</button>
+                            <button type="button" id="nextBtn1" onclick="showStep('2')" class="hidden w-1/3 bg-slate-700 text-white py-2 rounded-lg text-sm transition-all">Next</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Real Root -->
+                    <div id="step2" class="step-container">
+                        <span class="text-[10px] font-bold text-purple-400 uppercase tracking-widest">Step 2: Find the Real Root</span>
+                        <p class="text-slate-300 text-base my-4">From the factored form $x(x^2 + 25) = 0$, set the first factor to zero.</p>
+                        <p id="s2-task" class="text-slate-300 text-base mb-4">What is the value of the real root?</p>
+                        <input type="text" id="math_val_2" autocomplete="new-password" placeholder="Enter value" class="bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-base w-full focus:border-purple-500 outline-none mb-2">
+                        <div id="msg2" class="text-sm mt-2 min-h-[1.25rem]"></div>
+                        <div id="hint2" class="hidden text-sm text-yellow-500 mt-1 font-bold">The real root is $x = 0$.</div>
+
+                        <div class="flex gap-2 mt-4">
+                            <button type="button" onclick="validateInput('2')" class="check-btn w-2/3">Check Answer</button>
+                            <button type="button" id="nextBtn2" onclick="showStep('3')" class="hidden w-1/3 bg-slate-700 text-white py-2 rounded-lg text-sm transition-all">Next</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Complex Roots (Multiselect) -->
+                    <div id="step3" class="step-container">
+                        <span class="text-[10px] font-bold text-purple-400 uppercase tracking-widest">Step 3: Find the Complex Roots</span>
+                        <p class="text-slate-300 text-base my-4">Set the second factor to zero: $x^2 + 25 = 0$.</p>
+                        <p class="text-slate-300 text-sm mb-2">Solving: $x^2 = -25$, so $x = \pm\sqrt{-25}$</p>
+                        <p id="s3-task" class="text-slate-300 text-base mb-4">Select the two imaginary roots (complex conjugates):</p>
+                        
+                        <div class="multiselect-container" id="multiselectContainer">
+                            <div class="multiselect-option" onclick="toggleOption(this, '5i')" data-value="5i">$5i$</div>
+                            <div class="multiselect-option" onclick="toggleOption(this, '-5i')" data-value="-5i">$-5i$</div>
+                            <div class="multiselect-option" onclick="toggleOption(this, '3i')" data-value="3i">$3i$</div>
+                            <div class="multiselect-option" onclick="toggleOption(this, '-3i')" data-value="-3i">$-3i$</div>
+                            <div class="multiselect-option" onclick="toggleOption(this, '25i')" data-value="25i">$25i$</div>
+                            <div class="multiselect-option" onclick="toggleOption(this, '-25i')" data-value="-25i">$-25i$</div>
+                            <div class="multiselect-option" onclick="toggleOption(this, '5')" data-value="5">$5$</div>
+                            <div class="multiselect-option" onclick="toggleOption(this, '-5')" data-value="-5">$-5$</div>
+                        </div>
+                        
+                        <div id="msg3" class="text-sm mt-2 min-h-[1.25rem]"></div>
+                        <div id="hint3" class="hidden text-sm text-yellow-500 mt-1 font-bold">The complex roots are $5i$ and $-5i$. These are complex conjugates.</div>
+
+                        <div class="flex gap-2 mt-4">
+                            <button type="button" onclick="validateInput('3')" class="check-btn w-2/3">Check Answer</button>
+                            <button type="button" id="nextBtn3" onclick="showStep('4')" class="hidden w-1/3 bg-slate-700 text-white py-2 rounded-lg text-sm transition-all">Next</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Graph -->
+                    <div id="step4" class="step-container">
+                        <span class="text-[10px] font-bold text-purple-400 uppercase tracking-widest">Step 4: Check the Graph</span>
+                        <p id="s4-task" class="text-slate-300 text-base my-4">Click the point on the x-axis where the graph crosses. This confirms the real root.</p>
+                        <div id="msg4" class="text-sm mb-4 min-h-[1.25rem]"></div>
+                        <div id="hint4" class="hidden text-sm text-yellow-500 mt-1 font-bold mb-4">The graph crosses the x-axis at x = 0.</div>
+                        <div class="flex gap-2">
+                            <button id="finishBtn" onclick="validateInput('4')" class="check-btn w-2/3" disabled>Check Answer</button>
+                            <button type="button" id="nextBtn4" onclick="showStep('finalFeedback')" class="hidden w-1/3 bg-slate-700 text-white py-2 rounded-lg text-sm transition-all">Next</button>
+                        </div>
+                    </div>
+
+                    <!-- Final Feedback -->
+                    <div id="stepfinalFeedback" class="step-container">
+                        <div class="bg-purple-600/10 border border-purple-600/30 p-6 rounded-xl text-center">
+                            <div class="text-4xl mb-4">🎯</div>
+                            <p id="conclusionText" class="text-slate-200 text-base leading-relaxed mb-6">
+                                This equation has one <b>real root</b> ($x = 0$) and two <b>imaginary roots</b> ($5i$ and $-5i$).<br><br>
+                                Notice that $5i$ and $-5i$ are <b>complex conjugates</b>. Complex conjugate pairs always occur together for polynomial equations with real coefficients.<br><br>
+                                The graph confirms this: it crosses the x-axis at only one place, $x = 0$.
+                            </p>
+                            <button onclick="location.reload()" class="check-btn w-auto px-8">Restart Exercise</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Loading Screen with Emoji Shuffle
+        const emojis = ['🦄', '', '👽', '', '⭐', '', '✨', '', '🎯', '🎨'];
+        let emojiInterval;
+        
+        window.addEventListener('load', () => {
+            // Clear any autofilled values from inputs
+            document.getElementById('math_val_1').value = '';
+            document.getElementById('math_val_2').value = '';
+            
+            // Start shuffling emojis
+            const emojiElement = document.getElementById('loadingEmoji');
+            emojiInterval = setInterval(() => {
+                const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+                emojiElement.textContent = randomEmoji;
+            }, 300);
+            
+            setTimeout(() => {
+                clearInterval(emojiInterval);
+                document.getElementById('loadingScreen').classList.add('hidden');
+            }, 1500);
+        });
+
+        let currentLang = 'en';
+        let selectedXValue = null;
+        let attempts = { '1': 0, '2': 0, '3': 0, '4': 0 };
+        let selectedOptions = [];
+
+        const dict = {
+            en: {
+                title: "Find All Roots of the Equation",
+                step1Factor: "STEP 1: FACTOR THE EQUATION",
+                step2Real: "STEP 2: FIND THE REAL ROOT",
+                step3Complex: "STEP 3: FIND THE COMPLEX ROOTS",
+                step4Graph: "STEP 4: CHECK THE GRAPH",
+                enterValue: "Enter value",
+                checkAnswer: "Check Answer",
+                next: "Next",
+                complexRoots: "COMPLEX ROOTS",
+                complexRootsText: "Complex roots always occur in conjugate pairs. If $a + bi$ is a root, then $a - bi$ is also a root.",
+                s1Task: "Factor $x$ out of $x^3 + 25x = 0$.",
+                hint1: "The correct expression is $x^2 + 25$.",
+                s2Task: "What is the value of the real root?",
+                hint2: "The real root is $x = 0$.",
+                s3Task: "Select the two imaginary roots (complex conjugates):",
+                hint3: "The complex roots are $5i$ and $-5i$. These are complex conjugates.",
+                s4Task: "Click the point on the x-axis where the graph crosses. This confirms the real root.",
+                conclusion: "This equation has one <b>real root</b> ($x = 0$) and two <b>imaginary roots</b> ($5i$ and $-5i$).<br><br>Notice that $5i$ and $-5i$ are <b>complex conjugates</b>. Complex conjugate pairs always occur together for polynomial equations with real coefficients.<br><br>The graph confirms this: it crosses the x-axis at only one place, $x = 0$.",
+                restartExercise: "Restart Exercise",
+                correct: "Correct!",
+                tryAgain: "Try again.",
+                selectTwo: "Please select exactly two options."
+            },
+            zh: {
+                title: "求方程的所有根",
+                step1Factor: "步骤 1：因式分解方程",
+                step2Real: "步骤 2：求实根",
+                step3Complex: "步骤 3：求复根",
+                step4Graph: "步骤 4：检查图像",
+                enterValue: "输入数值",
+                checkAnswer: "检查答案",
+                next: "下一步",
+                complexRoots: "复根",
+                complexRootsText: "复根总是成共轭对出现。如果 $a + bi$ 是一个根，那么 $a - bi$ 也是一个根。",
+                s1Task: "从 $x^3 + 25x = 0$ 中提取公因式 $x$。",
+                hint1: "正确的表达式是 $x^2 + 25$。",
+                s2Task: "实根的值是多少？",
+                hint2: "实根是 $x = 0$。",
+                s3Task: "选择两个虚根（复共轭）：",
+                hint3: "复根是 $5i$ 和 $-5i$。它们是复共轭。",
+                hint4: "图像在 x = 0 处穿过 x 轴。",
+                s4Task: "点击图像穿过 x 轴的点。这验证了实根。",
+                conclusion: "这个方程有一个<b>实根</b>（$x = 0$）和两个<b>虚根</b>（$5i$ 和 $-5i$）。<br><br>注意 $5i$ 和 $-5i$ 是<b>复共轭</b>。对于实系数多项式方程，复共轭对总是成对出现。<br><br>图像证实了这一点：它仅在 $x = 0$ 处穿过 x 轴。",
+                restartExercise: "重新开始练习",
+                correct: "正确！",
+                tryAgain: "请再试一次。",
+                selectTwo: "请选择恰好两个选项。"
+            }
+        };
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.getElementById('enBtn').classList.toggle('active', lang === 'en');
+            document.getElementById('zhBtn').classList.toggle('active', lang === 'zh');
+            
+            document.getElementById('mainTitle').innerText = dict[lang].title;
+            document.querySelector('#step1 span').innerText = dict[lang].step1Factor;
+            document.querySelector('#step2 span').innerText = dict[lang].step2Real;
+            document.querySelector('#step3 span').innerText = dict[lang].step3Complex;
+            document.querySelector('#step4 span').innerText = dict[lang].step4Graph;
+            document.getElementById('s1-task').innerHTML = dict[lang].s1Task;
+            document.getElementById('s2-task').innerText = dict[lang].s2Task;
+            document.getElementById('s3-task').innerHTML = dict[lang].s3Task;
+            document.getElementById('s4-task').innerText = dict[lang].s4Task;
+            document.getElementById('conclusionText').innerHTML = dict[lang].conclusion;
+            document.getElementById('complexRootsHeader').innerText = dict[lang].complexRoots;
+            document.getElementById('complexRootsText').innerHTML = dict[lang].complexRootsText;
+            
+            document.getElementById('math_val_2').placeholder = dict[lang].enterValue;
+            
+            document.querySelectorAll('.check-btn').forEach(btn => {
+                if (btn.innerText.includes('Check Answer') || btn.innerText.includes('检查答案')) {
+                    btn.innerText = dict[lang].checkAnswer;
+                }
+                if (btn.innerText.includes('Restart Exercise') || btn.innerText.includes('重新开始练习')) {
+                    btn.innerText = dict[lang].restartExercise;
+                }
+            });
+            
+            document.querySelectorAll('#nextBtn1, #nextBtn2, #nextBtn3, #nextBtn4').forEach(btn => {
+                btn.innerText = dict[lang].next;
+            });
+            
+            document.getElementById('hint1').innerHTML = dict[lang].hint1;
+            document.getElementById('hint2').innerHTML = dict[lang].hint2;
+            document.getElementById('hint3').innerHTML = dict[lang].hint3;
+            document.getElementById('hint4').innerHTML = dict[lang].hint4;
+            
+            MathJax.typeset();
+        }
+
+        function showStep(id) {
+            document.querySelectorAll('.step-container').forEach(el => el.classList.remove('active'));
+            const nextStep = document.getElementById('step' + id);
+            if(nextStep) {
+                nextStep.classList.add('active');
+                MathJax.typeset();
+            }
+        }
+
+        function toggleOption(element, value) {
+            const index = selectedOptions.indexOf(value);
+            
+            if (index > -1) {
+                selectedOptions.splice(index, 1);
+                element.classList.remove('selected');
+            } else {
+                if (selectedOptions.length < 2) {
+                    selectedOptions.push(value);
+                    element.classList.add('selected');
+                }
+            }
+        }
+
+        function validateInput(step) {
+            const msg = document.getElementById('msg' + step);
+            
+            if (step === '1') {
+                const input = document.getElementById('math_val_1');
+                const val = input.value.trim();
+                if (val === "25") {
+                    msg.innerHTML = `<span class="text-purple-400 font-bold">${dict[currentLang].correct}</span>`;
+                    document.getElementById('nextBtn1').classList.remove('hidden');
+                } else {
+                    handleFailure(step, input, msg);
+                }
+            } else if (step === '2') {
+                const input = document.getElementById('math_val_2');
+                const val = input.value.trim().toLowerCase().replace(/\s/g, '');
+                if (val === "0" || val === "x=0") {
+                    msg.innerHTML = `<span class="text-purple-400 font-bold">${dict[currentLang].correct}</span>`;
+                    document.getElementById('nextBtn2').classList.remove('hidden');
+                } else {
+                    handleFailure(step, input, msg);
+                }
+            } else if (step === '3') {
+                attempts[step]++;
+                
+                if (selectedOptions.length !== 2) {
+                    msg.innerHTML = `<span class="text-red-400 font-bold">${dict[currentLang].selectTwo}</span>`;
+                    if (attempts[step] >= 3) {
+                        document.getElementById('hint3').classList.remove('hidden');
+                        document.getElementById('nextBtn3').classList.remove('hidden');
+                        MathJax.typeset();
+                    }
+                    return;
+                }
+                
+                if (selectedOptions.includes('5i') && selectedOptions.includes('-5i')) {
+                    msg.innerHTML = `<span class="text-purple-400 font-bold">${dict[currentLang].correct}</span>`;
+                    document.querySelectorAll('.multiselect-option').forEach(opt => {
+                        if (opt.dataset.value === '5i' || opt.dataset.value === '-5i') {
+                            opt.classList.add('correct');
+                        }
+                        opt.classList.remove('selected');
+                    });
+                    document.getElementById('nextBtn3').classList.remove('hidden');
+                } else {
+                    msg.innerHTML = `<span class="text-red-400 font-bold">${dict[currentLang].tryAgain}</span>`;
+                    if (attempts[step] >= 3) {
+                        document.getElementById('hint3').classList.remove('hidden');
+                        document.getElementById('nextBtn3').classList.remove('hidden');
+                        MathJax.typeset();
+                    }
+                }
+            } else if (step === '4') {
+                attempts[step]++;
+                
+                if (selectedXValue === 0) {
+                    msg.innerHTML = `<span class="text-purple-400 font-bold">${dict[currentLang].correct}</span>`;
+                    showStep('finalFeedback');
+                } else {
+                    msg.innerHTML = `<span class="text-red-400 font-bold">${dict[currentLang].tryAgain}</span>`;
+                    if (attempts[step] >= 3) {
+                        document.getElementById('hint4').classList.remove('hidden');
+                        document.getElementById('nextBtn4').classList.remove('hidden');
+                        MathJax.typeset();
+                    }
+                }
+            }
+        }
+
+        function handleFailure(step, input, msg) {
+            attempts[step]++;
+            msg.innerHTML = `<span class="text-red-400 font-bold">${dict[currentLang].tryAgain}</span>`;
+            if (attempts[step] >= 3) {
+                input.classList.add('input-fail');
+                document.getElementById('hint' + step).classList.remove('hidden');
+                document.getElementById('nextBtn' + step).classList.remove('hidden');
+                MathJax.typeset();
+            }
+        }
+
+        function selectPoint(el, x) {
+            if (!document.getElementById('step4').classList.contains('active')) return;
+            document.querySelectorAll('.graph-point').forEach(p => p.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedXValue = x;
+            const btn = document.getElementById('finishBtn');
+            btn.disabled = false;
+            btn.className = "check-btn w-2/3";
+        }
+    </script>
+  </body>
+</html>
