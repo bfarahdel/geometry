@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Example 1a - Repeated Roots</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        /* Base Theme - Darker Purple */
+        body { 
+            background-color: #0f172a; 
+            font-family: 'Inter', sans-serif; 
+            color: #f1f5f9; 
+            min-height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            margin: 0; 
+            padding: 20px; 
+        }
+
+        .math-card { 
+            width: 100%; 
+            max-width: 1000px; 
+            background: #1e293b; 
+            border-radius: 24px; 
+            border: 1px solid #334155; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .header {
+            background: #0f172a;
+            padding: 1.5rem;
+            border-bottom: 1px solid #334155;
+        }
+
+        .lang-toggle {
+            display: flex;
+            gap: 0.5rem;
+            background: #1e293b;
+            padding: 0.25rem;
+            border-radius: 0.5rem;
+            border: 1px solid #334155;
+        }
+
+        .lang-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 600;
+            font-size: 0.75rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .lang-btn.active {
+            background: #7c3aed;
+            color: #0f172a;
+        }
+
+        .lang-btn:not(.active) {
+            background: transparent;
+            color: #94a3b8;
+        }
+
+        /* Loading Screen */
+        #loadingScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+
+        #loadingScreen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-unicorn {
+            font-size: 4rem;
+            animation: bounce 1s infinite;
+        }
+
+        .loading-text {
+            margin-top: 1rem;
+            font-size: 1.25rem;
+            color: #7c3aed;
+            font-weight: 600;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Polynomial Specific Styles */
+        .graph-point { cursor: pointer; fill: #334155; stroke: #475569; stroke-width: 2px; transition: fill 0.2s; }
+        .graph-point:hover { fill: #94a3b8; }
+        .graph-point.selected { fill: #7c3aed; stroke: #f1f5f9; r: 7; }
+        
+        .input-fail { border-color: #eab308 !important; background-color: rgba(234, 179, 8, 0.1) !important; }
+        
+        .step-container { display: none; }
+        .step-container.active { display: block; }
+
+        .check-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-size: 0.875rem;
+        }
+        .check-btn:not(:disabled) {
+            background: #7c3aed;
+            color: #0f172a;
+        }
+        .check-btn:not(:disabled):hover {
+            background: #6d28d9;
+        }
+        .check-btn:disabled {
+            background: #475569;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loading Screen -->
+    <div id="loadingScreen">
+        <div class="loading-unicorn">🦄</div>
+        <div class="loading-text" data-en="Loading..." data-zh="加载中...">Loading...</div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="math-card" id="mainContainer">
+        <!-- Header -->
+        <div class="header flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <span class="bg-purple-600/20 text-purple-400 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-purple-600/30">Example 1a</span>
+                <h1 id="mainTitle" class="text-xl font-bold text-white tracking-tight">Determine Number and Type of Roots</h1>
+            </div>
+            <div class="lang-toggle">
+                <button onclick="setLanguage('en')" id="enBtn" class="lang-btn active">EN</button>
+                <button onclick="setLanguage('zh')" id="zhBtn" class="lang-btn">中文</button>
+            </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row">
+            <!-- Left Column: Graph -->
+            <div class="w-full lg:w-1/2 p-8 flex flex-col items-center justify-center bg-slate-900/30 border-b lg:border-b-0 lg:border-r border-slate-700">
+                <div class="mb-6 text-center">
+                    <p class="text-purple-400 font-bold text-3xl mb-2">$x^2 + 6x + 9 = 0$</p>
+                </div>
+                
+                <svg viewBox="0 0 320 320" class="w-full max-w-[320px]" id="graphSvg">
+                    <g stroke="#334155" stroke-width="1" stroke-dasharray="2,2">
+                        <line x1="0" y1="40" x2="320" y2="40" /><line x1="0" y1="80" x2="320" y2="80" /><line x1="0" y1="120" x2="320" y2="120" />
+                        <line x1="0" y1="200" x2="320" y2="200" /><line x1="0" y1="240" x2="320" y2="240" /><line x1="0" y1="280" x2="320" y2="280" />
+                        <line x1="40" y1="0" x2="40" y2="320" /><line x1="80" y1="0" x2="80" y2="320" /><line x1="120" y1="0" x2="120" y2="320" />
+                        <line x1="160" y1="0" x2="160" y2="320" /><line x1="200" y1="0" x2="200" y2="320" /><line x1="280" y1="0" x2="280" y2="320" />
+                    </g>
+                    <line x1="0" y1="160" x2="320" y2="160" stroke="#94a3b8" stroke-width="2" /> 
+                    <line x1="280" y1="0" x2="280" y2="320" stroke="#94a3b8" stroke-width="2" /> 
+                    
+                    <path d="M40,16 Q160,305 280,16" fill="none" stroke="#6366f1" stroke-width="3" />
+                    
+                    <text x="155" y="180" class="text-[10px] fill-slate-500 font-bold">-3</text>
+                    <text x="285" y="175" class="text-[10px] fill-slate-500 font-bold">O</text>
+                    
+                    <g id="clickablePoints">
+                        <circle cx="40" cy="160" r="6" class="graph-point" onclick="selectPoint(this, -6)"></circle>
+                        <circle cx="80" cy="160" r="6" class="graph-point" onclick="selectPoint(this, -5)"></circle>
+                        <circle cx="120" cy="160" r="6" class="graph-point" onclick="selectPoint(this, -4)"></circle>
+                        <circle cx="160" cy="160" r="6" class="graph-point" onclick="selectPoint(this, -3)"></circle>
+                        <circle cx="200" cy="160" r="6" class="graph-point" onclick="selectPoint(this, -2)"></circle>
+                        <circle cx="240" cy="160" r="6" class="graph-point" onclick="selectPoint(this, -1)"></circle>
+                    </g>
+                </svg>
+                
+                <div class="mt-8 p-5 bg-slate-800/50 rounded-xl border border-slate-700 w-full">
+                    <p id="repeatedRootsHeader" class="text-purple-400 font-bold uppercase text-[10px] block mb-1">Repeated Roots</p>
+                    <p id="multipleRootsText" class="text-slate-300 text-base leading-relaxed">
+                        Polynomial equations can have double, triple, or quadruple roots. In general, these are referred to as multiple roots.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Right Column: Steps -->
+            <div class="w-full lg:w-1/2 p-8 flex flex-col bg-slate-800/20">
+                <form autocomplete="off" onsubmit="return false;">
+                    <div id="step1a" class="step-container active">
+                        <span class="text-[10px] font-bold text-purple-400 uppercase tracking-widest">Step 1: Factoring</span>
+                        <p id="s1a-task" class="text-slate-300 text-base my-4">Find the number that, when multiplied by itself equals 9 and added to itself equals 6.</p>
+                        <input type="text" id="math_val_1" autocomplete="new-password" placeholder="Enter value" class="bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-base w-full focus:border-purple-500 outline-none mb-2">
+                        <div id="msg1a" class="text-sm mt-2 min-h-[1.25rem]"></div>
+                        <div id="hint1a" class="hidden text-sm text-yellow-500 mt-1 font-bold">The correct number is 3.</div>
+                        
+                        <div class="flex gap-2 mt-4">
+                            <button type="button" onclick="validateInput('1a')" class="check-btn w-2/3">Check Answer</button>
+                            <button type="button" id="nextBtn1a" onclick="showStep('1b')" class="hidden w-1/3 bg-slate-700 text-white py-2 rounded-lg text-sm transition-all">Next</button>
+                        </div>
+                    </div>
+
+                    <div id="step1b" class="step-container">
+                        <span class="text-[10px] font-bold text-purple-400 uppercase tracking-widest">Step 2: Solve for x</span>
+                        <p class="text-slate-300 text-base my-4">The equation in factored form is:</p>
+                        <div class="bg-slate-950 p-4 rounded-lg border border-slate-700 mb-6 text-center text-purple-400 font-mono text-xl">$(x + 3)^2 = 0$</div>
+                        <p id="s1b-task" class="text-slate-300 text-base mb-4">Set the factor to zero: $x + 3 = 0$. What is the value of $x$?</p>
+                        <input type="text" id="math_val_2" autocomplete="new-password" placeholder="Enter value" class="bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-base w-full focus:border-purple-500 outline-none mb-2">
+                        <div id="msg1b" class="text-sm mt-2 min-h-[1.25rem]"></div>
+                        <div id="hint1b" class="hidden text-sm text-yellow-500 mt-1 font-bold">The correct answer is $x = -3$.</div>
+
+                        <div class="flex gap-2 mt-4">
+                            <button type="button" onclick="validateInput('1b')" class="check-btn w-2/3">Check Answer</button>
+                            <button type="button" id="nextBtn1b" onclick="showStep('2')" class="hidden w-1/3 bg-slate-700 text-white py-2 rounded-lg text-sm transition-all">Next</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div id="step2" class="step-container">
+                    <span class="text-[10px] font-bold text-purple-400 uppercase tracking-widest">Step 3: Graph Location</span>
+                    <p id="s2-task" class="text-slate-300 text-base my-4">Based on your answer ($x = -3$), click the exact point on the x-axis where the graph touches the line.</p>
+                    <div id="msg2" class="text-sm mb-4 min-h-[1.25rem]"></div>
+                    <button id="finishBtn" onclick="validateInput('2')" class="check-btn w-full" disabled>Check Answer</button>
+                </div>
+
+                <div id="stepfinalFeedback" class="step-container">
+                    <div class="bg-purple-600/10 border border-purple-600/30 p-6 rounded-xl text-center">
+                        <div class="text-4xl mb-4">🎯</div>
+                        <p id="conclusionText" class="text-slate-200 text-base leading-relaxed mb-6">Because $(x+3)$ is a factor twice, $-3$ is a <b>double root</b>. Notice the graph touches the x-axis at $x = -3$ but does not cross it.</p>
+                        <button onclick="location.reload()" class="check-btn w-auto px-8">Restart Exercise</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Loading Screen Logic
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loadingScreen').classList.add('hidden');
+            }, 1500);
+        });
+
+        let currentLang = 'en';
+        let selectedXValue = null;
+        let attempts = { '1a': 0, '1b': 0 };
+
+        const dict = {
+            en: {
+                title: "Determine Number and Type of Roots",
+                step1Factoring: "STEP 1: FACTORING",
+                step2Solve: "STEP 2: SOLVE FOR X",
+                step3Graph: "STEP 3: GRAPH LOCATION",
+                enterValue: "Enter value",
+                checkAnswer: "Check Answer",
+                next: "Next",
+                repeatedRoots: "REPEATED ROOTS",
+                multipleRootsText: "Polynomial equations can have double, triple, or quadruple roots. In general, these are referred to as multiple roots.",
+                s1aTask: "Find the number that, when multiplied by itself equals 9 and added to itself equals 6.",
+                s1bTask: "Set the factor to zero: $x + 3 = 0$. What is the value of $x$?",
+                s2Task: "Based on your answer ($x = -3$), click the exact point on the x-axis where the graph touches the line.",
+                conclusion: "Because $(x+3)$ is a factor twice, $-3$ is a <b>double root</b>. Notice the graph touches the x-axis at $x = -3$ but does not cross it.",
+                restartExercise: "Restart Exercise",
+                correct: "Correct!",
+                tryAgain: "Try again."
+            },
+            zh: {
+                title: "确定根的数量和类型",
+                step1Factoring: "步骤 1：因式分解",
+                step2Solve: "步骤 2：求解 x",
+                step3Graph: "步骤 3：图像位置",
+                enterValue: "输入数值",
+                checkAnswer: "检查答案",
+                next: "下一步",
+                repeatedRoots: "重根",
+                multipleRootsText: "多项式方程可以有二重根、三重根或四重根。通常，这些被称为多重根。",
+                s1aTask: "找到一个数，它乘以自身等于 9，加到自身等于 6。",
+                s1bTask: "将因式设为零：$x + 3 = 0$。$x$ 的值是多少？",
+                s2Task: "根据你的回答 ($x = -3$)，在 x 轴上点击图像接触该线的准确点。",
+                conclusion: "因为 $(x+3)$ 是两次因式，所以 $-3$ 是一个<b>二重根</b>。请注意，图像在 $x = -3$ 处接触 x 轴，但并不穿过它。",
+                restartExercise: "重新开始练习",
+                correct: "正确！",
+                tryAgain: "请再试一次。"
+            }
+        };
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.getElementById('enBtn').classList.toggle('active', lang === 'en');
+            document.getElementById('zhBtn').classList.toggle('active', lang === 'zh');
+            
+            // Update all translatable elements
+            document.getElementById('mainTitle').innerText = dict[lang].title;
+            document.querySelector('#step1a span').innerText = dict[lang].step1Factoring;
+            document.querySelector('#step1b span').innerText = dict[lang].step2Solve;
+            document.querySelector('#step2 span').innerText = dict[lang].step3Graph;
+            document.getElementById('s1a-task').innerText = dict[lang].s1aTask;
+            document.getElementById('s1b-task').innerHTML = dict[lang].s1bTask;
+            document.getElementById('s2-task').innerHTML = dict[lang].s2Task;
+            document.getElementById('conclusionText').innerHTML = dict[lang].conclusion;
+            document.getElementById('repeatedRootsHeader').innerText = dict[lang].repeatedRoots;
+            document.getElementById('multipleRootsText').innerText = dict[lang].multipleRootsText;
+            
+            // Update placeholders
+            document.getElementById('math_val_1').placeholder = dict[lang].enterValue;
+            document.getElementById('math_val_2').placeholder = dict[lang].enterValue;
+            
+            // Update buttons
+            document.querySelectorAll('.check-btn').forEach(btn => {
+                if (btn.innerText.includes('Check Answer') || btn.innerText.includes('检查答案')) {
+                    btn.innerText = dict[lang].checkAnswer;
+                }
+                if (btn.innerText.includes('Restart Exercise') || btn.innerText.includes('重新开始练习')) {
+                    btn.innerText = dict[lang].restartExercise;
+                }
+            });
+            
+            document.querySelectorAll('#nextBtn1a, #nextBtn1b').forEach(btn => {
+                btn.innerText = dict[lang].next;
+            });
+            
+            MathJax.typeset();
+        }
+
+        function showStep(id) {
+            document.querySelectorAll('.step-container').forEach(el => el.classList.remove('active'));
+            const nextStep = document.getElementById('step' + id);
+            if(nextStep) {
+                nextStep.classList.add('active');
+                MathJax.typeset();
+            }
+        }
+
+        function validateInput(step) {
+            const msg = document.getElementById('msg' + step);
+            const input = document.getElementById(step === '1a' ? 'math_val_1' : 'math_val_2');
+            
+            if (step === '1a') {
+                if (input.value.trim() === "3") {
+                    msg.innerHTML = `<span class="text-purple-400 font-bold">${dict[currentLang].correct}</span>`;
+                    document.getElementById('nextBtn1a').classList.remove('hidden');
+                } else {
+                    handleFailure(step, input, msg);
+                }
+            } else if (step === '1b') {
+                let val = input.value.trim().toLowerCase().replace(/\s/g, '');
+                if (val === "-3" || val === "x=-3") {
+                    msg.innerHTML = `<span class="text-purple-400 font-bold">${dict[currentLang].correct}</span>`;
+                    document.getElementById('nextBtn1b').classList.remove('hidden');
+                } else {
+                    handleFailure(step, input, msg);
+                }
+            } else if (step === '2') {
+                if (selectedXValue === -3) {
+                    showStep('finalFeedback');
+                } else {
+                    msg.innerHTML = `<span class="text-red-400 font-bold">${dict[currentLang].tryAgain}</span>`;
+                }
+            }
+        }
+
+        function handleFailure(step, input, msg) {
+            attempts[step]++;
+            msg.innerHTML = `<span class="text-red-400 font-bold">${dict[currentLang].tryAgain}</span>`;
+            if (attempts[step] >= 3) {
+                input.classList.add('input-fail');
+                document.getElementById('hint' + step).classList.remove('hidden');
+                document.getElementById('nextBtn' + step).classList.remove('hidden');
+                MathJax.typeset();
+            }
+        }
+
+        function selectPoint(el, x) {
+            if (!document.getElementById('step2').classList.contains('active')) return;
+            document.querySelectorAll('.graph-point').forEach(p => p.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedXValue = x;
+            const btn = document.getElementById('finishBtn');
+            btn.disabled = false;
+            btn.className = "check-btn w-full";
+        }
+    </script>
+</body>
+</html>
