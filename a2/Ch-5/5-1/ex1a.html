@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Example 1a - Addition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$']] } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { background-color: #0f172a; font-family: 'Inter', sans-serif; color: #f1f5f9; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
+        
+        /* Loading Screen */
+        #loading-screen { position: fixed; inset: 0; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; transition: opacity 0.5s ease; }
+        .spinner { width: 50px; height: 50px; border: 4px solid rgba(124, 58, 237, 0.1); border-top-color: #7c3aed; border-radius: 50%; animation: spin 1s linear infinite; position: relative; }
+        #emoji-shuffle { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.5rem; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .math-card { width: 100%; max-width: 1000px; background: #1e293b; border-radius: 24px; border: 1px solid #334155; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); display: flex; flex-direction: column; }
+        .header { background: #0f172a; padding: 1.5rem; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
+        
+        .lang-toggle { display: flex; gap: 0.5rem; background: #1e293b; padding: 0.25rem; border-radius: 0.5rem; border: 1px solid #334155; }
+        .lang-btn { padding: 0.5rem 1rem; border-radius: 0.375rem; font-weight: 600; font-size: 0.75rem; cursor: pointer; border: none; transition: all 0.2s; }
+        .lang-btn.active { background: #7c3aed; color: #0f172a; }
+        .lang-btn:not(.active) { background: transparent; color: #94a3b8; }
+
+        .step-container { display: none; }
+        .step-container.active { display: block; }
+        .choice-btn { width: 100%; background: #0f172a; border: 1px solid #334155; padding: 1rem; text-align: center; transition: all 0.2s; border-radius: 0.75rem; margin-bottom: 0.75rem; color: white; }
+        .choice-btn:hover { border-color: #7c3aed; background: #1e293b; }
+        
+        .input-box { background: #0f172a; border: 2px solid #334155; border-radius: 0.5rem; width: 60px; text-align: center; color: #7c3aed; font-weight: bold; outline: none; transition: border-color 0.2s; height: 45px; }
+        .input-box.input-fail { border-color: #ef4444; color: #ef4444; }
+
+        .substitution-display { background: #0f172a; padding: 2rem; border-top: 1px solid #334155; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; min-height: 120px; }
+    </style>
+</head>
+<body>
+
+    <div id="loading-screen">
+        <div class="relative mb-4">
+            <div class="spinner"></div>
+            <div id="emoji-shuffle">🦄</div>
+        </div>
+        <p class="text-slate-400 animate-pulse font-medium">Loading...</p>
+    </div>
+
+    <div class="math-card">
+        <div class="header">
+            <div>
+                <span class="bg-purple-600/20 text-purple-400 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-purple-600/30">Example 1</span>
+                <h1 id="mainTitle" class="text-xl font-bold text-white mt-2">Add and Subtract Functions</h1>
+            </div>
+            <div class="lang-toggle">
+                <button onclick="setLanguage('en')" id="enBtn" class="lang-btn active">EN</button>
+                <button onclick="setLanguage('zh')" id="zhBtn" class="lang-btn">中文</button>
+            </div>
+        </div>
+
+        <form autocomplete="off" onsubmit="return false;" class="flex flex-col lg:flex-row flex-grow">
+            <div class="w-full lg:w-1/2 p-8 bg-slate-900/30 border-b lg:border-b-0 lg:border-r border-slate-700 text-center">
+                <p id="givenTxt" class="text-slate-400 text-sm mb-4">Given:</p>
+                <div class="space-y-2 mb-8">
+                    <p class="text-purple-400 font-bold text-3xl">$f(x) = x^2 - 4$</p>
+                    <p class="text-blue-400 font-bold text-3xl">$g(x) = 2x + 1$</p>
+                </div>
+                <div class="p-4 bg-slate-800/50 rounded-xl border border-slate-700 text-slate-300">
+                    <span id="solveTxt" class="font-bold">Solve:</span> <b>$(f + g)(x)$</b>
+                </div>
+            </div>
+
+            <div class="w-full lg:w-1/2 p-8 bg-slate-800/20">
+                <div id="step1" class="step-container active">
+                    <span class="text-[10px] font-bold text-purple-400 uppercase tracking-widest" id="s1Tag">Step 1</span>
+                    <p class="text-slate-300 text-lg my-4" id="s1Task">Select the expression for $f(x)$:</p>
+                    <button type="button" onclick="pickF('2x + 1')" class="choice-btn">$2x + 1$</button>
+                    <button type="button" onclick="pickF('x^2 - 4')" class="choice-btn">$x^2 - 4$</button>
+                    <p id="err1" class="text-red-400 text-sm mt-2 h-4 text-center"></p>
+                </div>
+
+                <div id="step2" class="step-container">
+                    <span class="text-[10px] font-bold text-purple-400 uppercase tracking-widest" id="s2Tag">Step 2</span>
+                    <p class="text-slate-300 text-lg my-4" id="s2Task">Select the expression for $g(x)$:</p>
+                    <button type="button" onclick="pickG('x^2 - 4')" class="choice-btn">$x^2 - 4$</button>
+                    <button type="button" onclick="pickG('2x + 1')" class="choice-btn">$2x + 1$</button>
+                    <p id="err2" class="text-red-400 text-sm mt-2 h-4 text-center"></p>
+                </div>
+
+                <div id="step3" class="step-container">
+                    <span class="text-[10px] font-bold text-purple-400 uppercase tracking-widest" id="s3Tag">Step 3</span>
+                    <p class="text-slate-300 text-lg my-4" id="s3Task">What is the simplified expression?</p>
+                    <div class="flex items-center justify-center gap-2 text-2xl text-white py-6 bg-slate-900/50 rounded-xl border border-dashed border-slate-600">
+                        <span>$x^2 + $</span>
+                        <input type="text" id="coeffInput" class="input-box" maxlength="2" placeholder="?" autocomplete="off">
+                        <span>$x - 3$</span>
+                    </div>
+                    <button type="button" onclick="checkSimplify()" class="w-full mt-4 bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-lg transition" id="checkBtn">Check Answer</button>
+                    <p id="err3" class="text-red-400 text-sm mt-2 h-4 text-center"></p>
+                    <div id="hintBox" class="hidden mt-4 p-4 bg-slate-900/80 rounded-lg border border-purple-500/30 text-sm text-slate-400">
+                        <p id="hintText">Combine like terms: $x^2 - 4 + 2x + 1 = x^2 + 2x - 3$</p>
+                    </div>
+                </div>
+
+                <div id="step4" class="step-container">
+                    <div class="bg-green-500/10 border border-green-500/30 p-4 rounded-xl text-center">
+                        <h2 id="completeTitle" class="text-white font-bold mb-2">Well Done!</h2>
+                        <button type="button" id="restartBtn" onclick="location.reload()" class="w-full bg-slate-700 py-2 rounded-lg text-sm hover:bg-slate-600 transition">Restart Exercise</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div id="math-preview" class="substitution-display text-slate-500">
+            $(f + g)(x) = f(x) + g(x)$
+        </div>
+    </div>
+
+    <script>
+        const emojis = ['🦄', '🌈', '👾', '🚀', '🧠', '✨', '💎', '🔥'];
+        let emojiIdx = 0;
+        let f_val = "f(x)", g_val = "g(x)", currentLang = 'en', attempts = 0;
+
+        const emojiInterval = setInterval(() => {
+            document.getElementById('emoji-shuffle').innerText = emojis[emojiIdx];
+            emojiIdx = (emojiIdx + 1) % emojis.length;
+        }, 150);
+
+        window.onload = () => {
+            setTimeout(() => {
+                clearInterval(emojiInterval);
+                document.getElementById('loading-screen').style.opacity = '0';
+                setTimeout(() => document.getElementById('loading-screen').style.display = 'none', 500);
+            }, 1500);
+        };
+
+        const dict = {
+            en: {
+                title: "Add and Subtract Functions", given: "Given:", solve: "Solve:",
+                s1: "Step 1", s1Task: "Select the expression for $f(x)$:",
+                s2: "Step 2", s2Task: "Select the expression for $g(x)$:",
+                s3: "Step 3", s3Task: "What is the simplified expression?",
+                check: "Check Answer", wrong: "Incorrect. Try again.",
+                complete: "Well Done!", restart: "Restart Exercise",
+                hint: "Combine like terms: $x^2 - 4 + 2x + 1 = x^2 + 2x - 3$"
+            },
+            zh: {
+                title: "函数的加减法", given: "已知:", solve: "解:",
+                s1: "第一步", s1Task: "选择 $f(x)$ 的表达式:",
+                s2: "第二步", s2Task: "选择 $g(x)$ 的表达式:",
+                s3: "第三步", s3Task: "简化后的表达式是什么？",
+                check: "核对答案", wrong: "错误。再试一次。",
+                complete: "太棒了！", restart: "重新开始",
+                hint: "合并同类项: $x^2 - 4 + 2x + 1 = x^2 + 2x - 3$"
+            }
+        };
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(lang + 'Btn').classList.add('active');
+            document.getElementById('mainTitle').innerText = dict[lang].title;
+            document.getElementById('givenTxt').innerText = dict[lang].given;
+            document.getElementById('solveTxt').innerText = dict[lang].solve;
+            document.getElementById('s1Tag').innerText = dict[lang].s1;
+            document.getElementById('s1Task').innerText = dict[lang].s1Task;
+            document.getElementById('s2Tag').innerText = dict[lang].s2;
+            document.getElementById('s2Task').innerText = dict[lang].s2Task;
+            document.getElementById('s3Tag').innerText = dict[lang].s3;
+            document.getElementById('s3Task').innerText = dict[lang].s3Task;
+            document.getElementById('checkBtn').innerText = dict[lang].check;
+            document.getElementById('completeTitle').innerText = dict[lang].complete;
+            document.getElementById('restartBtn').innerText = dict[lang].restart;
+            document.getElementById('hintText').innerHTML = dict[lang].hint;
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            const display = document.getElementById('math-preview');
+            let f_label = (f_val === "f(x)") ? "f(x)" : f_val;
+            let g_label = (g_val === "g(x)") ? "g(x)" : g_val;
+            display.innerHTML = `$(f + g)(x) = (${f_label}) + (${g_label})$`;
+            if (f_val !== "f(x)" || g_val !== "g(x)") {
+                display.classList.remove('text-slate-500');
+                display.classList.add('text-white');
+            }
+            MathJax.typeset();
+        }
+
+        function pickF(val) {
+            if (val === 'x^2 - 4') {
+                f_val = val; updateDisplay();
+                document.getElementById('step1').classList.remove('active');
+                document.getElementById('step2').classList.add('active');
+            } else { document.getElementById('err1').innerText = dict[currentLang].wrong; }
+        }
+
+        function pickG(val) {
+            if (val === '2x + 1') {
+                g_val = val; updateDisplay();
+                document.getElementById('step2').classList.remove('active');
+                document.getElementById('step3').classList.add('active');
+            } else { document.getElementById('err2').innerText = dict[currentLang].wrong; }
+        }
+
+        function checkSimplify() {
+            const input = document.getElementById('coeffInput'), err = document.getElementById('err3');
+            if (input.value === "2") {
+                document.getElementById('step3').classList.remove('active');
+                document.getElementById('step4').classList.add('active');
+                document.getElementById('math-preview').innerHTML = `$(f + g)(x) = x^2 + 2x - 3$`;
+                MathJax.typeset();
+            } else {
+                attempts++;
+                err.innerText = dict[currentLang].wrong;
+                if (attempts >= 3) {
+                    input.classList.add('input-fail');
+                    input.value = "2";
+                    document.getElementById('hintBox').classList.remove('hidden');
+                    MathJax.typeset();
+                }
+            }
+        }
+    </script>
+</body>
+</html>
