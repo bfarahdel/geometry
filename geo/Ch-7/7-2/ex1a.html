@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Example 1a - Similarity and Dilation</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
@@ -10,13 +10,24 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { background-color: #0f172a; font-family: 'Inter', sans-serif; color: #f1f5f9; min-height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; padding: 20px; overflow: hidden; touch-action: none; user-select: none; }
+        body { 
+            background-color: #0f172a; 
+            font-family: 'Inter', sans-serif; 
+            color: #f1f5f9; 
+            min-height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            margin: 0; 
+            padding: 20px; 
+            overflow: hidden; 
+            touch-action: none; 
+            user-select: none; 
+            -webkit-user-select: none;
+        }
         
         .math-card { width: 100%; max-width: 1100px; background: #1e293b; border-radius: 24px; border: 1px solid #334155; overflow: hidden; display: flex; flex-direction: column; height: 720px; position: relative; }
-        
-        /* Updated Loader Styles */
         #loader { position: absolute; inset: 0; background: #0f172a; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease-out; }
-        
         .content-layout { display: flex; flex: 1; overflow: hidden; }
         .visual-area { flex: 1; background: #0f172a; position: relative; overflow: hidden; }
         .side-panel { width: 340px; background: #1e293b; border-left: 1px solid #334155; padding: 32px; display: flex; flex-direction: column; gap: 24px; }
@@ -24,6 +35,7 @@
         .grid-line { stroke: #1e293b; stroke-width: 1; }
         .target-shape { fill: none; stroke: #38bdf8; stroke-width: 2; stroke-dasharray: 5; opacity: 0.5; }
         .active-shape { fill: #22c55e; fill-opacity: 0.2; stroke: #22c55e; stroke-width: 3; cursor: grab; }
+        .active-shape:active { cursor: grabbing; }
         
         .coord-label { font-size: 11px; font-weight: 700; pointer-events: none; }
         .label-green { fill: #4ade80; }
@@ -124,7 +136,7 @@
     const mover = document.getElementById('mover');
     const visualShape = document.getElementById('visualShape');
     const dilateBtn = document.getElementById('dilateBtn');
-    const animals = ['🦄', '🌈', '🌸', '✨', '🍭', '🎀', '👾', '🎨']; //
+    const animals = ['🦄', '🌈', '🌸', '✨', '🍭', '🎀', '👾', '🎨']; 
     
     let isDragging = false, isDilated = false, isAligned = false;
     let posX = 80, posY = 240, currentScale = 1.0;
@@ -188,22 +200,45 @@
         }
     }
 
-    function getMousePos(e) {
+    // --- FIX: Touch-Compatible Drag Logic ---
+    function getEventPos(e) {
         const CTM = svg.getScreenCTM();
-        const cx = e.touches ? e.touches[0].clientX : e.clientX;
-        const cy = e.touches ? e.touches[0].clientY : e.clientY;
-        return { x: (cx - CTM.e) / CTM.a, y: (cy - CTM.f) / CTM.d };
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { 
+            x: (clientX - CTM.e) / CTM.a, 
+            y: (clientY - CTM.f) / CTM.d 
+        };
     }
 
-    svg.addEventListener('mousedown', () => { if(!isDilated) isDragging = true; });
-    svg.addEventListener('touchstart', (e) => { if(!isDilated) isDragging = true; e.preventDefault(); });
-    
-    window.addEventListener('mousemove', (e) => {
+    const startDrag = (e) => {
+        if(!isDilated) {
+            isDragging = true;
+            if(e.type === 'touchstart') e.preventDefault(); 
+        }
+    };
+
+    const handleMove = (e) => {
         if (!isDragging) return;
-        const p = getMousePos(e); posX = p.x; posY = p.y;
+        if(e.type === 'touchmove') e.preventDefault();
+        const p = getEventPos(e); 
+        posX = p.x; 
+        posY = p.y;
         mover.setAttribute('transform', `translate(${posX}, ${posY})`);
         update();
-    });
+    };
+
+    const endDrag = () => isDragging = false;
+
+    svg.addEventListener('mousedown', startDrag);
+    svg.addEventListener('touchstart', startDrag, { passive: false });
+
+    window.addEventListener('mousemove', handleMove);
+    window.addEventListener('touchmove', handleMove, { passive: false });
+
+    window.addEventListener('mouseup', endDrag);
+    window.addEventListener('touchend', endDrag);
+    // ------------------------------------------
 
     dilateBtn.onclick = () => {
         if (!isAligned || isDilated) return;
@@ -228,11 +263,8 @@
         requestAnimationFrame(animate);
     };
 
-    window.addEventListener('mouseup', () => isDragging = false);
-    window.addEventListener('touchend', () => isDragging = false);
-
     window.onload = () => {
-        const emojiInterval = setInterval(cycleEmojis, 150); //
+        const emojiInterval = setInterval(cycleEmojis, 150);
         setLanguage('en');
         setTimeout(() => {
             clearInterval(emojiInterval);
