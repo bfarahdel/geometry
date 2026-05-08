@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Example 1a - Similarity and Dilation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { background-color: #0f172a; font-family: 'Inter', sans-serif; color: #f1f5f9; min-height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; padding: 20px; overflow: hidden; touch-action: none; user-select: none; }
+        
+        .math-card { width: 100%; max-width: 1100px; background: #1e293b; border-radius: 24px; border: 1px solid #334155; overflow: hidden; display: flex; flex-direction: column; height: 720px; position: relative; }
+        
+        /* Updated Loader Styles */
+        #loader { position: absolute; inset: 0; background: #0f172a; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease-out; }
+        
+        .content-layout { display: flex; flex: 1; overflow: hidden; }
+        .visual-area { flex: 1; background: #0f172a; position: relative; overflow: hidden; }
+        .side-panel { width: 340px; background: #1e293b; border-left: 1px solid #334155; padding: 32px; display: flex; flex-direction: column; gap: 24px; }
+        
+        .grid-line { stroke: #1e293b; stroke-width: 1; }
+        .target-shape { fill: none; stroke: #38bdf8; stroke-width: 2; stroke-dasharray: 5; opacity: 0.5; }
+        .active-shape { fill: #22c55e; fill-opacity: 0.2; stroke: #22c55e; stroke-width: 3; cursor: grab; }
+        
+        .coord-label { font-size: 11px; font-weight: 700; pointer-events: none; }
+        .label-green { fill: #4ade80; }
+        .label-blue { fill: #38bdf8; opacity: 0.7; }
+        .side-label { fill: #facc15; font-size: 16px; font-weight: 900; pointer-events: none; }
+        .lang-btn.active { background-color: #075985; color: #ffffff; }
+    </style>
+</head>
+<body>
+
+<div id="templates" style="display:none;">
+    <div id="en-desc">Are polygon \(PQRS\) and \(JKLM\) similar?</div>
+    <div id="en-instr">Move the larger figure onto the target center. Then, dilate it by \(k = 0.5\).</div>
+    <div id="en-win">Correct! 🎉</div>
+    <div id="en-conclude">The figures are similar because moving and dilating (\(k=0.5\)) maps \(PQRS\) exactly onto \(JKLM\).</div>
+
+    <div id="zh-desc">多边形 \(PQRS\) 和 \(JKLM\) 是否相似？</div>
+    <div id="zh-instr">将较大的图形移到目标中心。然后，应用 \(k = 0.5\) 的位似变换。</div>
+    <div id="zh-win">正确！🎉</div>
+    <div id="zh-conclude">这些图形是相似的，因为移动和位似变换（\(k=0.5\)）将 \(PQRS\) 完全映射到 \(JKLM\) 上。</div>
+</div>
+
+<div class="math-card" id="mainCard">
+    <div id="loader">
+        <span id="emojiLoader" style="font-size: 5rem; margin-bottom: 1rem;">🦄</span>
+        <div class="text-slate-500 font-bold text-xl uppercase tracking-widest animate-pulse">Loading...</div>
+    </div>
+
+    <div class="bg-slate-800/80 p-6 border-b border-slate-700 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <span class="bg-slate-900/50 text-sky-400 px-3 py-1 rounded-full text-[10px] font-bold border border-slate-700 uppercase tracking-widest">Example 1a</span>
+            <h1 class="text-xl font-bold text-white tracking-tight">Similarity Transformation</h1>
+        </div>
+        <div class="flex bg-slate-900 rounded-lg p-1 border border-slate-700">
+            <button onclick="setLanguage('en')" id="enBtn" class="lang-btn active px-3 py-1 text-[10px] font-bold rounded-md transition-all">EN</button>
+            <button onclick="setLanguage('zh')" id="zhBtn" class="lang-btn px-3 py-1 text-[10px] font-bold rounded-md transition-all text-slate-400">中文</button>
+        </div>
+    </div>
+
+    <div class="content-layout">
+        <div class="visual-area">
+            <svg id="canvas" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" class="w-full h-full">
+                <g id="grid"></g>
+                <g id="targetGroup">
+                    <path d="M 180 100 L 220 100 L 240 140 L 160 140 Z" class="target-shape" />
+                    <text x="172" y="94" class="coord-label label-blue" text-anchor="end">J(180, 100)</text>
+                    <text x="228" y="94" class="coord-label label-blue" text-anchor="start">K(220, 100)</text>
+                    <text x="248" y="146" class="coord-label label-blue" text-anchor="start">L(240, 140)</text>
+                    <text x="152" y="146" class="coord-label label-blue" text-anchor="end">M(160, 140)</text>
+                    <g transform="translate(200, 120)">
+                        <line x1="-12" y1="0" x2="12" y2="0" stroke="#38bdf8" stroke-width="2.5" />
+                        <line x1="0" y1="-12" x2="0" y2="12" stroke="#38bdf8" stroke-width="2.5" />
+                    </g>
+                </g>
+                <g id="mover" transform="translate(80, 240)">
+                    <path id="visualShape" d="M -40 -40 L 40 -40 L 80 40 L -80 40 Z" class="active-shape" />
+                    <g id="greenCenter"><line x1="-10" y1="0" x2="10" y2="0" stroke="#facc15" stroke-width="2.5" /><line x1="0" y1="-10" x2="0" y2="10" stroke="#facc15" stroke-width="2.5" /></g>
+                </g>
+                <g id="labelLayer">
+                    <text id="lblP" class="coord-label label-green"></text>
+                    <text id="lblQ" class="coord-label label-green"></text>
+                    <text id="lblR" class="coord-label label-green"></text>
+                    <text id="lblS" class="coord-label label-green"></text>
+                    <text id="sideTop" class="side-label" text-anchor="middle"></text>
+                    <text id="sideBot" class="side-label" text-anchor="middle"></text>
+                </g>
+            </svg>
+        </div>
+
+        <div class="side-panel">
+            <h2 id="sideTitle" class="text-sky-500 font-bold text-sm uppercase tracking-widest">Construction Task</h2>
+            <p id="mainDesc" class="text-slate-200 text-lg font-medium leading-snug"></p>
+            
+            <div class="space-y-4">
+                <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-700">
+                    <h3 id="instrTitle" class="text-xs font-bold text-sky-400 uppercase mb-2">Instructions</h3>
+                    <p id="instrText" class="text-[13px] text-slate-400 leading-relaxed"></p>
+                </div>
+                <div class="p-4 bg-slate-900/20 rounded-xl border border-dashed border-slate-700">
+                    <div class="text-[10px] text-slate-500 uppercase font-bold mb-1">Scale Factor</div>
+                    <div class="text-2xl font-mono font-bold text-white" id="scaleDisplay">k = 1.0</div>
+                </div>
+            </div>
+
+            <button id="dilateBtn" class="mt-auto bg-slate-700 text-slate-500 font-bold py-4 rounded-2xl cursor-not-allowed transition-all uppercase text-sm tracking-wider">Dilate Figure</button>
+            
+            <div id="winMsg" class="hidden p-6 bg-green-500/10 border border-green-500/40 rounded-2xl text-center space-y-3">
+                <div id="winText" class="text-green-400 font-bold text-lg animate-pulse"></div>
+                <div id="concludeText" class="text-slate-300 text-xs leading-relaxed"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentLang = 'en';
+    const svg = document.getElementById('canvas');
+    const mover = document.getElementById('mover');
+    const visualShape = document.getElementById('visualShape');
+    const dilateBtn = document.getElementById('dilateBtn');
+    const animals = ['🦄', '🌈', '🌸', '✨', '🍭', '🎀', '👾', '🎨']; //
+    
+    let isDragging = false, isDilated = false, isAligned = false;
+    let posX = 80, posY = 240, currentScale = 1.0;
+
+    function cycleEmojis() {
+        const emojiEl = document.getElementById('emojiLoader');
+        if (emojiEl) emojiEl.innerText = animals[Math.floor(Math.random() * animals.length)];
+    }
+
+    function setLanguage(l) {
+        currentLang = l;
+        document.getElementById('enBtn').classList.toggle('active', l === 'en');
+        document.getElementById('zhBtn').classList.toggle('active', l === 'zh');
+        document.getElementById('sideTitle').innerText = l === 'en' ? 'Construction Task' : '构建任务';
+        document.getElementById('instrTitle').innerText = l === 'en' ? 'Instructions' : '操作说明';
+        document.getElementById('mainDesc').innerHTML = document.getElementById(`${l}-desc`).innerHTML;
+        document.getElementById('instrText').innerHTML = document.getElementById(`${l}-instr`).innerHTML;
+        document.getElementById('winText').innerHTML = document.getElementById(`${l}-win`).innerHTML;
+        document.getElementById('concludeText').innerHTML = document.getElementById(`${l}-conclude`).innerHTML;
+        if (window.MathJax) MathJax.typesetPromise();
+    }
+
+    const grid = document.getElementById('grid');
+    for(let i=0; i<=400; i+=20) {
+        const h = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        h.setAttribute("x1",0); h.setAttribute("y1",i); h.setAttribute("x2",400); h.setAttribute("y2",i);
+        h.setAttribute("class", "grid-line"); grid.appendChild(h);
+        const v = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        v.setAttribute("x1",i); v.setAttribute("y1",0); v.setAttribute("x2",i); v.setAttribute("y2",300);
+        v.setAttribute("class", "grid-line"); grid.appendChild(v);
+    }
+
+    function update() {
+        const pts = [
+            {id:'P', x:-40, y:-40, anchor: 'end', ox: -15, oy: -15}, 
+            {id:'Q', x: 40, y:-40, anchor: 'start', ox: 15, oy: -15}, 
+            {id:'R', x: 80, y: 40, anchor: 'start', ox: 15, oy: 15}, 
+            {id:'S', x:-80, y: 40, anchor: 'end', ox: -15, oy: 15}
+        ];
+        pts.forEach(pt => {
+            const lbl = document.getElementById('lbl' + pt.id);
+            const wx = Math.round(posX + pt.x * currentScale);
+            const wy = Math.round(posY + pt.y * currentScale);
+            lbl.setAttribute('x', wx + pt.ox); lbl.setAttribute('y', wy + pt.oy);
+            lbl.setAttribute('text-anchor', pt.anchor);
+            lbl.textContent = `${pt.id}(${wx}, ${wy})`;
+        });
+        document.getElementById('sideTop').setAttribute('x', posX);
+        document.getElementById('sideTop').setAttribute('y', posY - (55 * currentScale));
+        document.getElementById('sideTop').textContent = (80 * currentScale).toFixed(0);
+        document.getElementById('sideBot').setAttribute('x', posX);
+        document.getElementById('sideBot').setAttribute('y', posY + (65 * currentScale));
+        document.getElementById('sideBot').textContent = (160 * currentScale).toFixed(0);
+
+        if (Math.abs(posX - 200) < 6 && Math.abs(posY - 120) < 6) {
+            isAligned = true;
+            if(!isDilated) dilateBtn.className = "mt-auto bg-sky-600 hover:bg-sky-500 text-white font-bold py-4 rounded-2xl cursor-pointer shadow-lg uppercase text-sm tracking-wider";
+        } else if (!isDilated) {
+            isAligned = false;
+            dilateBtn.className = "mt-auto bg-slate-700 text-slate-500 font-bold py-4 rounded-2xl cursor-not-allowed uppercase text-sm tracking-wider";
+        }
+    }
+
+    function getMousePos(e) {
+        const CTM = svg.getScreenCTM();
+        const cx = e.touches ? e.touches[0].clientX : e.clientX;
+        const cy = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: (cx - CTM.e) / CTM.a, y: (cy - CTM.f) / CTM.d };
+    }
+
+    svg.addEventListener('mousedown', () => { if(!isDilated) isDragging = true; });
+    svg.addEventListener('touchstart', (e) => { if(!isDilated) isDragging = true; e.preventDefault(); });
+    
+    window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const p = getMousePos(e); posX = p.x; posY = p.y;
+        mover.setAttribute('transform', `translate(${posX}, ${posY})`);
+        update();
+    });
+
+    dilateBtn.onclick = () => {
+        if (!isAligned || isDilated) return;
+        isDilated = true; isDragging = false;
+        posX = 200; posY = 120;
+        let start = null;
+        function animate(timestamp) {
+            if (!start) start = timestamp;
+            let progress = (timestamp - start) / 600;
+            if (progress > 1) progress = 1;
+            currentScale = 1.0 - (0.5 * progress); 
+            visualShape.setAttribute('transform', `scale(${currentScale})`);
+            mover.setAttribute('transform', `translate(200, 120)`);
+            document.getElementById('scaleDisplay').innerText = `k = ${currentScale.toFixed(2)}`;
+            update();
+            if (progress < 1) requestAnimationFrame(animate);
+            else {
+                dilateBtn.classList.add('hidden');
+                document.getElementById('winMsg').classList.remove('hidden');
+            }
+        }
+        requestAnimationFrame(animate);
+    };
+
+    window.addEventListener('mouseup', () => isDragging = false);
+    window.addEventListener('touchend', () => isDragging = false);
+
+    window.onload = () => {
+        const emojiInterval = setInterval(cycleEmojis, 150); //
+        setLanguage('en');
+        setTimeout(() => {
+            clearInterval(emojiInterval);
+            document.getElementById('loader').style.opacity = '0';
+            setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+        }, 1500);
+    };
+    update();
+</script>
+</body>
+</html>
