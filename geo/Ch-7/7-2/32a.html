@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perimeter and Scale Factor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { background-color: #0f172a; font-family: 'Inter', sans-serif; color: #f1f5f9; min-height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; padding: 20px; }
+        .math-card { width: 100%; max-width: 1100px; background: #1e293b; border-radius: 24px; border: 1px solid #334155; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+        
+        .choice-btn { width: 100%; text-align: left; padding: 1.25rem; background: #1e293b; border: 1px solid #475569; border-radius: 12px; transition: all 0.2s; font-family: monospace; color: #94a3b8; outline: none; }
+        
+        /* Hover state: only applies if button is NOT incorrect/correct */
+        .choice-btn:hover:not(:disabled):not(.incorrect):not(.correct) { border-color: #38bdf8; background: rgba(56, 189, 248, 0.05); color: white; }
+        
+        /* Immediate Red feedback overrides hover with !important */
+        .choice-btn.incorrect { 
+            border-color: #ef4444 !important; 
+            background-color: rgba(239, 68, 68, 0.2) !important; 
+            color: #f87171 !important;
+            animation: shake 0.4s ease-in-out;
+        }
+        
+        .choice-btn.correct { border-color: #22c55e !important; background-color: rgba(34, 197, 94, 0.1) !important; color: #4ade80 !important; }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+
+        #loader { position: absolute; inset: 0; background: #0f172a; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease-out; }
+        .diag-label { font-size: 14px; font-weight: bold; fill: white; }
+        .lang-btn.active { background-color: #075985; color: #ffffff; }
+    </style>
+</head>
+<body>
+
+<div id="templates" style="display:none;">
+    <div id="en-step1">We are given \(\triangle FGH \sim \triangle XYZ\). The side lengths of \(\triangle XYZ\) are \(3a, 3b,\) and \(3c\). Define the perimeter of the smaller triangle, \(\triangle FGH\).</div>
+    <div id="en-step2">Now, calculate the perimeter of the larger triangle, \(\triangle XYZ\). Factor out the common multiplier to see the work.</div>
+    <div id="en-step3">Finally, find the ratio of the perimeters: \(\frac{\text{Perimeter } XYZ}{\text{Perimeter } FGH}\). Simplify to find the scale factor.</div>
+    <div id="en-final">The ratio is exactly \(3\). This confirms that the perimeters share the same scale factor as their corresponding side lengths!</div>
+
+    <div id="zh-step1">已知 \(\triangle FGH \sim \triangle XYZ\)。\(\triangle XYZ\) 的边长为 \(3a, 3b, 3c\)。首先，定义较小三角形 \(\triangle FGH\) 的周长。</div>
+    <div id="zh-step2">现在，计算较大三角形 \(\triangle XYZ\) 的周长。提取公因子以观察其联系。</div>
+    <div id="zh-step3">最后，求出周长比：\(\frac{XYZ \text{ 的周长}}{FGH \text{ 的周长}}\)。简化表达式得出缩放因子。</div>
+    <div id="zh-final">比例正是 \(3\)。这证实了相似图形的周长比与其对应边长的缩放因子一致！</div>
+</div>
+
+<div class="math-card">
+    <div id="loader">
+        <span id="emojiLoader" style="font-size: 5rem; margin-bottom: 1rem;">🦄</span>
+        <div class="text-slate-500 font-bold text-xl uppercase tracking-widest animate-pulse">Loading...</div>
+    </div>
+
+    <div class="bg-slate-800/80 p-6 border-b border-slate-700 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <span class="bg-slate-900/50 text-sky-400 px-3 py-1 rounded-full text-[10px] font-bold border border-slate-700 uppercase">Problem 32a</span>
+            <h1 class="text-xl font-bold text-white tracking-tight">Perimeter and Scale Factor</h1>
+        </div>
+        <div class="flex bg-slate-900 rounded-lg p-1 border border-slate-700">
+            <button onclick="setLanguage('en')" id="enBtn" class="lang-btn active px-3 py-1 text-[10px] font-bold rounded-md">EN</button>
+            <button onclick="setLanguage('zh')" id="zhBtn" class="lang-btn px-3 py-1 text-[10px] font-bold rounded-md text-slate-400">中文</button>
+        </div>
+    </div>
+
+    <div class="flex flex-col md:flex-row flex-1">
+        <div class="w-full md:w-1/2 p-8 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-slate-700 bg-slate-900/30">
+            <svg viewBox="0 0 320 200" class="w-full max-w-[380px] mb-8">
+                <path d="M 40 160 L 80 160 L 80 100 Z" fill="none" stroke="#38bdf8" stroke-width="2" />
+                <text x="30" y="175" class="diag-label">H</text><text x="85" y="175" class="diag-label">G</text><text x="85" y="95" class="diag-label">F</text>
+                <text x="55" y="175" class="text-[10px] fill-sky-400">a</text><text x="90" y="130" class="text-[10px] fill-sky-400">c</text><text x="45" y="130" class="text-[10px] fill-sky-400">b</text>
+
+                <path d="M 160 160 L 280 160 L 280 20 Z" fill="none" stroke="#22c55e" stroke-width="2" />
+                <text x="150" y="175" class="diag-label">Y</text><text x="285" y="175" class="diag-label">Z</text><text x="285" y="15" class="diag-label">X</text>
+                <text x="210" y="175" class="text-[10px] fill-green-400">3a</text><text x="290" y="90" class="text-[10px] fill-green-400">3c</text><text x="200" y="80" class="text-[10px] fill-green-400">3b</text>
+            </svg>
+            <div id="workDisplay" class="w-full p-6 bg-slate-900/80 rounded-xl border border-slate-700 font-mono text-lg text-sky-400 min-h-[120px] flex items-center justify-center text-center"></div>
+        </div>
+
+        <div class="w-full md:w-1/2 p-8 flex flex-col bg-slate-800/20">
+            <div class="flex-1">
+                <div class="flex items-center mb-4">
+                    <div id="stepDisplayNum" class="w-8 h-8 rounded bg-sky-900 text-white flex items-center justify-center font-bold mr-3">1</div>
+                    <h2 id="stepTitle" class="text-sky-500 font-bold text-sm uppercase tracking-widest">Step 1</h2>
+                </div>
+                <div id="stepText" class="text-slate-200 text-lg leading-relaxed mb-8"></div>
+                <div id="choicesContainer" class="flex flex-col gap-4"></div>
+            </div>
+
+            <div class="mt-8 flex items-center justify-between border-t border-slate-700 pt-6">
+                <button id="prevBtn" class="text-xs font-bold text-slate-400 hover:text-white disabled:opacity-30">PREV</button>
+                <div id="stepCounter" class="text-slate-500 font-mono text-[10px] tracking-widest uppercase">Step 1 / 3</div>
+                <button id="nextBtn" class="bg-sky-900 hover:bg-sky-800 text-white px-8 py-2 rounded-xl font-bold text-xs transition-all disabled:opacity-50">NEXT</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentLang = 'en', currentStep = 0;
+    let solvedSteps = [false, false, false];
+    const animals = ['🦄', '🌈', '🌸', '✨', '🍭', '🎀', '👾', '🎨'];
+
+    const stepData = [
+        {
+            choices: ["a + b + c", "3(a + b + c)", "abc"],
+            correct: 0,
+            work: "Perimeter(FGH) = a + b + c"
+        },
+        {
+            choices: ["3a + 3b + 3c", "3(a + b + c)", "Both are correct"],
+            correct: 2,
+            work: "Perimeter(XYZ) = 3a + 3b + 3c <br>= 3(a + b + c)"
+        },
+        {
+            choices: ["1/3", "3", "9"],
+            correct: 1,
+            work: "Ratio = \\(\\frac{3(a+b+c)}{a+b+c}\\) <br>= 3"
+        }
+    ];
+
+    function setLanguage(l) {
+        currentLang = l;
+        document.getElementById('enBtn').classList.toggle('active', l === 'en');
+        document.getElementById('zhBtn').classList.toggle('active', l === 'zh');
+        updateUI();
+    }
+
+    function updateUI() {
+        const isFinal = currentStep === 2 && solvedSteps[2];
+        const stepKey = isFinal ? `${currentLang}-final` : `${currentLang}-step${currentStep + 1}`;
+        document.getElementById('stepText').innerHTML = document.getElementById(stepKey).innerHTML;
+        
+        document.getElementById('stepDisplayNum').innerText = currentStep + 1;
+        document.getElementById('stepTitle').innerText = (currentLang === 'en' ? 'Step ' : '步骤 ') + (currentStep + 1);
+        document.getElementById('stepCounter').innerText = (currentLang === 'en' ? 'Step ' : '步骤 ') + (currentStep + 1) + ' / 3';
+        
+        const container = document.getElementById('choicesContainer');
+        container.innerHTML = '';
+        
+        const workBox = document.getElementById('workDisplay');
+        workBox.innerHTML = solvedSteps[currentStep] ? stepData[currentStep].work : "";
+
+        if (!isFinal) {
+            stepData[currentStep].choices.forEach((choice, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                btn.innerHTML = choice;
+                if (solvedSteps[currentStep]) {
+                    btn.disabled = true;
+                    if (idx === stepData[currentStep].correct) btn.classList.add('correct');
+                }
+                btn.onclick = () => handleChoice(idx, btn);
+                container.appendChild(btn);
+            });
+        }
+
+        document.getElementById('prevBtn').disabled = currentStep === 0;
+        document.getElementById('nextBtn').disabled = !solvedSteps[currentStep];
+        if (window.MathJax) MathJax.typesetPromise();
+    }
+
+    function handleChoice(idx, btn) {
+        if (idx === stepData[currentStep].correct) {
+            btn.classList.add('correct');
+            solvedSteps[currentStep] = true;
+            document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
+            document.getElementById('workDisplay').innerHTML = stepData[currentStep].work;
+            document.getElementById('nextBtn').disabled = false;
+            if (currentStep === 2) updateUI();
+        } else {
+            btn.classList.add('incorrect');
+            setTimeout(() => btn.classList.remove('incorrect'), 600);
+        }
+    }
+
+    document.getElementById('nextBtn').onclick = () => {
+        if (currentStep < 2) { currentStep++; updateUI(); }
+        else { location.reload(); }
+    };
+    
+    document.getElementById('prevBtn').onclick = () => { if (currentStep > 0) { currentStep--; updateUI(); } };
+
+    window.onload = () => {
+        const emojiInterval = setInterval(() => {
+            document.getElementById('emojiLoader').innerText = animals[Math.floor(Math.random() * animals.length)];
+        }, 150);
+        setTimeout(() => {
+            clearInterval(emojiInterval);
+            document.getElementById('loader').style.opacity = '0';
+            setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+        }, 1200);
+        updateUI();
+    };
+</script>
+</body>
+</html>
