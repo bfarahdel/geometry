@@ -10,7 +10,7 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { background-color: #0f172a; font-family: 'Inter', sans-serif; color: #f1f5f9; min-height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; padding: 20px; overflow: hidden; }
+        body { background-color: #0f172a; font-family: 'Inter', sans-serif; color: #f1f5f9; min-height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; padding: 20px; overflow: hidden; touch-action: none; }
         .math-card { width: 100%; max-width: 1100px; background: #1e293b; border-radius: 24px; border: 1px solid #334155; overflow: hidden; display: flex; flex-direction: column; position: relative; height: 750px; }
         
         .grid-line { stroke: #334155; stroke-width: 1; }
@@ -133,6 +133,7 @@
     let currentLang = 'en';
     const points = ['J', 'K', 'L', 'M'];
 
+    // Generate Grid
     for(let i=0; i<=500; i+=step) {
         const createLine = (x1, y1, x2, y2) => {
             const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
@@ -193,19 +194,11 @@
         return { x: center + ct*dx, y: center + ct*dy };
     }
 
-    document.querySelectorAll('.draggable-node').forEach(node => {
-        const start = () => { 
-            if(node.classList.contains('active-node')) {
-                activeNode = node;
-                tooltip.classList.replace('opacity-0', 'opacity-100');
-            }
-        };
-        node.addEventListener('mousedown', start);
-        node.addEventListener('touchstart', start);
-    });
-
-    window.addEventListener('mousemove', (e) => {
+    // Move logic extracted to reuse for mouse and touch
+    function handleMove(e) {
         if (!activeNode) return;
+        if (e.type === 'touchmove') e.preventDefault(); // Prevent scrolling
+
         const mouse = getMousePos(e);
         const tx = parseFloat(activeNode.dataset.tx);
         const ty = parseFloat(activeNode.dataset.ty);
@@ -251,9 +244,28 @@
                 document.getElementById('stepCard').classList.add('opacity-40');
             }
         }
+    }
+
+    document.querySelectorAll('.draggable-node').forEach(node => {
+        const start = (e) => { 
+            if(node.classList.contains('active-node')) {
+                activeNode = node;
+                tooltip.classList.replace('opacity-0', 'opacity-100');
+            }
+        };
+        node.addEventListener('mousedown', start);
+        node.addEventListener('touchstart', start, { passive: true });
     });
 
-    const stopDrag = () => { if (activeNode) { activeNode = null; tooltip.classList.replace('opacity-100', 'opacity-0'); } };
+    window.addEventListener('mousemove', handleMove);
+    window.addEventListener('touchmove', handleMove, { passive: false });
+
+    const stopDrag = () => { 
+        if (activeNode) { 
+            activeNode = null; 
+            tooltip.classList.replace('opacity-100', 'opacity-0'); 
+        } 
+    };
     window.addEventListener('mouseup', stopDrag);
     window.addEventListener('touchend', stopDrag);
 
