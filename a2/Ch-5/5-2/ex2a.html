@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Example 2a - Function Composition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.MathJax = { 
+            tex: { inlineMath: [['$', '$']] },
+            startup: {
+                pageReady: () => {
+                    return MathJax.startup.defaultPageReady().then(() => {
+                        document.getElementById('set-result').style.opacity = "1";
+                    });
+                }
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { background-color: #0f172a; font-family: 'Inter', sans-serif; color: #f1f5f9; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
+        
+        .math-card { width: 100%; max-width: 1000px; background: #1e293b; border-radius: 24px; border: 1px solid #334155; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); display: flex; flex-direction: column; }
+        .header { background: #0f172a; padding: 1.5rem; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
+        
+        .lang-toggle { display: flex; gap: 0.5rem; background: #1e293b; padding: 0.25rem; border-radius: 0.5rem; border: 1px solid #334155; }
+        .lang-btn { padding: 0.5rem 1rem; border-radius: 0.375rem; font-weight: 600; font-size: 0.75rem; cursor: pointer; border: none; transition: all 0.2s; }
+        .lang-btn.active { background: #3b82f6; color: #0f172a; }
+        .lang-btn:not(.active) { background: transparent; color: #94a3b8; }
+
+        .step-container { display: none; }
+        .step-container.active { display: block; }
+        
+        .input-box { background: #0f172a; border: 2px solid #334155; border-radius: 0.5rem; width: 100px; text-align: center; color: #3b82f6; font-weight: bold; outline: none; transition: border-color 0.2s; height: 60px; font-size: 2rem; }
+        .input-box:focus { border-color: #3b82f6; }
+        .input-fail { border-color: #ef4444 !important; animation: shake 0.2s ease-in-out; }
+
+        .pair-label { font-size: 1.5rem; font-weight: 800; color: #60a5fa; text-transform: uppercase; letter-spacing: 0.1em; }
+        .math-text { font-size: 1.75rem; color: #e2e8f0; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .formula-display { background: #0f172a; padding: 2rem; border-top: 1px solid #334155; display: flex; align-items: center; justify-content: center; min-height: 120px; }
+        #set-result { opacity: 0; transition: opacity 0.3s ease; }
+        
+        .hint-btn { display: none; margin-top: 10px; color: #f87171; text-decoration: underline; cursor: pointer; font-size: 0.875rem; }
+    </style>
+</head>
+<body>
+
+    <div class="math-card">
+        <div class="header">
+            <div>
+                <span class="bg-blue-600/20 text-blue-400 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-blue-600/30">Example 2a</span>
+                <h1 id="mainTitle" class="text-xl font-bold text-white mt-2">Perform Composition of Functions</h1>
+            </div>
+            <div class="lang-toggle">
+                <button onclick="setLanguage('en')" id="enBtn" class="lang-btn active">EN</button>
+                <button onclick="setLanguage('zh')" id="zhBtn" class="lang-btn">中文</button>
+            </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row flex-grow">
+            <div class="w-full lg:w-1/2 p-8 bg-slate-900/30 border-b lg:border-b-0 lg:border-r border-slate-700">
+                <p id="givenTxt" class="text-slate-400 text-sm mb-4">Given Functions:</p>
+                <div class="space-y-4 mb-8">
+                    <div class="p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+                        <p class="text-purple-400 font-bold text-xl">$f = \{(1, 8), (0, 13), (15, 11), (14, 9)\}$</p>
+                    </div>
+                    <div class="p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+                        <p class="text-blue-400 font-bold text-xl">$g = \{(8, 15), (5, 1), (10, 14), (9, 0)\}$</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full lg:w-1/2 p-8">
+                <div id="step1" class="step-container active">
+                    <span class="pair-label" id="p1Tag">Pair 1: $x=8$</span>
+                    <p class="text-slate-300 text-lg my-4" id="p1Desc">Evaluate $g(8)$ first, then $f$:</p>
+                    <div class="flex flex-col items-center justify-center py-8 bg-slate-900/50 rounded-xl border border-dashed border-slate-600">
+                        <div class="flex items-center gap-3">
+                            <span class="math-text">$f[g(8)] = f(15)$ or </span>
+                            <input type="text" id="ans1" class="input-box" placeholder="?" autocomplete="off">
+                        </div>
+                        <div id="hint1" class="hint-btn" onclick="revealAnswer(1, '11')">Show answer</div>
+                    </div>
+                    <button id="btn1" onclick="checkStep(1, '11')" class="w-full mt-6 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg transition">Verify Pair</button>
+                </div>
+
+                <div id="step2" class="step-container">
+                    <span class="pair-label" id="p2Tag">Pair 2: $x=5$</span>
+                    <p class="text-slate-300 text-lg my-4" id="p2Desc">Evaluate $g(5)$ first, then $f$:</p>
+                    <div class="flex flex-col items-center justify-center py-8 bg-slate-900/50 rounded-xl border border-dashed border-slate-600">
+                        <div class="flex items-center gap-3">
+                            <span class="math-text">$f[g(5)] = f(1)$ or </span>
+                            <input type="text" id="ans2" class="input-box" placeholder="?" autocomplete="off">
+                        </div>
+                        <div id="hint2" class="hint-btn" onclick="revealAnswer(2, '8')">Show answer</div>
+                    </div>
+                    <button id="btn2" onclick="checkStep(2, '8')" class="w-full mt-6 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg transition">Verify Pair</button>
+                </div>
+
+                <div id="step3" class="step-container">
+                    <span class="pair-label" id="p3Tag">Pair 3: $x=10$</span>
+                    <p class="text-slate-300 text-lg my-4" id="p3Desc">Evaluate $g(10)$ first, then $f$:</p>
+                    <div class="flex flex-col items-center justify-center py-8 bg-slate-900/50 rounded-xl border border-dashed border-slate-600">
+                        <div class="flex items-center gap-3">
+                            <span class="math-text">$f[g(10)] = f(14)$ or </span>
+                            <input type="text" id="ans3" class="input-box" placeholder="?" autocomplete="off">
+                        </div>
+                        <div id="hint3" class="hint-btn" onclick="revealAnswer(3, '9')">Show answer</div>
+                    </div>
+                    <button id="btn3" onclick="checkStep(3, '9')" class="w-full mt-6 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg transition">Verify Pair</button>
+                </div>
+
+                <div id="step4" class="step-container">
+                    <span class="pair-label" id="p4Tag">Pair 4: $x=9$</span>
+                    <p class="text-slate-300 text-lg my-4" id="p4Desc">Evaluate $g(9)$ first, then $f$:</p>
+                    <div class="flex flex-col items-center justify-center py-8 bg-slate-900/50 rounded-xl border border-dashed border-slate-600">
+                        <div class="flex items-center gap-3">
+                            <span class="math-text">$f[g(9)] = f(0)$ or </span>
+                            <input type="text" id="ans4" class="input-box" placeholder="?" autocomplete="off">
+                        </div>
+                        <div id="hint4" class="hint-btn" onclick="revealAnswer(4, '13')">Show answer</div>
+                    </div>
+                    <button id="btn4" onclick="checkStep(4, '13')" class="w-full mt-6 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg transition">Verify Pair</button>
+                </div>
+
+                <div id="step5" class="step-container">
+                    <div class="bg-green-500/10 border border-green-500/30 p-6 rounded-xl text-center">
+                        <h2 id="compTitle" class="text-green-400 font-bold text-2xl mb-2">Task Complete!</h2>
+                        <button id="restartBtn" onclick="location.reload()" class="mt-4 text-slate-400 hover:text-white text-sm underline">Reset Practice</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="formula-display">
+            <div id="set-result" class="text-2xl font-mono text-white">
+                $f \circ g = \{ \dots \}$
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentLang = 'en';
+        const attempts = { 1: 0, 2: 0, 3: 0, 4: 0 };
+        const pairs = [];
+        const mapping = { 1: "(8, 11)", 2: "(5, 8)", 3: "(10, 9)", 4: "(9, 13)" };
+
+        const dict = {
+            en: {
+                title: "Perform Composition of Functions", given: "Given Functions:", 
+                pDesc: "Evaluate g first, then f:", verify: "Verify Pair",
+                show: "Show answer", complete: "Task Complete!", restart: "Reset Practice"
+            },
+            zh: {
+                title: "执行复合函数运算", given: "已知函数:", 
+                pDesc: "先计算 g，再计算 f:", verify: "验证结果",
+                show: "显示答案", complete: "任务完成！", restart: "重新开始"
+            }
+        };
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(lang + 'Btn').classList.add('active');
+            
+            document.getElementById('mainTitle').innerText = dict[lang].title;
+            document.getElementById('givenTxt').innerText = dict[lang].given;
+            for(let i=1; i<=4; i++) {
+                document.getElementById(`p${i}Desc`).innerText = dict[lang].pDesc;
+                document.getElementById(`btn${i}`).innerText = dict[lang].verify;
+                document.getElementById(`hint${i}`).innerText = dict[lang].show;
+            }
+            document.getElementById('compTitle').innerText = dict[lang].complete;
+            document.getElementById('restartBtn').innerText = dict[lang].restart;
+        }
+
+        function revealAnswer(stepNum, val) {
+            document.getElementById(`ans${stepNum}`).value = val;
+            checkStep(stepNum, val);
+        }
+
+        function checkStep(stepNum, correctValue) {
+            const input = document.getElementById(`ans${stepNum}`);
+            const setResult = document.getElementById('set-result');
+            const hint = document.getElementById(`hint${stepNum}`);
+
+            if (input.value.trim() === correctValue) {
+                input.classList.remove('input-fail');
+                input.classList.add('border-green-500', 'text-green-400');
+                
+                pairs.push(mapping[stepNum]);
+                setResult.style.opacity = "0";
+                
+                setTimeout(() => {
+                    setResult.innerHTML = `$f \\circ g = \\{ ${pairs.join(', ')}${stepNum < 4 ? ', \\dots' : ''} \\}$`;
+                    MathJax.typesetPromise([setResult]).then(() => {
+                        setResult.style.opacity = "1";
+                    });
+
+                    document.getElementById(`step${stepNum}`).classList.remove('active');
+                    document.getElementById(`step${stepNum + 1}`).classList.add('active');
+                }, 400);
+
+            } else {
+                attempts[stepNum]++;
+                input.classList.add('input-fail');
+                if (attempts[stepNum] >= 3) hint.style.display = 'block';
+                setTimeout(() => input.classList.remove('input-fail'), 500);
+            }
+        }
+    </script>
+</body>
+</html>
