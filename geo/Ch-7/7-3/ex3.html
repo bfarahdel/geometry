@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Example 3 - Similar Triangles Interactive</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -15,7 +17,8 @@
         
         .equation-box { background: rgba(14, 165, 233, 0.05); border: 1px solid #0ea5e9; border-radius: 12px; padding: 1.25rem; margin: 1rem 0; text-align: center; }
         
-        .math-input-field { flex-grow: 1; background-color: #1e293b; border: 1px solid #475569; border-radius: 0.5rem; padding: 0.5rem 1rem; color: #38bdf8; font-family: monospace; font-weight: bold; transition: all 0.2s; }
+        .math-input-field { flex-grow: 1; background-color: #1e293b; border: 1px solid #475569; border-radius: 0.5rem; padding: 0.5rem 1rem; color: #38bdf8; font-family: monospace; font-weight: bold; transition: all 0.2s; outline: none; }
+        .math-input-field:focus { border-color: #38bdf8; }
         .math-input-field:disabled { cursor: not-allowed; opacity: 0.9; }
         .input-correct { border-color: #22c55e !important; background-color: rgba(34, 197, 94, 0.1) !important; color: #4ade80 !important; }
         .input-shown { border-color: #facc15 !important; background-color: rgba(250, 204, 21, 0.1) !important; color: #facc15 !important; }
@@ -23,7 +26,7 @@
         
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
         
-        #loader { position: absolute; inset: 0; background: #0f172a; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease-out; }
+        #loader { position: absolute; inset: 0; background: #0f172a; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.3s ease-out; }
         .diag-label { font-size: 16px; font-weight: bold; fill: #94a3b8; }
         .value-label { font-size: 15px; font-weight: bold; fill: #facc15; }
         .shape-large { stroke: #475569; stroke-width: 2; fill: none; }
@@ -137,7 +140,6 @@
     let attempts = 0;
     let solvedSteps = { 0: true, 1: false, 2: false };
     let shownSteps = { 1: false, 2: false };
-    const emojis = ['📐', '✏️', '✨'];
 
     function setLanguage(lang) {
         currentLang = lang;
@@ -159,7 +161,6 @@
         const feedback = document.getElementById('feedback');
         const nextBtn = document.getElementById('nextBtn');
         
-        // Reset interaction state
         interaction.classList.add('hidden');
         feedback.classList.add('hidden');
         input.classList.remove('input-correct', 'input-shown', 'input-error');
@@ -167,7 +168,6 @@
         checkBtn.disabled = false;
         input.value = '';
 
-        // Step-specific logic
         if (currentStep === 1) {
             interaction.classList.remove('hidden');
             document.getElementById('inputPrefix').innerText = "x = ";
@@ -180,11 +180,9 @@
             if (solvedSteps[2]) markSolved(4.5, shownSteps[2]);
         }
 
-        // Navigation visibility
         document.getElementById('prevBtn').disabled = currentStep === 0;
         nextBtn.disabled = !solvedSteps[currentStep];
 
-        // Toggle Next vs Restart
         if (currentStep === 2 && solvedSteps[2]) {
             nextBtn.className = "btn-restart px-6 py-2 rounded-xl font-bold text-xs transition-all flex items-center gap-2";
             nextBtn.innerHTML = `<span>${currentLang === 'en' ? 'RESTART' : '重新开始'}</span><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>`;
@@ -193,7 +191,9 @@
             nextBtn.innerText = currentLang === 'en' ? 'NEXT' : '下一步';
         }
 
-        if (window.MathJax) MathJax.typesetPromise();
+        if (window.renderMathInElement) {
+            renderMathInElement(document.body);
+        }
     }
 
     function markSolved(val, shown = false) {
@@ -226,7 +226,6 @@
         if (val === correctVal) {
             solvedSteps[currentStep] = true;
             markSolved(correctVal, false);
-            // Re-call updateUI to refresh the NEXT/RESTART button state
             updateUI(); 
         } else {
             attempts++;
@@ -234,7 +233,7 @@
                 solvedSteps[currentStep] = true;
                 shownSteps[currentStep] = true;
                 markSolved(correctVal, true);
-                updateUI(); // This ensures the RESTART button appears on Step 3
+                updateUI();
             } else {
                 input.classList.add('input-error');
                 setTimeout(() => input.classList.remove('input-error'), 400);
@@ -251,7 +250,6 @@
             attempts = 0; 
             updateUI(); 
         } else { 
-            // Restart Logic
             currentStep = 0; 
             attempts = 0; 
             solvedSteps = { 0: true, 1: false, 2: false }; 
@@ -263,17 +261,17 @@
     document.getElementById('prevBtn').onclick = () => { 
         if (currentStep > 0) { 
             currentStep--; 
-            attempts = 0; // Reset attempts when moving back
+            attempts = 0; 
             updateUI(); 
         } 
     };
 
     window.onload = () => {
+        setLanguage('en');
         setTimeout(() => {
             document.getElementById('loader').style.opacity = '0';
-            setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
-        }, 800);
-        updateUI();
+            setTimeout(() => document.getElementById('loader').style.display = 'none', 300);
+        }, 400);
     };
 </script>
 </body>

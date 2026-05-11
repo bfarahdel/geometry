@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Example 1c - AA Similarity Check</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -25,7 +27,7 @@
         }
         
         .math-card { width: 100%; max-width: 1100px; background: #1e293b; border-radius: 24px; border: 1px solid #334155; overflow: hidden; display: flex; flex-direction: column; height: 720px; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
-        #loader { position: absolute; inset: 0; background: #0f172a; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease-out; }
+        #loader { position: absolute; inset: 0; background: #0f172a; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.3s ease-out; }
         .content-layout { display: flex; flex: 1; overflow: hidden; }
         .visual-area { flex: 1; background: #0f172a; position: relative; overflow: hidden; }
         .side-panel { width: 340px; background: #1e293b; border-left: 1px solid #334155; padding: 32px; display: flex; flex-direction: column; gap: 24px; }
@@ -34,13 +36,12 @@
         .shape-red { fill: rgba(239, 68, 68, 0.05); stroke: #f87171; stroke-width: 3; }
         .shape-blue { fill: rgba(56, 189, 248, 0.05); stroke: #38bdf8; stroke-width: 3; }
         
-        /* High-contrast angle colors (Yellow) */
         .angle-arc { fill: none; stroke: #facc15; stroke-width: 2.5; stroke-linecap: round; }
         .svg-angle-val { font-size: 14px; font-weight: 800; fill: #facc15; pointer-events: none; }
         .svg-vertex-label { font-size: 18px; font-weight: 700; fill: #94a3b8; pointer-events: none; }
         
         .lang-btn.active { background-color: #075985; color: #ffffff; border-color: #0ea5e9; }
-        .input-box { background: #0f172a; border: 2px solid #334155; border-radius: 12px; padding: 10px; width: 85px; text-align: center; color: #facc15; font-size: 1.1rem; font-weight: bold; outline: none; }
+        .input-box { background: #0f172a; border: 2px solid #334155; border-radius: 12px; padding: 10px; width: 85px; text-align: center; color: #facc15; font-size: 1.1rem; font-weight: bold; outline: none; transition: border-color 0.2s; }
         .input-box:focus { border-color: #facc15; box-shadow: 0 0 15px rgba(250, 204, 21, 0.2); }
     </style>
 </head>
@@ -70,8 +71,8 @@
             <h1 class="text-xl font-bold text-white tracking-tight">AA Similarity Check</h1>
         </div>
         <div class="flex bg-slate-900 rounded-lg p-1 border border-slate-700">
-            <button onclick="setLanguage('en')" id="enBtn" class="lang-btn active px-3 py-1 text-[10px] font-bold rounded-md transition-all">EN</button>
-            <button onclick="setLanguage('zh')" id="zhBtn" class="lang-btn px-3 py-1 text-[10px] font-bold rounded-md transition-all text-slate-400">中文</button>
+            <button onclick="setLanguage('en')" id="enBtn" class="lang-btn active px-3 py-1 text-[10px] font-bold rounded-md border border-transparent transition-all">EN</button>
+            <button onclick="setLanguage('zh')" id="zhBtn" class="lang-btn px-3 py-1 text-[10px] font-bold rounded-md border border-transparent transition-all text-slate-400">中文</button>
         </div>
     </div>
 
@@ -82,13 +83,10 @@
                 
                 <g transform="translate(110, 40)">
                     <path d="M 0 220 L -50 110 L 20 0 Z" class="shape-red" />
-                    
                     <path d="M -40 100 A 20 20 0 0 1 -38 125" class="angle-arc" />
                     <text x="-95" y="115" class="svg-angle-val">121°</text>
-                    
                     <path d="M -12 195 A 30 30 0 0 0 5 205" class="angle-arc" />
                     <text x="5" y="190" class="svg-angle-val">32°</text>
-                    
                     <text x="0" y="245" class="svg-vertex-label" text-anchor="middle">H</text>
                     <text x="-65" y="115" class="svg-vertex-label" text-anchor="end">I</text>
                     <text x="25" y="-15" class="svg-vertex-label" text-anchor="middle">J</text>
@@ -96,13 +94,10 @@
 
                 <g transform="translate(200, 150)">
                     <path d="M 0 100 L 70 0 L 160 100 Z" class="shape-blue" />
-                    
                     <path d="M 25 100 A 25 25 0 0 0 22 80" class="angle-arc" />
                     <text x="35" y="90" class="svg-angle-val">32°</text>
-                    
                     <path d="M 135 100 A 25 25 0 0 1 148 85" class="angle-arc" />
                     <text x="110" y="90" class="svg-angle-val">29°</text>
-                    
                     <text x="0" y="125" class="svg-vertex-label" text-anchor="middle">K</text>
                     <text x="70" y="-15" class="svg-vertex-label" text-anchor="middle">L</text>
                     <text x="160" y="125" class="svg-vertex-label" text-anchor="middle">M</text>
@@ -155,7 +150,10 @@
         document.getElementById('instrText').innerHTML = document.getElementById(`${l}-instr`).innerHTML;
         document.getElementById('resText').innerHTML = document.getElementById(`${l}-res`).innerHTML;
         document.getElementById('concludeText').innerHTML = document.getElementById(`${l}-conclude`).innerHTML;
-        if (window.MathJax) MathJax.typesetPromise();
+        
+        if (window.renderMathInElement) {
+            renderMathInElement(document.body);
+        }
     }
 
     const grid = document.getElementById('grid');
@@ -179,8 +177,8 @@
             verifyBtn.classList.add('hidden');
             document.getElementById('failMsg').classList.remove('hidden');
         } else {
-            input.classList.add('animate-pulse', 'border-red-500');
-            setTimeout(() => input.classList.remove('animate-pulse', 'border-red-500'), 500);
+            input.style.borderColor = "#ef4444";
+            setTimeout(() => input.style.borderColor = "#334155", 600);
         }
     };
 
@@ -191,13 +189,11 @@
         }, 200);
 
         setLanguage('en');
-        MathJax.typesetPromise().then(() => {
-            setTimeout(() => {
-                clearInterval(interval);
-                document.getElementById('loader').style.opacity = '0';
-                setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
-            }, 1000);
-        });
+        setTimeout(() => {
+            clearInterval(interval);
+            document.getElementById('loader').style.opacity = '0';
+            setTimeout(() => document.getElementById('loader').style.display = 'none', 300);
+        }, 400);
     };
 </script>
 </body>

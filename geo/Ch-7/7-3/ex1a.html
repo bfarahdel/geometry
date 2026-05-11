@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Example 1a - AA Similarity</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -25,7 +27,7 @@
         }
         
         .math-card { width: 100%; max-width: 1100px; background: #1e293b; border-radius: 24px; border: 1px solid #334155; overflow: hidden; display: flex; flex-direction: column; height: 720px; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
-        #loader { position: absolute; inset: 0; background: #0f172a; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease-out; }
+        #loader { position: absolute; inset: 0; background: #0f172a; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.3s ease-out; }
         .content-layout { display: flex; flex: 1; overflow: hidden; }
         .visual-area { flex: 1; background: #0f172a; position: relative; overflow: hidden; }
         .side-panel { width: 340px; background: #1e293b; border-left: 1px solid #334155; padding: 32px; display: flex; flex-direction: column; gap: 24px; }
@@ -33,7 +35,6 @@
         .grid-line { stroke: #1e293b; stroke-width: 1; }
         .target-shape { fill: rgba(56, 189, 248, 0.05); stroke: #38bdf8; stroke-width: 2; }
         .active-shape { fill: #22c55e; fill-opacity: 0.15; stroke: #22c55e; stroke-width: 3; cursor: grab; }
-        .active-shape:active { cursor: grabbing; }
         
         .angle-arc { fill: none; stroke: currentColor; stroke-width: 2; opacity: 0.8; }
         .svg-angle-val { font-size: 12px; font-weight: 800; fill: white; pointer-events: none; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
@@ -93,7 +94,7 @@
                     <text x="55" y="160" class="svg-vertex-label" text-anchor="middle">Q</text>
                 </g>
 
-                <g id="mover" transform="translate(80, 180)">
+                <g id="mover" transform="translate(80, 180)" style="cursor: grab;">
                     <path d="M 0 60 L 30 -40 L 60 60 Z" class="active-shape" />
                     <path d="M 12 40 A 20 20 0 0 1 20 60" class="angle-arc text-green-400" />
                     <text x="18" y="55" class="svg-angle-val">57°</text>
@@ -143,7 +144,6 @@
     const mover = document.getElementById('mover');
     const verifyBtn = document.getElementById('verifyBtn');
     const input = document.getElementById('angleInput');
-    const icons = ['📐', '📏', '✨', '🧠'];
     
     let isDragging = false;
     let offset = { x: 0, y: 0 };
@@ -158,9 +158,14 @@
         document.getElementById('instrText').innerHTML = document.getElementById(`${l}-instr`).innerHTML;
         document.getElementById('winText').innerHTML = document.getElementById(`${l}-win`).innerHTML;
         document.getElementById('concludeText').innerHTML = document.getElementById(`${l}-conclude`).innerHTML;
-        if (window.MathJax) MathJax.typesetPromise();
+        
+        // Use KaTeX auto-render instead of MathJax typeset
+        if (window.renderMathInElement) {
+            renderMathInElement(document.body);
+        }
     }
 
+    // Grid generation
     const grid = document.getElementById('grid');
     for(let i=0; i<=400; i+=25) {
         const h = document.createElementNS("http://www.w3.org/2000/svg", "line");
@@ -183,7 +188,7 @@
         const p = getPos(e);
         const t = mover.transform.baseVal.getItem(0).matrix;
         offset = { x: p.x - t.e, y: p.y - t.f };
-        if(e.type === 'touchstart') e.preventDefault();
+        mover.style.cursor = 'grabbing';
     };
 
     window.onmousemove = window.ontouchmove = (e) => {
@@ -192,7 +197,10 @@
         mover.setAttribute('transform', `translate(${p.x - offset.x}, ${p.y - offset.y})`);
     };
 
-    window.onmouseup = window.ontouchend = () => isDragging = false;
+    window.onmouseup = window.ontouchend = () => {
+        isDragging = false;
+        mover.style.cursor = 'grab';
+    };
 
     input.oninput = () => {
         if(input.value.length > 0) {
@@ -211,19 +219,12 @@
     };
 
     window.onload = () => {
-        let i = 0;
-        const interval = setInterval(() => {
-            document.getElementById('emojiLoader').innerText = icons[i++ % icons.length];
-        }, 200);
-
         setLanguage('en');
-        MathJax.typesetPromise().then(() => {
-            setTimeout(() => {
-                clearInterval(interval);
-                document.getElementById('loader').style.opacity = '0';
-                setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
-            }, 1000);
-        });
+        // Faster fade out
+        setTimeout(() => {
+            document.getElementById('loader').style.opacity = '0';
+            setTimeout(() => document.getElementById('loader').style.display = 'none', 300);
+        }, 400);
     };
 </script>
 </body>
