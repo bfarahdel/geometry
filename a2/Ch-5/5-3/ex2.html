@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inverse Functions - Interactive Exercise</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { background-color: #0f172a; font-family: 'Inter', sans-serif; color: #f1f5f9; min-height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; padding: 20px; }
+        .math-card { width: 100%; max-width: 1000px; background: #1e293b; border-radius: 24px; border: 1px solid #334155; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        .header { background: #0f172a; padding: 1.5rem; border-bottom: 1px solid #334155; }
+        .lang-btn { padding: 0.5rem 1rem; border-radius: 0.375rem; font-weight: 600; font-size: 0.75rem; transition: all 0.2s; cursor: pointer; }
+        .lang-btn.active { background: #7c3aed; color: #0f172a; }
+        
+        .step-container { display: none; }
+        .step-container.active { display: block; min-height: 320px; }
+        
+        .check-btn { padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer; background: #7c3aed; color: #0f172a; border: none; transition: all 0.2s; font-size: 0.875rem; }
+        .check-btn:hover:not(:disabled) { background: #6d28d9; }
+        .check-btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
+        
+        .nav-btn { padding: 0.6rem 1.2rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.875rem; }
+        .nav-btn-prev { background: #334155; color: #94a3b8; border: 1px solid #475569; }
+        .nav-btn-next { background: #475569; color: white; }
+        .nav-btn-next:not(:disabled):hover { background: #64748b; }
+        .nav-btn-restart { background: #10b981 !important; color: white; }
+        .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .inline-input { background: #1e293b; border: 2px solid #7c3aed; border-radius: 0.375rem; padding: 0.25rem 0.5rem; color: #f1f5f9; text-align: center; width: 60px; outline: none; transition: all 0.3s; }
+        
+        .input-success { border-color: #10b981 !important; color: #10b981 !important; background-color: rgba(16, 185, 129, 0.1) !important; }
+        .input-fail { border-color: #eab308 !important; color: #eab308 !important; background-color: rgba(234, 179, 8, 0.1) !important; }
+        .inline-input:disabled { cursor: not-allowed; opacity: 1; }
+        
+        .denom-input { width: 45px; padding: 2px; font-size: 0.9rem; }
+        .line-f { stroke: #60a5fa; stroke-width: 3; }
+        .line-inverse { stroke: #f87171; stroke-width: 3; stroke-dasharray: 5,5; opacity: 0; transition: opacity 0.5s; }
+        .line-reflection { stroke: #94a3b8; stroke-width: 1.5; stroke-dasharray: 4,4; }
+        
+        #inverseLabel { opacity: 0; transition: opacity 0.5s; }
+    </style>
+</head>
+<body>
+
+    <div class="math-card">
+        <div class="header flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <span class="bg-purple-600/20 text-purple-400 px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-purple-600/30">Example 2a</span>
+                <h1 id="mainTitle" class="text-xl font-bold text-white tracking-tight">Inverse Functions</h1>
+            </div>
+            <div class="flex gap-2 bg-slate-800 p-1 rounded-lg">
+                <button onclick="setLanguage('en')" id="enBtn" class="lang-btn active">EN</button>
+                <button onclick="setLanguage('zh')" id="zhBtn" class="lang-btn">中文</button>
+            </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row">
+            <div class="w-full lg:w-1/2 p-8 flex flex-col items-center bg-slate-900/30 border-r border-slate-700">
+                <div class="mb-6 text-center">
+                    <p class="text-purple-400 font-bold text-3xl">$f(x) = 2x - 5$</p>
+                </div>
+                <svg viewBox="0 0 200 200" class="w-full max-w-[300px]">
+                    <g stroke="#334155" stroke-width="0.5">
+                        <line x1="0" y1="100" x2="200" y2="100" stroke-width="1" />
+                        <line x1="100" y1="0" x2="100" y2="200" stroke-width="1" />
+                        <path d="M0 200 L200 0" class="line-reflection" />
+                    </g>
+                    <text x="145" y="55" fill="#94a3b8" font-size="9" font-style="italic">y = x</text>
+                    <line x1="75" y1="200" x2="125" y2="0" class="line-f" />
+                    <text x="128" y="25" fill="#60a5fa" font-size="10" font-weight="bold">f(x)</text>
+                    <line id="inverseLine" x1="0" y1="125" x2="200" y2="75" class="line-inverse" />
+                    <text id="inverseLabel" x="155" y="95" fill="#f87171" font-size="10" font-weight="bold">f⁻¹(x)</text>
+                </svg>
+            </div>
+
+            <div class="w-full lg:w-1/2 p-8 bg-slate-800/20 flex flex-col">
+                <div class="flex-grow">
+                    <div id="step1" class="step-container active">
+                        <span class="text-[10px] font-bold text-purple-400 uppercase tracking-widest">Step 1</span>
+                        <p id="s1-task" class="text-slate-300 my-4 text-base">Change $f(x)$ to $y$.</p>
+                        <div class="bg-slate-950 p-6 rounded-lg text-center border border-slate-700 mb-4">
+                            <input type="text" id="math_val_1" class="inline-input" autocomplete="off" placeholder="..."> $= 2x - 5$
+                        </div>
+                        <button id="check_btn_1" onclick="validate('1', 'y')" class="check-btn w-full btn-check">Check Answer</button>
+                    </div>
+
+                    <div id="step2" class="step-container">
+                        <span class="text-[10px] font-bold text-purple-400 uppercase tracking-widest">Step 2</span>
+                        <div class="text-center text-slate-500 mb-4 text-sm">$y = 2x - 5$</div>
+                        <p id="s2-task" class="text-slate-300 my-4 text-base">Exchange $x$ and $y$ in the equation.</p>
+                        <div class="bg-slate-950 p-6 rounded-lg text-center border border-slate-700 mb-4">
+                            $x = 2$ <input type="text" id="math_val_2" class="inline-input" autocomplete="off" placeholder="..."> $- 5$
+                        </div>
+                        <button id="check_btn_2" onclick="validate('2', 'y')" class="check-btn w-full btn-check">Check Answer</button>
+                    </div>
+
+                    <div id="step3" class="step-container">
+                        <span class="text-[10px] font-bold text-purple-400 uppercase tracking-widest">Step 3</span>
+                        <div class="text-center text-slate-500 mb-4 text-sm">$x = 2y - 5$</div>
+                        <p id="s3-task" class="text-slate-300 my-4 text-base">Solve the equation for $y$.</p>
+                        <div class="bg-slate-950 p-8 rounded-lg text-center border border-slate-700 mb-4">
+                            $x + 5 = 2y$ <br> 
+                            <div class="flex items-center justify-center mt-4">
+                                <div class="flex flex-col items-center">
+                                    <span class="text-xl">$x + 5$</span>
+                                    <div class="h-[2px] bg-slate-400 w-full my-1"></div>
+                                    <input type="text" id="math_val_3" class="inline-input denom-input" autocomplete="off" placeholder="...">
+                                </div>
+                                <span class="text-xl ml-3">$= y$</span>
+                            </div>
+                        </div>
+                        <button id="check_btn_3" onclick="validate('3', '2')" class="check-btn w-full btn-check">Check Answer</button>
+                    </div>
+
+                    <div id="step4" class="step-container">
+                        <span class="text-[10px] font-bold text-purple-400 uppercase tracking-widest">Step 4</span>
+                        <div class="text-center text-slate-500 mb-4 text-sm">$y = \frac{x+5}{2}$</div>
+                        <p id="s4-task" class="text-slate-300 my-4 text-base">Replace $y$ with $f^{-1}(x)$.</p>
+                        <div class="bg-slate-950 p-6 rounded-lg text-center border border-slate-700 mb-4 italic text-purple-400 text-xl font-bold">
+                            $f^{-1}(x) = \frac{x+5}{2}$
+                        </div>
+                        <p id="s4-desc" class="text-slate-400 text-sm leading-relaxed">The graph of $f^{-1}(x)$ is the reflection of the graph of $f(x)$ in the line $y=x$.</p>
+                    </div>
+                </div>
+
+                <div id="msg" class="text-sm min-h-[1.5rem] mt-4 font-bold"></div>
+
+                <div class="mt-8 pt-6 border-t border-slate-700 flex justify-between">
+                    <button id="prevBtn" onclick="moveStep(-1)" class="nav-btn nav-btn-prev" disabled>← <span id="prevText">Previous</span></button>
+                    <button id="nextBtn" onclick="moveStep(1)" class="nav-btn nav-btn-next" disabled><span id="nextText">Next</span> →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let currentLang = 'en';
+        let attempts = { 1: 0, 2: 0, 3: 0 };
+        let stepCompleted = { 1: false, 2: false, 3: false, 4: true };
+        
+        const dict = {
+            en: { title: "Inverse Functions", s1: "Change $f(x)$ to $y$.", s2: "Exchange $x$ and $y$ in the equation.", s3: "Solve the equation for $y$.", s4: "Replace $y$ with $f^{-1}(x)$.", s4d: "The graph of $f^{-1}(x)$ is the reflection of the graph of $f(x)$ in the line $y=x$.", check: "Check Answer", next: "Next", prev: "Previous", restart: "Restart", correct: "Correct!", try: "Try again." },
+            zh: { title: "反函数", s1: "将 $f(x)$ 改为 $y$。", s2: "交换方程中的 $x$ 和 $y$。", s3: "解方程求出 $y$。", s4: "用 $f^{-1}(x)$ 替换 $y$。", s4d: "反函数的图像是 $f(x)$ 关于直线 $y=x$ 的反射。", check: "检查答案", next: "下一步", prev: "上一步", restart: "重新开始", correct: "正确！", try: "请再试一次。" }
+        };
+
+        function setLanguage(l) {
+            currentLang = l;
+            document.getElementById('enBtn').classList.toggle('active', l === 'en');
+            document.getElementById('zhBtn').classList.toggle('active', l === 'zh');
+            document.getElementById('mainTitle').innerText = dict[l].title;
+            document.getElementById('s1-task').innerHTML = dict[l].s1;
+            document.getElementById('s2-task').innerHTML = dict[l].s2;
+            document.getElementById('s3-task').innerHTML = dict[l].s3;
+            document.getElementById('s4-task').innerHTML = dict[l].s4;
+            document.getElementById('s4-desc').innerHTML = dict[l].s4d;
+            document.querySelectorAll('.btn-check').forEach(b => b.innerText = dict[l].check);
+            document.getElementById('prevText').innerText = dict[l].prev;
+            updateNextBtnLabel();
+            MathJax.typeset();
+        }
+
+        function validate(step, ans) {
+            const input = document.getElementById('math_val_' + step);
+            const msg = document.getElementById('msg');
+            const checkBtn = document.getElementById('check_btn_' + step);
+            
+            if (input.value.trim().toLowerCase() === ans) {
+                input.classList.add('input-success');
+                msg.innerHTML = `<span class="text-green-400">${dict[currentLang].correct}</span>`;
+                finalizeStep(step, input, checkBtn);
+            } else {
+                attempts[step]++;
+                msg.innerHTML = `<span class="text-red-400">${dict[currentLang].try}</span>`;
+                if (attempts[step] >= 3) {
+                    input.value = ans;
+                    input.classList.add('input-fail');
+                    msg.innerHTML = ""; 
+                    finalizeStep(step, input, checkBtn);
+                }
+            }
+        }
+
+        function finalizeStep(step, input, button) {
+            input.disabled = true;
+            if(button) button.disabled = true;
+            stepCompleted[step] = true;
+            document.getElementById('nextBtn').disabled = false;
+            if(step === '3') {
+                document.getElementById('inverseLine').style.opacity = "1";
+                document.getElementById('inverseLabel').style.opacity = "1";
+            }
+            MathJax.typeset();
+        }
+
+        function moveStep(dir) {
+            if (currentStep === 4 && dir === 1) {
+                location.reload();
+                return;
+            }
+            document.getElementById('step' + currentStep).classList.remove('active');
+            currentStep += dir;
+            document.getElementById('step' + currentStep).classList.add('active');
+            document.getElementById('msg').innerHTML = "";
+            updateNav();
+            MathJax.typeset();
+        }
+
+        function updateNav() {
+            const nextBtn = document.getElementById('nextBtn');
+            const prevBtn = document.getElementById('prevBtn');
+            prevBtn.disabled = (currentStep === 1);
+            nextBtn.disabled = !stepCompleted[currentStep];
+            if (currentStep === 4) {
+                nextBtn.classList.add('nav-btn-restart');
+                nextBtn.disabled = false;
+            } else {
+                nextBtn.classList.remove('nav-btn-restart');
+            }
+            updateNextBtnLabel();
+        }
+
+        function updateNextBtnLabel() {
+            document.getElementById('nextText').innerText = (currentStep === 4) ? dict[currentLang].restart : dict[currentLang].next;
+        }
+    </script>
+</body>
+</html>
