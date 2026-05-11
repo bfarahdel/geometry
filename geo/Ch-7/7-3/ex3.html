@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Example 3 - Similar Triangles Interactive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { background-color: #0f172a; font-family: 'Inter', sans-serif; color: #f1f5f9; min-height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; padding: 20px; }
+        .math-card { width: 100%; max-width: 1100px; background: #1e293b; border-radius: 24px; border: 1px solid #334155; overflow: hidden; display: flex; flex-direction: column; position: relative; min-height: 650px; }
+        
+        .equation-box { background: rgba(14, 165, 233, 0.05); border: 1px solid #0ea5e9; border-radius: 12px; padding: 1.25rem; margin: 1rem 0; text-align: center; }
+        
+        .math-input-field { flex-grow: 1; background-color: #1e293b; border: 1px solid #475569; border-radius: 0.5rem; padding: 0.5rem 1rem; color: #38bdf8; font-family: monospace; font-weight: bold; transition: all 0.2s; }
+        .math-input-field:disabled { cursor: not-allowed; opacity: 0.9; }
+        .input-correct { border-color: #22c55e !important; background-color: rgba(34, 197, 94, 0.1) !important; color: #4ade80 !important; }
+        .input-shown { border-color: #facc15 !important; background-color: rgba(250, 204, 21, 0.1) !important; color: #facc15 !important; }
+        .input-error { border-color: #ef4444 !important; animation: shake 0.2s ease-in-out 0s 2; }
+        
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        
+        #loader { position: absolute; inset: 0; background: #0f172a; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease-out; }
+        .diag-label { font-size: 16px; font-weight: bold; fill: #94a3b8; }
+        .value-label { font-size: 15px; font-weight: bold; fill: #facc15; }
+        .shape-large { stroke: #475569; stroke-width: 2; fill: none; }
+        .shape-highlight { stroke: #38bdf8; stroke-width: 3; fill: rgba(56, 189, 248, 0.05); }
+        .parallel-arrow { fill: #facc15; }
+        
+        .lang-btn { transition: all 0.2s; border: 1px solid transparent; }
+        .lang-btn.active { background-color: #0ea5e9; color: white; border-color: #38bdf8; }
+
+        .btn-next { background-color: #0ea5e9; color: white; }
+        .btn-next:hover { background-color: #0284c7; }
+        .btn-restart { 
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); 
+            color: white; 
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        .btn-restart:hover { transform: translateY(-1px); box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4); }
+    </style>
+</head>
+<body>
+
+<div id="templates" style="display:none;">
+    <div id="en-step1">Given \(\overline{BE} \parallel \overline{CD}\), the triangles share \(\angle A\) and have congruent corresponding angles. Thus, \(\triangle ABE \sim \triangle ACD\).</div>
+    <div id="en-step2">To find \(x\), set up a proportion: <div class='equation-box'>\(\frac{AB}{AC} = \frac{BE}{CD} \rightarrow \frac{3}{5} = \frac{x}{3.5}\)</div> Solve for \(x\).</div>
+    <div id="en-step3">To find \(y\), note that \(AD = y + 3\). Use the proportion: <div class='equation-box'>\(\frac{AC}{AB} = \frac{AD}{AE} \rightarrow \frac{5}{3} = \frac{y + 3}{y}\)</div> Solve for \(y\).</div>
+    <div id="en-prompt-x">Calculate x:</div>
+    <div id="en-prompt-y">Calculate y:</div>
+    <div id="en-correct">Correct!</div>
+    <div id="en-shown">Answer:</div>
+    <div id="en-error">Try again!</div>
+
+    <div id="zh-step1">已知 \(\overline{BE} \parallel \overline{CD}\)，两个三角形共用 \(\angle A\) 且具有相等的同位角。因此，\(\triangle ABE \sim \triangle ACD\)。</div>
+    <div id="zh-step2">为了求 \(x\)，建立比例式：<div class='equation-box'>\(\frac{AB}{AC} = \frac{BE}{CD} \rightarrow \frac{3}{5} = \frac{x}{3.5}\)</div> 解出 \(x\)。</div>
+    <div id="zh-step3">为了求 \(y\)，注意 \(AD = y + 3\)。使用比例式：<div class='equation-box'>\(\frac{AC}{AB} = \frac{AD}{AE} \rightarrow \frac{5}{3} = \frac{y + 3}{y}\)</div> 解出 \(y\)。</div>
+    <div id="zh-prompt-x">计算 x 的值:</div>
+    <div id="zh-prompt-y">计算 y 的值:</div>
+    <div id="zh-correct">正确！</div>
+    <div id="zh-shown">答案：</div>
+    <div id="zh-error">请再试一次！</div>
+</div>
+
+<div class="math-card">
+    <div id="loader">
+        <span id="emojiLoader" style="font-size: 5rem; margin-bottom: 1rem;">📐</span>
+        <div class="text-slate-500 font-bold text-xl uppercase tracking-widest animate-pulse">Loading...</div>
+    </div>
+
+    <div class="bg-slate-800/80 p-6 border-b border-slate-700 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <span class="bg-slate-900/50 text-sky-400 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-slate-700">Example 3</span>
+            <h1 class="text-xl font-bold text-white tracking-tight">Parts of Similar Triangles</h1>
+        </div>
+        <div class="flex bg-slate-900 rounded-lg p-1 border border-slate-700">
+            <button onclick="setLanguage('en')" id="enBtn" class="lang-btn px-3 py-1 text-[10px] font-bold rounded-md active">EN</button>
+            <button onclick="setLanguage('zh')" id="zhBtn" class="lang-btn px-3 py-1 text-[10px] font-bold rounded-md text-slate-400">中文</button>
+        </div>
+    </div>
+
+    <div class="flex flex-col md:flex-row flex-1">
+        <div class="w-full md:w-1/2 p-8 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-slate-700 bg-slate-900/30">
+            <svg viewBox="0 0 400 300" class="w-full max-w-[420px]">
+                <path d="M 50 250 L 150 50 L 350 250 Z" class="shape-large" />
+                <path d="M 50 250 L 110 130 L 230 250 Z" class="shape-highlight" />
+                <path d="M 183 186 L 193 191 L 183 196 Z" class="parallel-arrow" transform="rotate(-33, 188, 191)" />
+                <path d="M 295 185 L 305 190 L 295 195 Z" class="parallel-arrow" transform="rotate(-33, 300, 190)" />
+                <text x="30" y="265" class="diag-label">A</text>
+                <text x="95" y="125" class="diag-label">B</text>
+                <text x="150" y="35" class="diag-label">C</text>
+                <text x="235" y="265" class="diag-label">E</text>
+                <text x="360" y="265" class="diag-label">D</text>
+                <text x="70" y="195" class="value-label">3</text>
+                <text x="110" y="90" class="value-label">5</text>
+                <text x="165" y="185" class="value-label">x</text>
+                <text x="260" y="145" class="value-label">3.5</text>
+                <text x="135" y="275" class="value-label">y</text>
+                <text x="290" y="275" class="value-label">3</text>
+            </svg>
+        </div>
+
+        <div class="w-full md:w-1/2 p-8 flex flex-col bg-slate-800/20">
+            <div class="flex-1">
+                <div class="flex items-center mb-4">
+                    <div id="stepNum" class="w-8 h-8 rounded bg-sky-900 text-white flex items-center justify-center font-bold mr-3">1</div>
+                    <h2 id="stepTitle" class="text-sky-500 font-bold text-sm uppercase tracking-widest">Step 1</h2>
+                </div>
+                <div id="stepText" class="text-slate-200 text-lg leading-relaxed mb-6"></div>
+
+                <div id="interactionBox" class="hidden p-5 bg-slate-900/50 rounded-xl border border-slate-700">
+                    <div id="promptText" class="text-xs text-slate-400 mb-4 font-bold uppercase tracking-widest"></div>
+                    <div class="flex items-center gap-3">
+                        <span id="inputPrefix" class="text-white font-mono font-bold"></span>
+                        <input type="number" id="userInput" class="math-input-field" step="0.1" placeholder="?">
+                        <button id="checkBtn" class="bg-sky-700 hover:bg-sky-600 disabled:bg-slate-700 disabled:text-slate-500 text-white px-6 py-2 rounded-lg font-bold text-sm transition-all uppercase">Check</button>
+                    </div>
+                    <div id="feedback" class="mt-4 text-sm font-bold hidden"></div>
+                </div>
+            </div>
+
+            <div class="mt-8 flex items-center justify-between border-t border-slate-700 pt-6">
+                <button id="prevBtn" class="text-xs font-bold text-slate-400 hover:text-white disabled:opacity-30">PREV</button>
+                <div id="stepCounter" class="text-slate-500 font-mono text-[10px] tracking-widest uppercase">Step 1 / 3</div>
+                <button id="nextBtn" class="px-6 py-2 rounded-xl font-bold text-xs transition-all flex items-center gap-2">NEXT</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentStep = 0;
+    let currentLang = 'en';
+    let attempts = 0;
+    let solvedSteps = { 0: true, 1: false, 2: false };
+    let shownSteps = { 1: false, 2: false };
+    const emojis = ['📐', '✏️', '✨'];
+
+    function setLanguage(lang) {
+        currentLang = lang;
+        document.getElementById('enBtn').className = `lang-btn px-3 py-1 text-[10px] font-bold rounded-md ${lang === 'en' ? 'active' : 'text-slate-400'}`;
+        document.getElementById('zhBtn').className = `lang-btn px-3 py-1 text-[10px] font-bold rounded-md ${lang === 'zh' ? 'active' : 'text-slate-400'}`;
+        updateUI();
+    }
+
+    function updateUI() {
+        const stepNum = currentStep + 1;
+        document.getElementById('stepText').innerHTML = document.getElementById(`${currentLang}-step${stepNum}`).innerHTML;
+        document.getElementById('stepNum').innerText = stepNum;
+        document.getElementById('stepTitle').innerText = (currentLang === 'en' ? 'Step ' : '步骤 ') + stepNum;
+        document.getElementById('stepCounter').innerText = (currentLang === 'en' ? 'Step ' : '步骤 ') + stepNum + ' / 3';
+        
+        const interaction = document.getElementById('interactionBox');
+        const input = document.getElementById('userInput');
+        const checkBtn = document.getElementById('checkBtn');
+        const feedback = document.getElementById('feedback');
+        const nextBtn = document.getElementById('nextBtn');
+        
+        // Reset interaction state
+        interaction.classList.add('hidden');
+        feedback.classList.add('hidden');
+        input.classList.remove('input-correct', 'input-shown', 'input-error');
+        input.disabled = false;
+        checkBtn.disabled = false;
+        input.value = '';
+
+        // Step-specific logic
+        if (currentStep === 1) {
+            interaction.classList.remove('hidden');
+            document.getElementById('inputPrefix').innerText = "x = ";
+            document.getElementById('promptText').innerText = document.getElementById(`${currentLang}-prompt-x`).innerText;
+            if (solvedSteps[1]) markSolved(2.1, shownSteps[1]);
+        } else if (currentStep === 2) {
+            interaction.classList.remove('hidden');
+            document.getElementById('inputPrefix').innerText = "y = ";
+            document.getElementById('promptText').innerText = document.getElementById(`${currentLang}-prompt-y`).innerText;
+            if (solvedSteps[2]) markSolved(4.5, shownSteps[2]);
+        }
+
+        // Navigation visibility
+        document.getElementById('prevBtn').disabled = currentStep === 0;
+        nextBtn.disabled = !solvedSteps[currentStep];
+
+        // Toggle Next vs Restart
+        if (currentStep === 2 && solvedSteps[2]) {
+            nextBtn.className = "btn-restart px-6 py-2 rounded-xl font-bold text-xs transition-all flex items-center gap-2";
+            nextBtn.innerHTML = `<span>${currentLang === 'en' ? 'RESTART' : '重新开始'}</span><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>`;
+        } else {
+            nextBtn.className = "btn-next px-6 py-2 rounded-xl font-bold text-xs transition-all";
+            nextBtn.innerText = currentLang === 'en' ? 'NEXT' : '下一步';
+        }
+
+        if (window.MathJax) MathJax.typesetPromise();
+    }
+
+    function markSolved(val, shown = false) {
+        const input = document.getElementById('userInput');
+        const checkBtn = document.getElementById('checkBtn');
+        const fb = document.getElementById('feedback');
+        
+        input.disabled = true;
+        checkBtn.disabled = true;
+        input.value = val;
+        
+        fb.classList.remove('hidden');
+        if (shown) {
+            input.classList.add('input-shown');
+            fb.innerText = document.getElementById(`${currentLang}-shown`).innerText + " " + val;
+            fb.className = "mt-4 text-sm font-bold text-amber-400";
+        } else {
+            input.classList.add('input-correct');
+            fb.innerText = document.getElementById(`${currentLang}-correct`).innerText;
+            fb.className = "mt-4 text-sm font-bold text-green-400";
+        }
+    }
+
+    document.getElementById('checkBtn').onclick = () => {
+        const input = document.getElementById('userInput');
+        const val = parseFloat(input.value);
+        const fb = document.getElementById('feedback');
+        let correctVal = currentStep === 1 ? 2.1 : 4.5;
+
+        if (val === correctVal) {
+            solvedSteps[currentStep] = true;
+            markSolved(correctVal, false);
+            // Re-call updateUI to refresh the NEXT/RESTART button state
+            updateUI(); 
+        } else {
+            attempts++;
+            if (attempts >= 3) {
+                solvedSteps[currentStep] = true;
+                shownSteps[currentStep] = true;
+                markSolved(correctVal, true);
+                updateUI(); // This ensures the RESTART button appears on Step 3
+            } else {
+                input.classList.add('input-error');
+                setTimeout(() => input.classList.remove('input-error'), 400);
+                fb.innerText = document.getElementById(`${currentLang}-error`).innerText;
+                fb.className = "mt-4 text-sm font-bold text-red-500";
+                fb.classList.remove('hidden');
+            }
+        }
+    };
+
+    document.getElementById('nextBtn').onclick = () => {
+        if (currentStep < 2) { 
+            currentStep++; 
+            attempts = 0; 
+            updateUI(); 
+        } else { 
+            // Restart Logic
+            currentStep = 0; 
+            attempts = 0; 
+            solvedSteps = { 0: true, 1: false, 2: false }; 
+            shownSteps = { 1: false, 2: false }; 
+            updateUI(); 
+        }
+    };
+    
+    document.getElementById('prevBtn').onclick = () => { 
+        if (currentStep > 0) { 
+            currentStep--; 
+            attempts = 0; // Reset attempts when moving back
+            updateUI(); 
+        } 
+    };
+
+    window.onload = () => {
+        setTimeout(() => {
+            document.getElementById('loader').style.opacity = '0';
+            setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+        }, 800);
+        updateUI();
+    };
+</script>
+</body>
+</html>
