@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Example 3 - Quadratic Inverses</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { background-color: #0f172a; font-family: 'Inter', sans-serif; color: #f1f5f9; min-height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; padding: 20px; }
+        .math-card { width: 100%; max-width: 1000px; background: #1e293b; border-radius: 24px; border: 1px solid #334155; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        .header { background: #0f172a; padding: 1.5rem; border-bottom: 1px solid #334155; }
+        
+        .lang-btn { padding: 0.5rem 1rem; border-radius: 0.375rem; font-weight: 600; font-size: 0.75rem; transition: all 0.2s; cursor: pointer; }
+        .lang-btn.active { background: #7c3aed; color: #0f172a; }
+
+        .step-container { display: none; }
+        .step-container.active { display: block; min-height: 480px; }
+        
+        .check-btn { padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer; background: #7c3aed; color: white; border: none; transition: all 0.2s; font-size: 0.875rem; }
+        .check-btn:hover:not(:disabled) { background: #6d28d9; }
+        .check-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .nav-btn { padding: 0.6rem 1.2rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.875rem; }
+        .nav-btn-prev { background: #334155; color: #94a3b8; border: 1px solid #475569; }
+        .nav-btn-next { background: #475569; color: white; }
+        .nav-btn-next:not(:disabled):hover { background: #64748b; }
+
+        .inline-input { background: #1e293b; border: 2px solid #7c3aed; border-radius: 0.375rem; padding: 0.25rem 0.5rem; color: #f1f5f9; text-align: center; width: 65px; outline: none; transition: all 0.3s; }
+        .input-success { border-color: #10b981 !important; color: #10b981 !important; background-color: rgba(16, 185, 129, 0.1) !important; }
+        .input-fail { border-color: #eab308 !important; color: #eab308 !important; background-color: rgba(234, 179, 8, 0.1) !important; }
+
+        .choice-card { background: #0f172a; border: 2px solid #334155; border-radius: 12px; padding: 1rem; cursor: pointer; transition: all 0.2s; text-align: left; position: relative; }
+        .choice-card:hover { border-color: #475569; }
+        .choice-card.correct { border-color: #10b981 !important; background: rgba(16, 185, 129, 0.1) !important; color: #10b981 !important; }
+        .choice-card.locked { cursor: default; pointer-events: none; }
+
+        .list-item { background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 1rem; margin-bottom: 0.75rem; border-left: 4px solid #7c3aed; }
+        .formula-box { background: rgba(124, 58, 237, 0.1); border-left: 4px solid #7c3aed; padding: 0.75rem; margin-bottom: 1rem; border-radius: 0 8px 8px 0; }
+
+        .curve-f { stroke: #60a5fa; stroke-width: 3; fill: none; }
+        .curve-inv-pos { stroke: #ef4444; stroke-width: 3; fill: none; stroke-dasharray: 5,5; opacity: 0; transition: opacity 0.5s; }
+        .curve-inv-neg { stroke: #10b981; stroke-width: 3; fill: none; stroke-dasharray: 5,5; opacity: 0; transition: opacity 0.5s; }
+        
+        .axis-label { fill: #94a3b8; font-size: 8px; font-weight: 500; }
+        .test-line { stroke-width: 1.5; stroke-dasharray: 4,2; transition: opacity 0.4s; }
+        .test-label { font-size: 8px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="math-card">
+        <div class="header flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <span class="bg-purple-600/20 text-purple-400 px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-purple-600/30">Example 3</span>
+                <h1 id="mainTitle" class="text-xl font-bold text-white tracking-tight">Inverses with Restricted Domains</h1>
+            </div>
+            <div class="flex gap-2 bg-slate-800 p-1 rounded-lg">
+                <button onclick="setLanguage('en')" id="enBtn" class="lang-btn active">EN</button>
+                <button onclick="setLanguage('zh')" id="zhBtn" class="lang-btn">中文</button>
+            </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row">
+            <div class="w-full lg:w-1/2 p-8 flex flex-col items-center bg-slate-900/30 border-r border-slate-700">
+                <div class="mb-4 text-center">
+                    <p class="text-purple-400 font-bold text-2xl">$f(x) = x^2 - 6x + 8$</p>
+                </div>
+                <svg viewBox="-25 -10 250 250" class="w-full max-w-[320px]">
+                    <g stroke="#334155" stroke-width="0.5">
+                        <line x1="0" y1="0" x2="200" y2="0" /><line x1="0" y1="40" x2="200" y2="40" /><line x1="0" y1="80" x2="200" y2="80" />
+                        <line x1="0" y1="120" x2="200" y2="120" /><line x1="0" y1="160" x2="200" y2="160" /><line x1="0" y1="200" x2="200" y2="200" />
+                        <line x1="0" y1="0" x2="0" y2="200" /><line x1="40" y1="0" x2="40" y2="200" /><line x1="80" y1="0" x2="80" y2="200" />
+                        <line x1="120" y1="0" x2="120" y2="200" /><line x1="160" y1="0" x2="160" y2="200" /><line x1="200" y1="0" x2="200" y2="200" />
+                    </g>
+                    
+                    <text x="38" y="212" class="axis-label">0</text>
+                    <text x="78" y="212" class="axis-label">2</text>
+                    <text x="118" y="212" class="axis-label">4</text>
+                    <text x="158" y="212" class="axis-label">6</text>
+                    <text x="198" y="212" class="axis-label">8</text>
+
+                    <text x="-15" y="163" class="axis-label">0</text>
+                    <text x="-15" y="123" class="axis-label">2</text>
+                    <text x="-15" y="83" class="axis-label">4</text>
+                    <text x="-15" y="43" class="axis-label">6</text>
+                    <text x="-15" y="3" class="axis-label">8</text>
+
+                    <line x1="40" y1="0" x2="40" y2="200" stroke="#94a3b8" stroke-width="2" /> 
+                    <line x1="0" y1="160" x2="200" y2="160" stroke="#94a3b8" stroke-width="2" /> 
+                    
+                    <g id="hTestGroup">
+                        <line x1="0" y1="80" x2="200" y2="80" stroke="#ef4444" class="test-line" />
+                        <circle cx="64" cy="80" r="3" fill="#ef4444" />
+                        <circle cx="136" cy="80" r="3" fill="#ef4444" />
+                        <text x="5" y="75" fill="#ef4444" class="test-label">Horizontal Line Test</text>
+                    </g>
+
+                    <path d="M 40,0 Q 100,360 160,0" class="curve-f" />
+                    <text x="145" y="30" fill="#60a5fa" font-size="12" font-weight="bold">f(x)</text>
+                    
+                    <line id="symLine" x1="100" y1="0" x2="100" y2="200" stroke="#eab308" stroke-width="2" stroke-dasharray="4,4" style="opacity: 0;" />
+                    
+                    <path id="invPos" d="M 20,100 C 20,60 100,40 200,35" class="curve-inv-pos" />
+                    <path id="invNeg" d="M 20,100 C 20,140 100,160 200,165" class="curve-inv-neg" />
+                </svg>
+            </div>
+
+            <div class="w-full lg:w-1/2 p-8 bg-slate-800/20 flex flex-col">
+                <div class="flex-grow">
+                    <div id="step1" class="step-container active">
+                        <span class="text-[10px] font-bold text-purple-400 uppercase tracking-widest">Step 1</span>
+                        <p class="text-slate-300 my-4 font-semibold lang-content" data-en="Use a graph to determine whether $f(x)$ and $f^{-1}(x)$ are functions." data-zh="通过图像判断 $f(x)$ 和 $f^{-1}(x)$ 是否为函数。">Use a graph to determine whether $f(x)$ and $f^{-1}(x)$ are functions.</p>
+                        <div class="grid grid-cols-1 gap-3">
+                            <div id="opt1-1" class="choice-card" onclick="handleChoice(1, 'no', 'opt1-1')">
+                                <strong class="lang-content" data-en="No:" data-zh="否：">No:</strong> <span class="lang-content" data-en="$f(x)$ fails the horizontal line test, indicating $f^{-1}(x)$ is not a function." data-zh="$f(x)$ 未通过水平线测试，表明 $f^{-1}(x)$ 不是函数。">$f(x)$ fails the horizontal line test, indicating $f^{-1}(x)$ is not a function.</span>
+                            </div>
+                            <div id="opt1-2" class="choice-card" onclick="handleChoice(1, 'yes', 'opt1-2')">
+                                <strong class="lang-content" data-en="Yes:" data-zh="是：">Yes:</strong> <span class="lang-content" data-en="$f(x)$ passes the horizontal line test, indicating $f^{-1}(x)$ is a function." data-zh="$f(x)$ 通过了水平线测试，表明 $f^{-1}(x)$ 是一个函数。">$f(x)$ passes the horizontal line test, indicating $f^{-1}(x)$ is a function.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="step2" class="step-container">
+                        <span class="text-[10px] font-bold text-purple-400 uppercase tracking-widest">Step 2</span>
+                        <p class="text-slate-300 my-4 font-semibold lang-content" data-en="Identify the axis of symmetry." data-zh="确定对称轴。">Identify the axis of symmetry.</p>
+                        <div class="formula-box text-xs text-purple-300">
+                            <strong class="lang-content" data-en="Formula:" data-zh="公式：">Formula:</strong> $x = -\frac{b}{2a}$
+                        </div>
+                        <div class="bg-slate-950 p-6 rounded-lg text-center border border-slate-700 mb-4">
+                            $x = -\frac{-6}{2(1)} = $ <input type="text" id="math_val_2" class="inline-input" autocomplete="off" placeholder="...">
+                        </div>
+                        <button onclick="handleInput(2, '3')" class="check-btn w-full lang-content" data-en="Check Answer" data-zh="检查答案">Check Answer</button>
+                    </div>
+
+                    <div id="step3" class="step-container">
+                        <span class="text-[10px] font-bold text-purple-400 uppercase tracking-widest">Step 3</span>
+                        <p class="text-slate-300 my-4 font-semibold lang-content" data-en="Find $f^{-1}(x)$ by completing the square." data-zh="通过配方法求 $f^{-1}(x)$。">Find $f^{-1}(x)$ by completing the square.</p>
+                        <div class="space-y-3 mb-4">
+                            <div class="list-item lang-content" data-en="1. Subtract 8 from both sides: $x - 8 = y^2 - 6y$" data-zh="1. 等式两边同时减去 8：$x - 8 = y^2 - 6y$">1. Subtract 8 from both sides: $x - 8 = y^2 - 6y$</div>
+                            <div class="list-item"><span class="lang-content" data-en="2. Find the value to add: $(\frac{-6}{2})^2 = $" data-zh="2. 计算需要加上的数值：$(\frac{-6}{2})^2 = $">2. Find the value to add: $(\frac{-6}{2})^2 = $</span> <input type="text" id="math_val_3" class="inline-input" autocomplete="off" placeholder="..."></div>
+                            <div class="list-item lang-content" data-en="3. Add 9 to both sides: $x - 8 + 9 = y^2 - 6y + 9$" data-zh="3. 等式两边同时加上 9：$x - 8 + 9 = y^2 - 6y + 9$">3. Add 9 to both sides: $x - 8 + 9 = y^2 - 6y + 9$</div>
+                            <div class="list-item lang-content" data-en="4. Simplify and factor: $x + 1 = (y - 3)^2$" data-zh="4. 化简并因式分解：$x + 1 = (y - 3)^2$">4. Simplify and factor: $x + 1 = (y - 3)^2$</div>
+                        </div>
+                        <button onclick="handleInput(3, '9')" class="check-btn w-full lang-content" data-en="Check Value" data-zh="检查数值">Check Value</button>
+                    </div>
+
+                    <div id="step4" class="step-container">
+                        <span class="text-[10px] font-bold text-purple-400 uppercase tracking-widest">Step 4</span>
+                        <p class="text-slate-300 my-4 font-semibold lang-content" data-en="Find restricted domains of $f(x)$ so that $f^{-1}(x)$ will be a function." data-zh="限制 $f(x)$ 的定义域，使 $f^{-1}(x)$ 成为一个函数。">Find restricted domains of $f(x)$ so that $f^{-1}(x)$ will be a function.</p>
+                        <div class="space-y-4">
+                            <div class="list-item border-green-500/30 bg-green-500/5">
+                                <span class="lang-content" data-en="If the domain is restricted to $(-\infty, 3]$, then the inverse is:" data-zh="如果定义域限制在 $(-\infty, 3]$，则反函数为：">If the domain is restricted to $(-\infty, 3]$, then the inverse is:</span><br>
+                                <span class="text-green-400 font-bold">$f^{-1}(x) = 3 - \sqrt{x+1}$</span>
+                            </div>
+                            <div class="list-item border-red-500/30 bg-red-500/5">
+                                <span class="lang-content" data-en="If the domain is restricted to $[3, \infty)$, then the inverse is:" data-zh="如果定义域限制在 $[3, \infty)$，则反函数为：">If the domain is restricted to $[3, \infty)$, then the inverse is:</span><br>
+                                <span class="text-red-400 font-bold">$f^{-1}(x) = 3 + \sqrt{x+1}$</span>
+                            </div>
+                        </div>
+                        <p class="text-slate-400 text-xs mt-4 lang-content" data-en="Restricting the domain ensures the inverse passes the vertical line test." data-zh="限制定义域可确保反函数通过垂直线测试。">Restricting the domain ensures the inverse passes the vertical line test.</p>
+                    </div>
+
+                    <div id="step5" class="step-container">
+                        <span class="text-[10px] font-bold text-purple-400 uppercase tracking-widest">Step 5</span>
+                        <p class="text-slate-300 my-4 font-semibold lang-content" data-en="Graph the function and its inverse." data-zh="绘制函数及其反函数的图像。">Graph the function and its inverse.</p>
+                        <div class="bg-slate-950 p-4 rounded border border-slate-700">
+                            <p class="text-red-400 font-mono text-xs"><span class="lang-content" data-en="Top Branch (Red):" data-zh="上分支（红色）：">Top Branch (Red):</span> $f^{-1}(x) = 3 + \sqrt{x+1}$</p>
+                            <p class="text-green-400 font-mono text-xs mt-2"><span class="lang-content" data-en="Bottom Branch (Green):" data-zh="下分支（绿色）：">Bottom Branch (Green):</span> $f^{-1}(x) = 3 - \sqrt{x+1}$</p>
+                        </div>
+                        <p class="text-slate-400 text-xs mt-4 lang-content" data-en="Notice that the range of $f^{-1}(x)$ is restricted so that the graph passes the vertical line test." data-zh="请注意，$f^{-1}(x)$ 的值域受到了限制，以便图像能够通过垂直线测试。">Notice that the range of $f^{-1}(x)$ is restricted so that the graph passes the vertical line test.</p>
+                    </div>
+                </div>
+
+                <div id="msg" class="text-sm min-h-[1.5rem] mt-4 font-bold"></div>
+
+                <div class="mt-8 pt-6 border-t border-slate-700 flex justify-between">
+                    <button id="prevBtn" onclick="moveStep(-1)" class="nav-btn nav-btn-prev" disabled>← <span class="lang-content" data-en="Previous" data-zh="上一步">Previous</span></button>
+                    <button id="nextBtn" onclick="moveStep(1)" class="nav-btn nav-btn-next" disabled><span id="nextText" class="lang-content" data-en="Next →" data-zh="下一步 →">Next →</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let attempts = { 1: 0, 2: 0, 3: 0 };
+        let stepCompleted = { 1: false, 2: false, 3: false, 4: true, 5: true };
+
+        function setLanguage(lang) {
+            document.getElementById('enBtn').classList.toggle('active', lang === 'en');
+            document.getElementById('zhBtn').classList.toggle('active', lang === 'zh');
+            document.querySelectorAll('.lang-content').forEach(el => {
+                el.innerHTML = el.getAttribute('data-' + lang);
+            });
+            if(window.MathJax) MathJax.typeset();
+        }
+
+        function handleChoice(step, val, elementId) {
+            const el = document.getElementById(elementId);
+            const isCorrect = (step === 1 && val === 'no');
+            if (isCorrect) {
+                el.classList.add('correct');
+                document.getElementById('msg').innerHTML = `<span class="text-green-400">Correct!</span>`;
+                finalizeStep(step);
+                document.querySelectorAll(`#step${step} .choice-card`).forEach(c => c.classList.add('locked'));
+            } else {
+                attempts[step]++;
+                document.getElementById('msg').innerHTML = `<span class="text-red-400">Try again.</span>`;
+                if (attempts[step] >= 3) {
+                    document.getElementById('opt1-1').classList.add('correct');
+                    finalizeStep(step);
+                }
+            }
+        }
+
+        function handleInput(step, ans) {
+            const input = document.getElementById('math_val_' + step);
+            if (input.value.trim() === ans) {
+                input.classList.add('input-success');
+                document.getElementById('msg').innerHTML = `<span class="text-green-400">Correct!</span>`;
+                finalizeStep(step);
+            } else {
+                attempts[step]++;
+                document.getElementById('msg').innerHTML = `<span class="text-red-400">Try again.</span>`;
+                if (attempts[step] >= 3) {
+                    input.value = ans;
+                    input.classList.add('input-fail');
+                    finalizeStep(step);
+                }
+            }
+        }
+
+        function finalizeStep(step) {
+            stepCompleted[step] = true;
+            document.getElementById('nextBtn').disabled = false;
+        }
+
+        function moveStep(dir) {
+            if (currentStep === 5 && dir === 1) { location.reload(); return; }
+            document.getElementById('step' + currentStep).classList.remove('active');
+            currentStep += dir;
+            document.getElementById('step' + currentStep).classList.add('active');
+            
+            document.getElementById('hTestGroup').style.opacity = (currentStep === 1) ? "1" : "0";
+            document.getElementById('symLine').style.opacity = (currentStep >= 2) ? "1" : "0";
+            document.getElementById('invPos').style.opacity = (currentStep >= 4) ? "1" : "0";
+            document.getElementById('invNeg').style.opacity = (currentStep >= 4) ? "1" : "0";
+
+            document.getElementById('msg').innerHTML = "";
+            document.getElementById('prevBtn').disabled = (currentStep === 1);
+            document.getElementById('nextBtn').disabled = !stepCompleted[currentStep];
+            
+            const nextBtnText = document.getElementById('nextText');
+            nextBtnText.setAttribute('data-en', currentStep === 5 ? 'Restart' : 'Next →');
+            nextBtnText.setAttribute('data-zh', currentStep === 5 ? '重新开始' : '下一步 →');
+            
+            const activeLang = document.getElementById('zhBtn').classList.contains('active') ? 'zh' : 'en';
+            setLanguage(activeLang);
+        }
+    </script>
+</body>
+</html>
