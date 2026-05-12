@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Exercise: Cube Root Functions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.MathJax = { 
+            tex: { 
+                inlineMath: [['$', '$']],
+                displayMath: [['$$', '$$']]
+            } 
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { background-color: #0f172a; font-family: 'Inter', sans-serif; color: #f1f5f9; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .math-card { width: 100%; max-width: 1100px; background: #1e293b; border-radius: 24px; border: 1px solid #334155; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); display: flex; flex-direction: column; }
+        .header { background: #0f172a; padding: 1.5rem; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
+        .lang-toggle { display: flex; gap: 0.5rem; background: #1e293b; padding: 0.25rem; border-radius: 0.5rem; border: 1px solid #334155; }
+        .lang-btn { padding: 0.5rem 1rem; border-radius: 0.375rem; font-weight: 600; font-size: 0.75rem; cursor: pointer; border: none; transition: all 0.2s; }
+        .lang-btn.active { background: #8b5cf6; color: white; }
+        .step-container { display: none; }
+        .step-container.active { display: block; }
+        .option-chip { background: #0f172a; border: 1px solid #334155; padding: 12px 20px; border-radius: 12px; cursor: pointer; transition: all 0.2s; color: white; text-align: center; width: 100%; margin-bottom: 10px; }
+        .option-chip:hover { border-color: #8b5cf6; background: #1e293b; }
+        .option-chip.correct-choice { border-color: #22c55e; background: rgba(34, 197, 94, 0.1); }
+        .preview-area { background: #0f172a; padding: 1.25rem; border-radius: 12px; border: 1px solid #334155; margin-bottom: 1.5rem; font-size: 1.1rem; }
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9rem; background: rgba(15, 23, 42, 0.5); }
+        .data-table th { background: #8b5cf6; color: white; padding: 6px; border: 1px solid #334155; }
+        .data-table td { padding: 6px; border: 1px solid #334155; text-align: center; }
+        .graph-box { background: white; border-radius: 12px; padding: 15px; width: 100%; max-width: 320px; margin: 0 auto; }
+        .nav-btn { padding: 0.75rem 1.5rem; border-radius: 0.75rem; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem; }
+        .nav-btn-next { background: #8b5cf6; color: white; }
+        .nav-btn-next:disabled { opacity: 0.3; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+    <div class="math-card">
+        <div class="header">
+            <div>
+                <span class="bg-blue-600/20 text-blue-400 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-blue-600/30">Example 2a</span>
+                <h1 id="mainTitle" class="text-xl font-bold text-white mt-2">Graphing Cube Root Functions</h1>
+            </div>
+            <div class="lang-toggle">
+                <button onclick="setLanguage('en')" id="enBtn" class="lang-btn active">EN</button>
+                <button onclick="setLanguage('zh')" id="zhBtn" class="lang-btn">中文</button>
+            </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row flex-grow">
+            <div class="w-full lg:w-1/2 p-8 bg-slate-900/30 border-b lg:border-b-0 lg:border-r border-slate-700 flex flex-col items-center">
+                <p id="givenTxt" class="text-slate-400 text-sm mb-4">Function:</p>
+                <p class="text-purple-400 font-bold text-3xl mb-6">$y = \sqrt[3]{x + 3} - 4$</p>
+
+                <div class="graph-box mb-6">
+                    <svg viewBox="0 0 100 100" class="w-full h-auto">
+                        <path d="M0 20 H100 M0 40 H100 M0 60 H100 M0 80 H100" stroke="#e2e8f0" stroke-width="0.5"/>
+                        <path d="M20 0 V100 M40 0 V100 M60 0 V100 M80 0 V100" stroke="#e2e8f0" stroke-width="0.5"/>
+                        <line x1="0" y1="50" x2="100" y2="50" stroke="#94a3b8" stroke-width="1" />
+                        <line x1="50" y1="0" x2="50" y2="100" stroke="#94a3b8" stroke-width="1" />
+                        <path d="M 10 85 Q 35 75, 42 65 T 58 35 Q 65 25, 90 15" fill="none" stroke="#8b5cf6" stroke-width="2.5" />
+                        <circle cx="42" cy="65" r="3" fill="#ef4444" />
+                        <text x="25" y="75" font-size="5" fill="#1e293b" font-weight="bold">(-3, -4)</text>
+                    </svg>
+                </div>
+
+                <table class="data-table">
+                    <thead>
+                        <tr><th>x</th><th>y</th></tr>
+                    </thead>
+                    <tbody class="text-slate-300">
+                        <tr><td>-4</td><td>-5</td></tr>
+                        <tr class="bg-purple-500/10"><td class="font-bold text-purple-400">-3</td><td class="font-bold text-purple-400">-4</td></tr>
+                        <tr><td>-2</td><td>-3</td></tr>
+                        <tr><td>5</td><td>-2</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="w-full lg:w-1/2 p-8 bg-slate-800/20 flex flex-col">
+                <div id="math-preview" class="preview-area text-slate-500 space-y-2">
+                    <p id="p-trans">• Translation: ?</p>
+                    <p id="p-inf">• Inflection Point: ?</p>
+                    <p id="p-dom">• Domain: ?</p>
+                    <p id="p-ran">• Range: ?</p>
+                </div>
+
+                <div id="step1" class="step-container active">
+                    <span class="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Step 1: Transformations</span>
+                    <p id="s1Task" class="text-slate-300 text-lg my-4">How is the parent graph $f(x) = \sqrt[3]{x}$ translated?</p>
+                    <button onclick="pickStep(1, 'correct')" class="option-chip">3 units left, 4 units down</button>
+                    <button onclick="pickStep(1, 'wrong')" class="option-chip">3 units right, 4 units up</button>
+                    <p id="msg1" class="text-center mt-2 h-4 font-medium"></p>
+                </div>
+
+                <div id="step2" class="step-container">
+                    <span class="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Step 2: Key Feature</span>
+                    <p id="s2Task" class="text-slate-300 text-lg my-4">What is the coordinate of the inflection point?</p>
+                    <button onclick="pickStep(2, 'wrong')" class="option-chip">$(3, -4)$</button>
+                    <button onclick="pickStep(2, 'correct')" class="option-chip">$(-3, -4)$</button>
+                    <p id="msg2" class="text-center mt-2 h-4 font-medium"></p>
+                </div>
+
+                <div id="step3" class="step-container">
+                    <span class="text-[10px] font-bold text-green-400 uppercase tracking-widest">Step 3: Domain & Range</span>
+                    <p id="s3Task" class="text-slate-300 text-lg my-4">What are the Domain and Range for this cube root function?</p>
+                    <button onclick="pickStep(3, 'correct')" class="option-chip">All Real Numbers $(-\infty, \infty)$</button>
+                    <button onclick="pickStep(3, 'wrong')" class="option-chip">Restricted by the inflection point</button>
+                    <p id="msg3" class="text-center mt-2 h-4 font-medium"></p>
+                </div>
+
+                <div id="step4" class="step-container">
+                    <div class="bg-green-500/10 border border-green-500/30 p-6 rounded-xl text-center">
+                        <h2 id="completeTitle" class="text-white font-bold text-2xl mb-2">Excellent!</h2>
+                        <p id="finalMsg" class="text-slate-400 mb-4">Unlike square roots, cube roots accept negative inputs, so their domain and range are infinite.</p>
+                        <button onclick="location.reload()" class="w-full bg-slate-700 py-3 rounded-lg text-sm hover:bg-slate-600 transition">Practice Again</button>
+                    </div>
+                </div>
+
+                <div class="mt-auto pt-8 flex justify-between items-center border-t border-slate-700/50">
+                    <button id="prevBtn" onclick="changeStep(-1)" class="nav-btn bg-slate-700 text-slate-300 invisible">← Prev</button>
+                    <button id="nextBtn" onclick="changeStep(1)" class="nav-btn nav-btn-next" disabled>Next →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentLang = 'en';
+        let currentStep = 1;
+        let progress = { 1: false, 2: false, 3: false };
+
+        const dict = {
+            en: {
+                title: "Graphing Cube Root Functions", s1Task: "How is the parent graph $f(x) = \\sqrt[3]{x}$ translated?",
+                s2Task: "What is the coordinate of the inflection point?", s3Task: "What are the Domain and Range?",
+                correct: "Correct!", wrong: "Try again!", complete: "Excellent!", 
+                final: "Unlike square roots, cube roots accept negative inputs, so their domain and range are infinite."
+            },
+            zh: {
+                title: "绘制立方根函数图像", s1Task: "母函数 $f(x) = \\sqrt[3]{x}$ 如何平移？",
+                s2Task: "拐点（中心点）的坐标是多少？", s3Task: "定义域和值域是什么？",
+                correct: "正确！", wrong: "再试一次！", complete: "太棒了！", 
+                final: "与平方根不同，立方根可以接受负数输入，因此它们的定义域和值域都是无穷大的。"
+            }
+        };
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(lang + 'Btn').classList.add('active');
+            document.getElementById('mainTitle').innerText = dict[lang].title;
+            ['s1Task', 's2Task', 's3Task'].forEach((id, i) => document.getElementById(id).innerText = dict[lang][id]);
+            MathJax.typeset();
+        }
+
+        function pickStep(stepNum, val) {
+            const msg = document.getElementById(`msg${stepNum}`);
+            if (val === 'correct') {
+                progress[stepNum] = true;
+                msg.innerText = dict[currentLang].correct;
+                msg.className = "text-center mt-2 h-4 font-medium text-green-400";
+                document.getElementById('nextBtn').disabled = false;
+                updatePreview(stepNum);
+            } else {
+                msg.innerText = dict[currentLang].wrong;
+                msg.className = "text-center mt-2 h-4 font-medium text-red-400";
+            }
+        }
+
+        function updatePreview(step) {
+            if (step === 1) document.getElementById('p-trans').innerHTML = `• Translation: <span class="text-white font-bold">3 Left, 4 Down</span>`;
+            if (step === 2) document.getElementById('p-inf').innerHTML = `• Inflection Point: <span class="text-white font-bold">$(-3, -4)$</span>`;
+            if (step === 3) {
+                document.getElementById('p-dom').innerHTML = `• Domain: <span class="text-green-400 font-bold">$(-\\infty, \\infty)$</span>`;
+                document.getElementById('p-ran').innerHTML = `• Range: <span class="text-green-400 font-bold">$(-\\infty, \\infty)$</span>`;
+            }
+            MathJax.typeset();
+        }
+
+        function changeStep(dir) {
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            currentStep += dir;
+            document.getElementById(`step${currentStep}`).classList.add('active');
+            document.getElementById('prevBtn').classList.toggle('invisible', currentStep === 1);
+            document.getElementById('nextBtn').disabled = !progress[currentStep];
+            if (currentStep === 4) {
+                document.getElementById('nextBtn').style.display = 'none';
+                document.getElementById('prevBtn').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
