@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Example 1a - SSS Similarity</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { background-color: #0f172a; font-family: 'Inter', sans-serif; color: #f1f5f9; min-height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; padding: 20px; overflow: hidden; touch-action: none; }
+        .math-card { width: 100%; max-width: 1100px; background: #1e293b; border-radius: 24px; border: 1px solid #334155; overflow: hidden; display: flex; flex-direction: column; height: 720px; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        #loader { position: absolute; inset: 0; background: #0f172a; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.3s ease-out; }
+        .content-layout { display: flex; flex: 1; overflow: hidden; }
+        .visual-area { flex: 1; background: #0f172a; position: relative; overflow: hidden; }
+        .side-panel { width: 340px; background: #1e293b; border-left: 1px solid #334155; padding: 32px; display: flex; flex-direction: column; }
+        .grid-line { stroke: #1e293b; stroke-width: 1; }
+        .target-shape { fill: rgba(56, 189, 248, 0.05); stroke: #38bdf8; stroke-width: 2; }
+        .active-shape { fill: #f59e0b; fill-opacity: 0.15; stroke: #f59e0b; stroke-width: 3; cursor: grab; }
+        .svg-side-label { font-size: 14px; font-weight: 800; fill: white; pointer-events: none; }
+        .svg-vertex-label { font-size: 16px; font-weight: 700; fill: #94a3b8; pointer-events: none; }
+        .fraction { display: flex; flex-direction: column; align-items: center; }
+        .fraction-line { width: 100%; height: 2px; background: #475569; margin: 4px 0; }
+        .inline-input { background: #0f172a; border: 2px solid #334155; border-radius: 8px; padding: 4px; width: 60px; text-align: center; color: #fbbf24; font-size: 0.95rem; font-weight: bold; outline: none; transition: all 0.3s; }
+        .input-success { border-color: #10b981 !important; color: #10b981 !important; background-color: rgba(16, 185, 129, 0.1) !important; }
+        .input-fail { border-color: #eab308 !important; color: #eab308 !important; background-color: rgba(234, 179, 8, 0.1) !important; }
+        .check-btn { background: #7c3aed; color: white; font-weight: 700; padding: 12px; border-radius: 12px; transition: all 0.2s; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.05em; margin-bottom: 24px; }
+        .check-btn:hover:not(:disabled) { background: #6d28d9; }
+        .check-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .nav-btn { flex: 1; background: #334155; color: white; font-weight: 700; border-radius: 12px; transition: all 0.2s; text-transform: uppercase; font-size: 0.75rem; padding: 14px 0; border: 1px solid transparent; }
+        .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+<div id="loader">
+    <div class="text-slate-500 font-bold text-xl uppercase tracking-widest animate-pulse">Loading...</div>
+</div>
+
+<div class="math-card">
+    <div class="bg-slate-800/80 p-6 border-b border-slate-700 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <span class="bg-slate-900/50 text-amber-400 px-3 py-1 rounded-full text-[10px] font-bold border border-slate-700 uppercase tracking-widest">Example 1a</span>
+            <h1 class="text-xl font-bold text-white tracking-tight">SSS Similarity Theorem</h1>
+        </div>
+        <div class="flex bg-slate-900 rounded-lg p-1 border border-slate-700">
+            <button onclick="setLanguage('en')" id="enBtn" class="px-3 py-1 text-[10px] font-bold rounded-md bg-sky-800 text-white">EN</button>
+            <button onclick="setLanguage('zh')" id="zhBtn" class="px-3 py-1 text-[10px] font-bold rounded-md text-slate-400">中文</button>
+        </div>
+    </div>
+
+    <div class="content-layout">
+        <div class="visual-area">
+            <svg id="canvas" viewBox="0 0 400 300" class="w-full h-full">
+                <g id="grid"></g>
+                <g transform="translate(180, 120)">
+                    <path d="M 0 0 L 150 100 L -30 100 Z" class="target-shape" />
+                    <text x="60" y="115" class="svg-side-label">15</text>
+                    <text x="80" y="50" class="svg-side-label">20</text>
+                    <text x="-35" y="60" class="svg-side-label">12.5</text>
+                    <text x="0" y="-10" class="svg-vertex-label">R</text>
+                    <text x="160" y="110" class="svg-vertex-label">S</text>
+                    <text x="-45" y="110" class="svg-vertex-label">T</text>
+                </g>
+                <g id="mover" transform="translate(100, 60)" style="cursor: grab;">
+                    <path d="M 0 0 L -60 -40 L 12 -40 Z" class="active-shape" />
+                    <text x="-30" y="-45" class="svg-side-label">6</text>
+                    <text x="-45" y="-15" class="svg-side-label">8</text>
+                    <text x="5" y="-15" class="svg-side-label">5</text>
+                    <text x="5" y="15" class="svg-vertex-label">R</text>
+                    <text x="-70" y="-45" class="svg-vertex-label">P</text>
+                    <text x="20" y="-45" class="svg-vertex-label">Q</text>
+                </g>
+            </svg>
+        </div>
+
+        <div class="side-panel">
+            <div id="step-content" class="flex-1 space-y-6"></div>
+            <div id="msg" class="h-6 text-sm font-bold text-center mb-4"></div>
+            <button id="checkBtn" onclick="validateAnswer()" class="check-btn w-full">Check Answer</button>
+            <div class="flex gap-3 pt-6 border-t border-slate-700">
+                <button id="prevBtn" onclick="changeStep(-1)" class="nav-btn">Previous</button>
+                <button id="nextBtn" onclick="changeStep(1)" class="nav-btn" disabled>Next</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentStep = 0, currentLang = 'en', attempts = 0;
+    const totalSteps = 3;
+    const answers = [[8, 20], [6, 15], [5, 12.5]];
+    let userProgress = Array(totalSteps).fill(null).map(() => ({n: '', d: '', status: null}));
+
+    const translations = {
+        en: {
+            steps: [
+                { title: "Step 1: Shortest Sides", desc: "Identify the ratio of the shortest sides (PR/SR).", html: `<div class='flex items-center gap-4 text-xl'>\\(\\frac{PR}{SR} =\\) <div class='fraction'><input type='number' id='n' class='inline-input'><div class='fraction-line'></div><input type='number' id='d' class='inline-input'></div></div>` },
+                { title: "Step 2: Medium Sides", desc: "Identify the ratio of corresponding sides (PQ/ST).", html: `<div class='flex items-center gap-4 text-xl'>\\(\\frac{PQ}{ST} =\\) <div class='fraction'><input type='number' id='n' class='inline-input'><div class='fraction-line'></div><input type='number' id='d' class='inline-input'></div></div>` },
+                { title: "Step 3: Longest Sides", desc: "Identify the ratio of the longest sides (QR/TR).", html: `<div class='flex items-center gap-4 text-xl'>\\(\\frac{QR}{TR} =\\) <div class='fraction'><input type='number' id='n' class='inline-input'><div class='fraction-line'></div><input type='number' id='d' class='inline-input'></div></div>` }
+            ],
+            correct: "Correct!", error: "Try again.", check: "Check Answer", conclude: "SSS SIMILARITY PROVED!"
+        },
+        zh: {
+            steps: [
+                { title: "第一步：最短边", desc: "确定最短边的比例 (PR/SR)。", html: `<div class='flex items-center gap-4 text-xl'>\\(\\frac{PR}{SR} =\\) <div class='fraction'><input type='number' id='n' class='inline-input'><div class='fraction-line'></div><input type='number' id='d' class='inline-input'></div></div>` },
+                { title: "第二步：中间边", desc: "确定对应边的比例 (PQ/ST)。", html: `<div class='flex items-center gap-4 text-xl'>\\(\\frac{PQ}{ST} =\\) <div class='fraction'><input type='number' id='n' class='inline-input'><div class='fraction-line'></div><input type='number' id='d' class='inline-input'></div></div>` },
+                { title: "第三步：最长边", desc: "确定最长边的比例 (QR/TR)。", html: `<div class='flex items-center gap-4 text-xl'>\\(\\frac{QR}{TR} =\\) <div class='fraction'><input type='number' id='n' class='inline-input'><div class='fraction-line'></div><input type='number' id='d' class='inline-input'></div></div>` }
+            ],
+            correct: "正确！", error: "请再试一次。", check: "检查答案", conclude: "SSS 相似判定完成！"
+        }
+    };
+
+    function renderStep() {
+        const isLastStepDone = (currentStep === totalSteps - 1 && userProgress[currentStep].status !== null);
+        const stepData = translations[currentLang].steps[currentStep];
+        
+        document.getElementById('step-content').innerHTML = `
+            <div><h2 class="text-amber-500 font-bold text-xs uppercase mb-1">${stepData.title}</h2>
+            <p class="text-slate-200 text-lg font-semibold">${stepData.desc}</p></div>
+            <div class="p-8 bg-slate-900/50 rounded-2xl border border-slate-700 flex justify-center">${stepData.html}</div>
+            ${isLastStepDone ? `<div class="p-6 bg-green-500/10 border border-green-500/40 rounded-xl text-center"><h3 class="text-green-400 font-bold text-sm tracking-widest">${translations[currentLang].conclude}</h3></div>` : ''}
+        `;
+        
+        const nInput = document.getElementById('n'), dInput = document.getElementById('d'), msg = document.getElementById('msg'), checkBtn = document.getElementById('checkBtn'), nextBtn = document.getElementById('nextBtn');
+        
+        checkBtn.innerText = translations[currentLang].check;
+        checkBtn.classList.remove('hidden');
+        checkBtn.disabled = false;
+        nextBtn.disabled = true;
+        document.getElementById('prevBtn').disabled = currentStep === 0;
+        msg.innerHTML = "";
+
+        const saved = userProgress[currentStep];
+        if (saved.status) {
+            nInput.value = saved.n; dInput.value = saved.d;
+            nInput.disabled = dInput.disabled = true;
+            checkBtn.disabled = true; 
+            if (currentStep < totalSteps - 1) nextBtn.disabled = false;
+            
+            if (saved.status === 'success') {
+                nInput.classList.add('input-success'); dInput.classList.add('input-success');
+                msg.innerHTML = `<span class="text-green-400">${translations[currentLang].correct}</span>`;
+            } else {
+                nInput.classList.add('input-fail'); dInput.classList.add('input-fail');
+            }
+        }
+
+        if (window.renderMathInElement) renderMathInElement(document.getElementById('step-content'));
+    }
+
+    function validateAnswer() {
+        const nInput = document.getElementById('n'), dInput = document.getElementById('d'), msg = document.getElementById('msg');
+        const nv = parseFloat(nInput.value), dv = parseFloat(dInput.value);
+
+        if (nv === answers[currentStep][0] && dv === answers[currentStep][1]) {
+            userProgress[currentStep] = {n: nv, d: dv, status: 'success'};
+            renderStep();
+        } else {
+            attempts++;
+            if (attempts >= 3) {
+                userProgress[currentStep] = {n: answers[currentStep][0], d: answers[currentStep][1], status: 'fail'};
+                renderStep();
+            } else {
+                msg.innerHTML = `<span class="text-red-400">${translations[currentLang].error}</span>`;
+            }
+        }
+    }
+
+    function changeStep(dir) {
+        currentStep += dir; attempts = 0;
+        renderStep();
+    }
+
+    function setLanguage(lang) { currentLang = lang; renderStep(); }
+
+    const svg = document.getElementById('canvas'), mover = document.getElementById('mover');
+    let isDragging = false, offset = { x: 0, y: 0 };
+    function getPos(e) {
+        const ctm = svg.getScreenCTM(), cx = e.touches ? e.touches[0].clientX : e.clientX, cy = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: (cx - ctm.e) / ctm.a, y: (cy - ctm.f) / ctm.d };
+    }
+    mover.onmousedown = mover.ontouchstart = (e) => {
+        isDragging = true; const p = getPos(e), t = mover.transform.baseVal.getItem(0).matrix;
+        offset = { x: p.x - t.e, y: p.y - t.f };
+    };
+    window.onmousemove = window.ontouchmove = (e) => { if (isDragging) { const p = getPos(e); mover.setAttribute('transform', `translate(${p.x - offset.x}, ${p.y - offset.y})`); } };
+    window.onmouseup = window.ontouchend = () => isDragging = false;
+
+    const grid = document.getElementById('grid');
+    for(let i=0; i<=400; i+=25) {
+        const h = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        h.setAttribute("x1",0); h.setAttribute("y1",i); h.setAttribute("x2",400); h.setAttribute("y2",i);
+        h.setAttribute("class", "grid-line"); grid.appendChild(h);
+        const v = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        v.setAttribute("x1",i); v.setAttribute("y1",0); v.setAttribute("x2",i); v.setAttribute("y2",300);
+        v.setAttribute("class", "grid-line"); grid.appendChild(v);
+    }
+
+    window.onload = () => { setTimeout(() => { document.getElementById('loader').style.display = 'none'; renderStep(); }, 600); };
+</script>
+</body>
+</html>
