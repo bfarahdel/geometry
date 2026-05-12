@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Example 3b - SAS Similarity Theorem</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { background-color: #0f172a; font-family: 'Inter', sans-serif; color: #f1f5f9; min-height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; padding: 20px; overflow: hidden; touch-action: none; }
+        .math-card { width: 100%; max-width: 1100px; background: #1e293b; border-radius: 24px; border: 1px solid #334155; overflow: hidden; display: flex; flex-direction: column; height: 720px; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        #loader { position: absolute; inset: 0; background: #0f172a; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.3s ease-out; }
+        .content-layout { display: flex; flex: 1; overflow: hidden; }
+        .visual-area { flex: 1; background: #0f172a; position: relative; overflow: hidden; }
+        .side-panel { width: 340px; background: #1e293b; border-left: 1px solid #334155; padding: 32px; display: flex; flex-direction: column; }
+        .grid-line { stroke: #1e293b; stroke-width: 1; }
+        .target-shape { fill: rgba(56, 189, 248, 0.05); stroke: #38bdf8; stroke-width: 2.5; }
+        .active-shape { fill: #10b981; fill-opacity: 0.25; stroke: #10b981; stroke-width: 3; cursor: grab; }
+        .angle-arc { fill: none; stroke: #f472b6; stroke-width: 2; }
+        .svg-side-label { font-size: 14px; font-weight: 800; fill: white; pointer-events: none; }
+        .svg-vertex-label { font-size: 16px; font-weight: 700; fill: #94a3b8; pointer-events: none; }
+        .fraction { display: flex; flex-direction: column; align-items: center; }
+        .fraction-line { width: 100%; height: 2px; background: #475569; margin: 4px 0; }
+        .inline-input { background: #0f172a; border: 2px solid #334155; border-radius: 8px; padding: 4px; width: 75px; text-align: center; color: #fbbf24; font-size: 0.9rem; font-weight: bold; outline: none; transition: all 0.3s; }
+        
+        .input-success { border-color: #10b981 !important; color: #10b981 !important; background-color: rgba(16, 185, 129, 0.1) !important; }
+        .input-fail { border-color: #eab308 !important; color: #eab308 !important; background-color: rgba(234, 179, 8, 0.1) !important; }
+        
+        .check-btn { background: #7c3aed; color: white; font-weight: 700; padding: 12px; border-radius: 12px; transition: all 0.2s; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.05em; margin-bottom: 24px; }
+        .check-btn:hover:not(:disabled) { background: #6d28d9; }
+        .check-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .nav-btn { flex: 1; background: #334155; color: white; font-weight: 700; border-radius: 12px; transition: all 0.2s; text-transform: uppercase; font-size: 0.75rem; padding: 14px 0; border: 1px solid transparent; }
+        
+        .coord { white-space: nowrap; }
+    </style>
+</head>
+<body>
+
+<div id="loader">
+    <div class="text-slate-500 font-bold text-xl uppercase tracking-widest animate-pulse">Initializing...</div>
+</div>
+
+<div class="math-card">
+    <div class="bg-slate-800/80 p-6 border-b border-slate-700 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <span class="bg-slate-900/50 text-emerald-400 px-3 py-1 rounded-full text-[10px] font-bold border border-slate-700 uppercase tracking-widest">Example 3b</span>
+            <h1 class="text-xl font-bold text-white tracking-tight">SAS Similarity Theorem</h1>
+        </div>
+        <div class="flex bg-slate-900 rounded-lg p-1 border border-slate-700">
+            <button onclick="setLanguage('en')" id="enBtn" class="px-3 py-1 text-[10px] font-bold rounded-md bg-sky-800 text-white">EN</button>
+            <button onclick="setLanguage('zh')" id="zhBtn" class="px-3 py-1 text-[10px] font-bold rounded-md text-slate-400">中文</button>
+        </div>
+    </div>
+
+    <div class="content-layout">
+        <div class="visual-area">
+            <svg id="canvas" viewBox="0 0 400 300" class="w-full h-full">
+                <g id="grid"></g>
+                <g>
+                    <path d="M 150 40 L 100 220 L 320 220 Z" class="target-shape" />
+                    <path d="M 143 65 A 25 25 0 0 0 157 65" class="angle-arc" />
+                    <text x="150" y="25" class="svg-vertex-label" text-anchor="middle">A</text>
+                    <text x="85" y="235" class="svg-vertex-label" text-anchor="middle">C</text>
+                    <text x="335" y="235" class="svg-vertex-label" text-anchor="middle">B</text>
+                    <text x="105" y="200" class="svg-side-label" text-anchor="end">4</text>
+                    <text x="265" y="200" class="svg-side-label" text-anchor="start">5</text>
+                </g>
+                <g id="mover" transform="translate(0, 0)" style="cursor: grab;">
+                    <path d="M 150 40 L 116.6 160 L 263.3 160 Z" class="active-shape" />
+                    <path d="M 143 65 A 25 25 0 0 0 157 65" class="angle-arc" />
+                    <text x="150" y="25" class="svg-vertex-label" text-anchor="middle">A</text>
+                    <text x="100" y="170" class="svg-vertex-label" text-anchor="middle">E</text>
+                    <text x="280" y="170" class="svg-vertex-label" text-anchor="middle">F</text>
+                    <text x="125" y="105" class="svg-side-label" text-anchor="end">8</text>
+                    <text x="215" y="105" class="svg-side-label" text-anchor="start">10</text>
+                </g>
+            </svg>
+        </div>
+
+        <div class="side-panel">
+            <div id="step-content" class="flex-1 space-y-6"></div>
+            <div id="msg" class="h-6 text-sm font-bold text-center mb-4"></div>
+            <button id="checkBtn" onclick="validateAnswer()" class="check-btn w-full">Check Answer</button>
+            <div class="flex gap-3 pt-6 border-t border-slate-700">
+                <button id="prevBtn" onclick="changeStep(-1)" class="nav-btn">Previous</button>
+                <button id="nextBtn" onclick="changeStep(1)" class="nav-btn" disabled>Next</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentStep = 0, currentLang = 'en', attempts = 0;
+    const totalSteps = 3;
+    const answers = [[8, 12], [10, 15], "yes"]; 
+    let userProgress = Array(totalSteps).fill(null).map(() => ({val: '', status: null}));
+
+    const translations = {
+        en: {
+            steps: [
+                { title: "Step 1: Side AC", desc: "Find the ratio of AE to the total side AC (AE + EC).", html: `<div class='flex items-center gap-4 text-xl'>\\(\\frac{AE}{AC} =\\) <div class='fraction'><input type='number' id='n' class='inline-input' placeholder='AE'><div class='fraction-line'></div><input type='number' id='d' class='inline-input' placeholder='AC'></div></div>` },
+                { title: "Step 2: Side AB", desc: "Find the ratio of AF to the total side AB (AF + FB).", html: `<div class='flex items-center gap-4 text-xl'>\\(\\frac{AF}{AB} =\\) <div class='fraction'><input type='number' id='n' class='inline-input' placeholder='AF'><div class='fraction-line'></div><input type='number' id='d' class='inline-input' placeholder='AB'></div></div>` },
+                { title: "Step 3: Similarity Check", desc: "Are the triangles similar based on the SAS similarity theorem?", html: `<div class='flex flex-col gap-3 w-full'><button onclick="selectOption('yes')" id="opt-yes" class="p-3 border-2 border-slate-700 rounded-xl hover:bg-emerald-900 text-sm font-bold uppercase transition-colors">Yes</button><button onclick="selectOption('no')" id="opt-no" class="p-3 border-2 border-slate-700 rounded-xl hover:bg-slate-700 text-sm font-bold uppercase transition-colors">No</button></div>` }
+            ],
+            correct: "Excellent!", 
+            check: "Check Answer", 
+            conclude: "ΔAEF ~ ΔACB BY SAS SIMILARITY THEOREM."
+        },
+        zh: {
+            steps: [
+                { title: "第一步：边 AC 比例", desc: "找出 AE 与整条边 AC (AE + EC) 的比例。", html: `<div class='flex items-center gap-4 text-xl'>\\(\\frac{AE}{AC} =\\) <div class='fraction'><input type='number' id='n' class='inline-input' placeholder='AE'><div class='fraction-line'></div><input type='number' id='d' class='inline-input' placeholder='AC'></div></div>` },
+                { title: "第二步：边 AB 比例", desc: "找出 AF 与整条边 AB (AF + FB) 的比例。", html: `<div class='flex items-center gap-4 text-xl'>\\(\\frac{AF}{AB} =\\) <div class='fraction'><input type='number' id='n' class='inline-input' placeholder='AF'><div class='fraction-line'></div><input type='number' id='d' class='inline-input' placeholder='AB'></div></div>` },
+                { title: "第三步：相似性检查", desc: "根据 SAS 相似定理，这两个三角形相似吗？", html: `<div class='flex flex-col gap-3 w-full'><button onclick="selectOption('yes')" id="opt-yes" class="p-3 border-2 border-slate-700 rounded-xl hover:bg-emerald-900 text-sm font-bold uppercase transition-colors">是</button><button onclick="selectOption('no')" id="opt-no" class="p-3 border-2 border-slate-700 rounded-xl hover:bg-slate-700 text-sm font-bold uppercase transition-colors">不</button></div>` }
+            ],
+            correct: "非常棒！", 
+            check: "检查答案",
+            conclude: "根据 SAS 相似定理，ΔAEF ~ ΔACB。"
+        }
+    };
+
+    let selectedOption = null;
+    function selectOption(val) {
+        if (userProgress[currentStep].status !== null) return;
+        selectedOption = val;
+        document.getElementById('opt-yes').classList.remove('bg-emerald-900', 'border-emerald-500');
+        document.getElementById('opt-no').classList.remove('bg-emerald-900', 'border-emerald-500');
+        document.getElementById('opt-' + val).classList.add('bg-emerald-900', 'border-emerald-500');
+    }
+
+    function renderStep() {
+        const isLastStepDone = (userProgress[totalSteps - 1].status !== null);
+        const stepData = translations[currentLang].steps[currentStep];
+        
+        document.getElementById('step-content').innerHTML = `
+            <div><h2 class="text-emerald-500 font-bold text-xs uppercase mb-1">${stepData.title}</h2>
+            <p class="text-slate-200 text-lg font-semibold">${stepData.desc}</p></div>
+            <div class="p-6 bg-slate-900/50 rounded-2xl border border-slate-700 flex justify-center">${stepData.html}</div>
+            ${isLastStepDone ? `<div class="p-4 bg-emerald-500/10 border border-emerald-500/40 rounded-xl text-center"><h3 class="text-emerald-400 font-bold text-xs tracking-widest uppercase">${translations[currentLang].conclude}</h3></div>` : ''}
+        `;
+        
+        const msg = document.getElementById('msg'), checkBtn = document.getElementById('checkBtn'), nextBtn = document.getElementById('nextBtn');
+        checkBtn.innerText = translations[currentLang].check;
+        checkBtn.disabled = false;
+        nextBtn.disabled = true;
+        document.getElementById('prevBtn').disabled = currentStep === 0;
+        msg.innerHTML = "";
+
+        const saved = userProgress[currentStep];
+        if (saved.status) {
+            if (currentStep < 2) {
+                const nEl = document.getElementById('n'), dEl = document.getElementById('d');
+                nEl.value = saved.val[0]; dEl.value = saved.val[1];
+                nEl.disabled = dEl.disabled = true;
+                nEl.classList.add(saved.status === 'success' ? 'input-success' : 'input-fail');
+                dEl.classList.add(saved.status === 'success' ? 'input-success' : 'input-fail');
+            } else {
+                selectOption(saved.val);
+                document.getElementById('opt-yes').disabled = document.getElementById('opt-no').disabled = true;
+                // Updated Logic: Ensure 'yes' is green whether correct by user or revealed by system
+                const yesBtn = document.getElementById('opt-yes');
+                yesBtn.classList.remove('bg-yellow-500/10', 'border-yellow-500', 'text-yellow-500');
+                yesBtn.classList.add('bg-emerald-900/40', 'border-emerald-500', 'text-emerald-400');
+                
+                if (saved.val === 'no') {
+                    document.getElementById('opt-no').classList.add('bg-red-500/10', 'border-red-500', 'text-red-500');
+                }
+            }
+            checkBtn.disabled = true;
+            if (currentStep < totalSteps - 1) nextBtn.disabled = false;
+            if (saved.status === 'success') msg.innerHTML = `<span class="text-green-400">${translations[currentLang].correct}</span>`;
+        }
+        if (window.renderMathInElement) renderMathInElement(document.getElementById('step-content'));
+    }
+
+    function validateAnswer() {
+        let isCorrect = false; let currentVal = null;
+        if (currentStep < 2) {
+            const n = parseFloat(document.getElementById('n').value);
+            const d = parseFloat(document.getElementById('d').value);
+            currentVal = [n, d];
+            isCorrect = (n === answers[currentStep][0] && d === answers[currentStep][1]);
+        } else {
+            if (!selectedOption) return;
+            currentVal = selectedOption;
+            isCorrect = (selectedOption === answers[currentStep]);
+        }
+
+        if (isCorrect) {
+            userProgress[currentStep] = {val: currentVal, status: 'success'};
+            renderStep();
+        } else {
+            attempts++;
+            if (attempts >= 3) {
+                userProgress[currentStep] = {val: answers[currentStep], status: 'fail'};
+                renderStep();
+            }
+        }
+    }
+
+    function changeStep(dir) { currentStep += dir; attempts = 0; selectedOption = null; renderStep(); }
+    function setLanguage(lang) { currentLang = lang; renderStep(); }
+
+    const svg = document.getElementById('canvas'), mover = document.getElementById('mover');
+    let isDragging = false, offset = { x: 0, y: 0 };
+    function getPos(e) {
+        const ctm = svg.getScreenCTM(), cx = e.touches ? e.touches[0].clientX : e.clientX, cy = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: (cx - ctm.e) / ctm.a, y: (cy - ctm.f) / ctm.d };
+    }
+    mover.onmousedown = mover.ontouchstart = (e) => {
+        isDragging = true; const p = getPos(e), t = mover.transform.baseVal.getItem(0).matrix;
+        offset = { x: p.x - t.e, y: p.y - t.f };
+    };
+    window.onmousemove = window.ontouchmove = (e) => { if (isDragging) { const p = getPos(e); mover.setAttribute('transform', `translate(${p.x - offset.x}, ${p.y - offset.y})`); } };
+    window.onmouseup = window.ontouchend = () => isDragging = false;
+
+    const grid = document.getElementById('grid');
+    for(let i=0; i<=400; i+=25) {
+        const h = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        h.setAttribute("x1",0); h.setAttribute("y1",i); h.setAttribute("x2",400); h.setAttribute("y2",i);
+        h.setAttribute("class", "grid-line"); grid.appendChild(h);
+        const v = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        v.setAttribute("x1",i); v.setAttribute("y1",0); v.setAttribute("x2",i); v.setAttribute("y2",300);
+        v.setAttribute("class", "grid-line"); grid.appendChild(v);
+    }
+    window.onload = () => { setTimeout(() => { document.getElementById('loader').style.display = 'none'; renderStep(); }, 600); };
+</script>
+</body>
+</html>
