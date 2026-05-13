@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Corrected Angle Correspondence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { background-color: #0f172a; font-family: 'Inter', sans-serif; color: #f1f5f9; min-height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; padding: 20px; overflow: hidden; touch-action: none; }
+        .math-card { width: 100%; max-width: 1100px; background: #1e293b; border-radius: 24px; border: 1px solid #334155; overflow: hidden; display: flex; flex-direction: column; height: 750px; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        #loader { position: absolute; inset: 0; background: #0f172a; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.3s ease-out; }
+        .content-layout { display: flex; flex: 1; overflow: hidden; }
+        .visual-area { flex: 1; background: #0f172a; position: relative; overflow: hidden; }
+        .side-panel { width: 380px; background: #1e293b; border-left: 1px solid #334155; padding: 32px; display: flex; flex-direction: column; }
+        
+        .triangle-path { fill: rgba(255, 255, 255, 0.02); stroke: #475569; stroke-width: 2; }
+        .bisector-line { stroke: #fbbf24; stroke-width: 3; stroke-linecap: round; }
+        
+        .angle-match-1 { stroke: #ef4444; fill: none; stroke-width: 2.5; stroke-linecap: round; }
+        .angle-match-2 { stroke: #3b82f6; fill: none; stroke-width: 2.5; }
+        .angle-match-3 { stroke: #10b981; fill: none; stroke-width: 2.5; }
+        
+        .label-a-f { fill: #ef4444; font-weight: 800; font-size: 20px; }
+        .label-b-d { fill: #3b82f6; font-weight: 800; font-size: 20px; }
+        .label-c-g { fill: #10b981; font-weight: 800; font-size: 20px; }
+        
+        .text-dim { fill: #94a3b8; font-size: 16px; font-weight: 600; }
+        .x-highlight { fill: #fbbf24; font-size: 20px; font-weight: 800; }
+
+        .fraction { display: flex; flex-direction: column; align-items: center; }
+        .fraction-line { width: 100%; height: 2px; background: #475569; margin: 4px 0; }
+        .inline-input { background: #0f172a; border: 2px solid #334155; border-radius: 8px; padding: 6px; width: 80px; text-align: center; color: #fbbf24; font-size: 1.1rem; font-weight: bold; outline: none; }
+        .input-success { border-color: #10b981 !important; background-color: rgba(16, 185, 129, 0.1) !important; }
+        .check-btn { background: #7c3aed; color: white; font-weight: 700; padding: 14px; border-radius: 12px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 24px; }
+        .nav-btn { flex: 1; padding: 10px; border-radius: 8px; background: #334155; color: white; font-weight: 600; transition: all 0.2s; }
+        .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .math-text { font-family: 'Times New Roman', serif; font-style: italic; font-weight: 600; color: #fbbf24; }
+    </style>
+</head>
+<body>
+
+<div id="loader">
+    <div class="text-indigo-400 font-bold text-xl uppercase tracking-widest animate-pulse">Syncing Vertices...</div>
+</div>
+
+<div class="math-card">
+    <div class="bg-slate-800/80 p-6 border-b border-slate-700 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <span class="bg-red-900/40 text-red-400 px-3 py-1 rounded-full text-[10px] font-bold border border-red-700 uppercase tracking-widest">Example 1</span>
+            <h1 class="text-xl font-bold text-white tracking-tight">ΔABC ~ ΔFDG</h1>
+        </div>
+        <div class="flex bg-slate-900 rounded-lg p-1 border border-slate-700">
+            <button onclick="setLanguage('en')" id="enBtn" class="px-3 py-1 text-[10px] font-bold rounded-md bg-indigo-600 text-white">EN</button>
+            <button onclick="setLanguage('zh')" id="zhBtn" class="px-3 py-1 text-[10px] font-bold rounded-md text-slate-400">中文</button>
+        </div>
+    </div>
+
+    <div class="content-layout">
+        <div class="visual-area">
+            <svg id="canvas" viewBox="0 0 550 400" class="w-full h-full">
+                <path d="M 100 50 L 120 340 L 320 340 Z" class="triangle-path" />
+                <line x1="100" y1="50" x2="220" y2="340" class="bisector-line" />
+                <path d="M 104 85 Q 108 86 112 82" class="angle-match-1" /> 
+                <path d="M 118 80 Q 122 78 126 73" class="angle-match-1" /> 
+                <path d="M 290 340 Q 285 320 305 315" class="angle-match-2" /> 
+                <path d="M 115 315 Q 130 315 130 340" class="angle-match-3" /> 
+                <text x="100" y="35" class="label-a-f" text-anchor="middle">A</text>
+                <text x="335" y="355" class="label-b-d" text-anchor="middle">B</text>
+                <text x="105" y="360" class="label-c-g" text-anchor="middle">C</text>
+                <text x="220" y="365" class="text-dim" text-anchor="middle">P</text>
+                <text x="240" y="180" class="text-dim" style="font-size: 22px;">15</text>
+                <text x="175" y="210" class="x-highlight">x</text>
+                <path d="M 500 340 L 400 80 L 400 340 Z" class="triangle-path" />
+                <line x1="500" y1="340" x2="400" y2="240" class="bisector-line" />
+                <path d="M 465 315 Q 475 295 490 310" class="angle-match-1" /> 
+                <path d="M 405 110 Q 425 120 425 100" class="angle-match-2" /> 
+                <path d="M 400 310 Q 420 310 420 340" class="angle-match-3" /> 
+                <text x="515" y="360" class="label-a-f" text-anchor="middle">F</text>
+                <text x="400" y="65" class="label-b-d" text-anchor="middle">D</text>
+                <text x="385" y="360" class="label-c-g" text-anchor="middle">G</text>
+                <text x="380" y="245" class="text-dim" text-anchor="middle">Q</text>
+                <text x="475" y="180" class="text-dim" style="font-size: 22px;">12</text>
+                <text x="440" y="275" class="text-dim" style="fill: #fbbf24;">8</text>
+            </svg>
+        </div>
+
+        <div class="side-panel">
+            <div id="step-content" class="flex-1 space-y-6"></div>
+            <div id="msg" class="h-6 text-sm font-bold text-center mb-4"></div>
+            <button id="checkBtn" onclick="validateAnswer()" class="check-btn w-full">Verify Proportion</button>
+            <div class="flex gap-3 pt-6 border-t border-slate-700">
+                <button onclick="changeStep(-1)" id="prevBtn" class="nav-btn">Back</button>
+                <button onclick="changeStep(1)" id="nextBtn" class="nav-btn" disabled>Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentStep = 0, currentLang = 'en';
+    const totalSteps = 3;
+    let userProgress = Array(totalSteps).fill(null).map(() => ({val: [], status: null}));
+
+    const translations = {
+        en: {
+            steps: [
+                { title: "Step 1: Set the Ratio", desc: "Angle <span style='color:#ef4444'>A</span> corresponds to Angle <span style='color:#ef4444'>F</span>. Set up the proportion using bisector <span class='math-text'>x</span> and side length 15.", html: `<div class='flex items-center gap-4 text-xl'>\\(\\frac{x}{8} =\\) <div class='fraction'><input type='number' id='v1' class='inline-input' placeholder='AB'><div class='fraction-line'></div><input type='number' id='v2' class='inline-input' placeholder='FD'></div></div>` },
+                { title: "Step 2: Cross Multiply", desc: "Multiply <span class='math-text'>x</span> by 12 and 8 by 15. What is \\(8 \\times 15\\)?", html: `<div class='flex items-center gap-4 text-xl'>\\(12x =\\) <input type='number' id='v1' class='inline-input' style='width:120px' placeholder='Result'></div>` },
+                { title: "Step 3: Find x", desc: "Divide the result (120) by 12 to solve for <span class='math-text'>x</span>.", html: `<div class='flex items-center gap-4 text-xl'>\\(x =\\) <input type='number' id='v1' class='inline-input' placeholder='Value'></div>` }
+            ],
+            correct: "Correct! Colors match.",
+            check: "Verify Proportion",
+            prev: "Back",
+            next: "Continue"
+        },
+        zh: {
+            steps: [
+                { title: "第一步：建立比例", desc: "角 <span style='color:#ef4444'>A</span> 对应角 <span style='color:#ef4444'>F</span>。利用角平分线 <span class='math-text'>x</span> 和边长 15 建立比例。", html: `<div class='flex items-center gap-4 text-xl'>\\(\\frac{x}{8} =\\) <div class='fraction'><input type='number' id='v1' class='inline-input' placeholder='AB'><div class='fraction-line'></div><input type='number' id='v2' class='inline-input' placeholder='FD'></div></div>` },
+                { title: "第二步：交叉相乘", desc: "将 <span class='math-text'>x</span> 乘以 12，将 8 乘以 15。\\(8 \\times 15\\) 的结果是多少？", html: `<div class='flex items-center gap-4 text-xl'>\\(12x =\\) <input type='number' id='v1' class='inline-input' style='width:120px' placeholder='结果'></div>` },
+                { title: "第三步：求解 x", desc: "将结果 (120) 除以 12 来解出 <span class='math-text'>x</span>。", html: `<div class='flex items-center gap-4 text-xl'>\\(x =\\) <input type='number' id='v1' class='inline-input' placeholder='数值'></div>` }
+            ],
+            correct: "正确！颜色匹配。",
+            check: "验证比例",
+            prev: "返回",
+            next: "继续"
+        }
+    };
+
+    function renderStep() {
+        const step = translations[currentLang].steps[currentStep];
+        const container = document.getElementById('step-content');
+        container.innerHTML = `
+            <div><h2 class="text-red-400 font-bold text-xs uppercase mb-1">${step.title}</h2>
+            <p class="text-slate-200 text-lg font-semibold leading-snug">${step.desc}</p></div>
+            <div class="p-8 bg-slate-900/50 rounded-2xl border border-slate-700 flex justify-center">${step.html}</div>
+        `;
+        
+        const msg = document.getElementById('msg'), 
+              checkBtn = document.getElementById('checkBtn'), 
+              nextBtn = document.getElementById('nextBtn'),
+              prevBtn = document.getElementById('prevBtn');
+
+        checkBtn.innerText = translations[currentLang].check;
+        prevBtn.innerText = translations[currentLang].prev;
+        nextBtn.innerText = translations[currentLang].next;
+
+        prevBtn.disabled = currentStep === 0;
+        msg.innerHTML = "";
+
+        const saved = userProgress[currentStep];
+        if (saved.status === 'success') {
+            const inputs = [document.getElementById('v1'), document.getElementById('v2')];
+            inputs.forEach((input, i) => { if (input) { input.value = saved.val[i]; input.disabled = true; input.classList.add('input-success'); }});
+            checkBtn.disabled = true;
+            nextBtn.disabled = (currentStep === totalSteps - 1);
+            msg.innerHTML = `<span class="text-emerald-400">${translations[currentLang].correct}</span>`;
+        } else {
+            checkBtn.disabled = false;
+            nextBtn.disabled = true;
+        }
+
+        if (window.renderMathInElement) {
+            renderMathInElement(container, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '$', right: '$', display: false}
+                ],
+                throwOnError : false
+            });
+        }
+    }
+
+    function validateAnswer() {
+        const v1 = parseFloat(document.getElementById('v1').value);
+        const v2El = document.getElementById('v2');
+        const v2 = v2El ? parseFloat(v2El.value) : null;
+        
+        let isCorrect = (currentStep === 0) ? (v1 === 15 && v2 === 12) : 
+                        (currentStep === 1) ? (v1 === 120) : (v1 === 10);
+
+        if (isCorrect) {
+            userProgress[currentStep] = {val: [v1, v2], status: 'success'};
+            renderStep();
+        } else {
+            document.getElementById('msg').innerHTML = `<span class="text-red-400">Try again.</span>`;
+        }
+    }
+
+    function setLanguage(lang) { 
+        currentLang = lang; 
+        document.getElementById('enBtn').className = lang === 'en' ? 'px-3 py-1 text-[10px] font-bold rounded-md bg-indigo-600 text-white' : 'px-3 py-1 text-[10px] font-bold rounded-md text-slate-400';
+        document.getElementById('zhBtn').className = lang === 'zh' ? 'px-3 py-1 text-[10px] font-bold rounded-md bg-indigo-600 text-white' : 'px-3 py-1 text-[10px] font-bold rounded-md text-slate-400';
+        renderStep(); 
+    }
+
+    function changeStep(dir) { currentStep += dir; renderStep(); }
+    
+    window.onload = () => { 
+        setTimeout(() => { 
+            document.getElementById('loader').style.display = 'none'; 
+            renderStep(); 
+        }, 800); 
+    };
+</script>
+</body>
+</html>

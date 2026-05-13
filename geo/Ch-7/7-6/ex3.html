@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Example 3 - Angle Bisector Theorem</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { background-color: #0f172a; font-family: 'Inter', sans-serif; color: #f1f5f9; min-height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; padding: 20px; overflow: hidden; touch-action: none; }
+        .math-card { width: 100%; max-width: 1100px; background: #1e293b; border-radius: 24px; border: 1px solid #334155; overflow: hidden; display: flex; flex-direction: column; height: 750px; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        #loader { position: absolute; inset: 0; background: #0f172a; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.3s ease-out; }
+        .content-layout { display: flex; flex: 1; overflow: hidden; }
+        .visual-area { flex: 1; background: #0f172a; position: relative; overflow: hidden; }
+        .side-panel { width: 380px; background: #1e293b; border-left: 1px solid #334155; padding: 32px; display: flex; flex-direction: column; }
+        
+        .triangle-path { fill: rgba(99, 102, 241, 0.05); stroke: #6366f1; stroke-width: 3; }
+        .bisector-line { stroke: #fbbf24; stroke-width: 3; stroke-linecap: round; }
+        .angle-arc { stroke: #ef4444; fill: none; stroke-width: 2.5; stroke-linecap: round; }
+        
+        .label-vertex { fill: #94a3b8; font-weight: 800; font-size: 20px; }
+        .label-side { fill: #38bdf8; font-weight: 800; font-size: 18px; }
+        .x-highlight { fill: #fbbf24; font-size: 22px; font-weight: 800; }
+
+        .fraction { display: flex; flex-direction: column; align-items: center; }
+        .fraction-line { width: 100%; height: 2px; background: #475569; margin: 4px 0; }
+        .inline-input { background: #0f172a; border: 2px solid #334155; border-radius: 8px; padding: 6px; width: 90px; text-align: center; color: #fbbf24; font-size: 1.1rem; font-weight: bold; outline: none; }
+        .input-success { border-color: #10b981 !important; background-color: rgba(16, 185, 129, 0.1) !important; }
+        .check-btn { background: #7c3aed; color: white; font-weight: 700; padding: 14px; border-radius: 12px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 24px; }
+        .nav-btn { flex: 1; padding: 10px; border-radius: 8px; background: #334155; color: white; font-weight: 600; transition: all 0.2s; }
+        .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .math-text { font-family: 'Times New Roman', serif; font-style: italic; font-weight: 600; color: #fbbf24; }
+    </style>
+</head>
+<body>
+
+<div id="loader">
+    <div class="text-indigo-400 font-bold text-xl uppercase tracking-widest animate-pulse">Finalizing Example...</div>
+</div>
+
+<div class="math-card">
+    <div class="bg-slate-800/80 p-6 border-b border-slate-700 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <span class="bg-indigo-900/40 text-indigo-400 px-3 py-1 rounded-full text-[10px] font-bold border border-indigo-700 uppercase tracking-widest">Example 3</span>
+            <h1 class="text-xl font-bold text-white tracking-tight">Triangle Angle Bisector Theorem</h1>
+        </div>
+        <div class="flex bg-slate-900 rounded-lg p-1 border border-slate-700">
+            <button onclick="setLanguage('en')" id="enBtn" class="px-3 py-1 text-[10px] font-bold rounded-md bg-indigo-600 text-white">EN</button>
+            <button onclick="setLanguage('zh')" id="zhBtn" class="px-3 py-1 text-[10px] font-bold rounded-md text-slate-400">中文</button>
+        </div>
+    </div>
+
+    <div class="content-layout">
+        <div class="visual-area">
+            <svg id="canvas" viewBox="0 0 550 450" class="w-full h-full">
+                <path d="M 450 350 L 100 350 L 380 80 Z" class="triangle-path" />
+                <line x1="380" y1="80" x2="230" y2="350" class="bisector-line" />
+                <path d="M 358 101 A 30 30 0 0 0 369 100" class="angle-arc" />
+                <path d="M 385 108 A 30 30 0 0 1 374 105" class="angle-arc" />
+                <text x="395" y="70" class="label-vertex">R</text>
+                <text x="85" y="365" class="label-vertex">S</text>
+                <text x="465" y="365" class="label-vertex">Q</text>
+                <text x="230" y="380" class="label-vertex">T</text>
+                <text x="430" y="210" class="label-side">6</text>
+                <text x="220" y="220" class="label-side">14</text>
+                <text x="340" y="340" class="x-highlight">x</text>
+                <line x1="100" y1="410" x2="450" y2="410" stroke="#94a3b8" stroke-width="1" />
+                <line x1="100" y1="400" x2="100" y2="420" stroke="#94a3b8" stroke-width="1" />
+                <line x1="450" y1="400" x2="450" y2="420" stroke="#94a3b8" stroke-width="1" />
+                <text x="275" y="435" fill="#94a3b8" font-size="16" font-weight="700" text-anchor="middle">18</text>
+            </svg>
+        </div>
+
+        <div class="side-panel">
+            <div id="step-content" class="flex-1 space-y-6"></div>
+            <div id="msg" class="h-6 text-sm font-bold text-center mb-4"></div>
+            <button id="checkBtn" onclick="validateAnswer()" class="check-btn w-full">Verify Step</button>
+            <div class="flex gap-3 pt-6 border-t border-slate-700">
+                <button onclick="changeStep(-1)" id="prevBtn" class="nav-btn">Back</button>
+                <button onclick="changeStep(1)" id="nextBtn" class="nav-btn" disabled>Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentStep = 0, currentLang = 'en';
+    const totalSteps = 4;
+    let userProgress = Array(totalSteps).fill(null).map(() => ({val: [], status: null}));
+
+    const translations = {
+        en: {
+            steps: [
+                { title: "Step 1: Proportion", desc: "Set up the ratio. If <span class='math-text'>QT = x</span>, then <span class='math-text'>ST = 18 - x</span>.", html: `<div class='flex items-center gap-4 text-xl'>\\(\\frac{x}{18-x} =\\) <div class='fraction'><input type='number' id='v1' class='inline-input' placeholder='QR'><div class='fraction-line'></div><input type='number' id='v2' class='inline-input' placeholder='SR'></div></div>` },
+                { title: "Step 2: Cross Multiply", desc: "Multiply the diagonals: \\(6(18-x) = 14x\\). Simplify the left side by distributing the 6.", html: `<div class='flex items-center gap-4 text-xl'><input type='number' id='v1' class='inline-input' placeholder='108'> \\(- 6x = 14x\\)</div>` },
+                { title: "Step 3: Isolate Variables", desc: "Using the simplified equation \\(108 - 6x = 14x\\), add <span class='math-text'>6x</span> to both sides to combine the <span class='math-text'>x</span> terms.", html: `<div class='flex items-center gap-4 text-xl'>\\(108 =\\) <input type='number' id='v1' class='inline-input' placeholder='20'> \\(x\\)</div>` },
+                { title: "Step 4: Final Solution", desc: "From \\(108 = 20x\\), divide both sides by 20 to find the value of <span class='math-text'>x</span>.", html: `<div class='flex items-center gap-4 text-xl'>\\(x =\\) <input type='number' id='v1' class='inline-input' placeholder='5.4'></div>` }
+            ],
+            correct: "Great work!", check: "Verify Step", prev: "Back", next: "Continue"
+        },
+        zh: {
+            steps: [
+                { title: "第一步：比例式", desc: "建立比例。如果 <span class='math-text'>QT = x</span>，那么 <span class='math-text'>ST = 18 - x</span>。", html: `<div class='flex items-center gap-4 text-xl'>\\(\\frac{x}{18-x} =\\) <div class='fraction'><input type='number' id='v1' class='inline-input' placeholder='QR'><div class='fraction-line'></div><input type='number' id='v2' class='inline-input' placeholder='SR'></div></div>` },
+                { title: "第二步：交叉相乘", desc: "交叉相乘得到 \\(6(18-x) = 14x\\)。通过展开 6 来简化等式左侧。", html: `<div class='flex items-center gap-4 text-xl'><input type='number' id='v1' class='inline-input' placeholder='108'> \\(- 6x = 14x\\)</div>` },
+                { title: "第三步：移项合并", desc: "根据简化后的方程 \\(108 - 6x = 14x\\)，两边同时加上 <span class='math-text'>6x</span> 以合并变量项。", html: `<div class='flex items-center gap-4 text-xl'>\\(108 =\\) <input type='number' id='v1' class='inline-input' placeholder='20'> \\(x\\)</div>` },
+                { title: "第四步：最终求解", desc: "根据 \\(108 = 20x\\)，两边同时除以 20 得到 <span class='math-text'>x</span> 的值。", html: `<div class='flex items-center gap-4 text-xl'>\\(x =\\) <input type='number' id='v1' class='inline-input' placeholder='5.4'></div>` }
+            ],
+            correct: "做得好！", check: "验证步骤", prev: "返回", next: "继续"
+        }
+    };
+
+    function renderStep() {
+        const step = translations[currentLang].steps[currentStep];
+        const container = document.getElementById('step-content');
+        container.innerHTML = `<div><h2 class="text-indigo-400 font-bold text-xs uppercase mb-1">${step.title}</h2><p class="text-slate-200 text-lg font-semibold leading-snug">${step.desc}</p></div><div class="p-8 bg-slate-900/50 rounded-2xl border border-slate-700 flex justify-center">${step.html}</div>`;
+        const msg = document.getElementById('msg'), checkBtn = document.getElementById('checkBtn'), nextBtn = document.getElementById('nextBtn'), prevBtn = document.getElementById('prevBtn');
+        checkBtn.innerText = translations[currentLang].check; prevBtn.innerText = translations[currentLang].prev; nextBtn.innerText = translations[currentLang].next;
+        prevBtn.disabled = currentStep === 0; msg.innerHTML = "";
+        const saved = userProgress[currentStep];
+        if (saved.status === 'success') {
+            const inputs = [document.getElementById('v1'), document.getElementById('v2')];
+            inputs.forEach((input, i) => { if (input) { input.value = saved.val[i]; input.disabled = true; input.classList.add('input-success'); }});
+            checkBtn.disabled = true; nextBtn.disabled = (currentStep === totalSteps - 1);
+            msg.innerHTML = `<span class="text-emerald-400">${translations[currentLang].correct}</span>`;
+        } else { checkBtn.disabled = false; nextBtn.disabled = true; }
+        if (window.renderMathInElement) renderMathInElement(container, { delimiters: [{left: '\\(', right: '\\)', display: false}, {left: '$$', right: '$$', display: true}] });
+    }
+
+    function validateAnswer() {
+        const v1 = parseFloat(document.getElementById('v1').value), v2El = document.getElementById('v2'), v2 = v2El ? parseFloat(v2El.value) : null;
+        let isCorrect = (currentStep === 0) ? (v1 === 6 && v2 === 14) : (currentStep === 1) ? (v1 === 108) : (currentStep === 2) ? (v1 === 20) : (v1 === 5.4);
+        if (isCorrect) { userProgress[currentStep] = {val: [v1, v2], status: 'success'}; renderStep(); }
+        else { document.getElementById('msg').innerHTML = `<span class="text-red-400">Please check your calculation.</span>`; }
+    }
+
+    function setLanguage(lang) { 
+        currentLang = lang; 
+        document.getElementById('enBtn').className = lang === 'en' ? 'px-3 py-1 text-[10px] font-bold rounded-md bg-indigo-600 text-white' : 'px-3 py-1 text-[10px] font-bold rounded-md text-slate-400';
+        document.getElementById('zhBtn').className = lang === 'zh' ? 'px-3 py-1 text-[10px] font-bold rounded-md bg-indigo-600 text-white' : 'px-3 py-1 text-[10px] font-bold rounded-md text-slate-400';
+        renderStep(); 
+    }
+
+    function changeStep(dir) { currentStep += dir; renderStep(); }
+    window.onload = () => { setTimeout(() => { document.getElementById('loader').style.display = 'none'; renderStep(); }, 800); };
+</script>
+</body>
+</html>
