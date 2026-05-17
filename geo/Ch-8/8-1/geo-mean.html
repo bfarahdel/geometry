@@ -17,13 +17,13 @@
             overflow: hidden;
         }
         h1 {
-            margin: 10px 0 2px 0;
-            font-size: 1.4rem;
+            margin: 15px 0 4px 0;
+            font-size: 2rem; 
             color: #67e8f9;
         }
         h2 {
-            margin: 0 0 8px 0;
-            font-size: 0.85rem;
+            margin: 0 0 12px 0;
+            font-size: 1.2rem; 
             font-weight: normal;
             color: #9ca3af;
         }
@@ -35,21 +35,21 @@
             touch-action: none; 
         }
         #stats {
-            margin-top: 10px;
+            margin-top: 12px;
             font-family: monospace;
             color: #e5e7eb;
             background: #374151;
-            padding: 8px 16px;
+            padding: 12px 20px; 
             border-radius: 4px;
             max-width: 860px;
             text-align: center;
-            min-height: 20px;
-            font-size: 0.9rem;
+            min-height: 24px;
+            font-size: 1.15rem; 
+            font-weight: bold;
         }
-        /* MOVED TO THE BOTTOM: Layout container for buttons */
         #controls {
             margin-top: 15px;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             display: flex;
             gap: 15px;
         }
@@ -57,24 +57,29 @@
             background: #3b82f6;
             color: white;
             border: none;
-            padding: 10px 20px;
-            font-size: 0.95rem;
+            padding: 12px 24px; 
+            font-size: 1.1rem; 
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
-            transition: background 0.2s;
+            transition: background 0.2s, opacity 0.2s;
             touch-action: manipulation;
         }
         button:hover { background: #60a5fa; }
         button#clear-ramps { background: #ef4444; }
         button#clear-ramps:hover { background: #f87171; }
         
-        /* Language Toggle styling */
-        button#lang-toggle {
-            background: #10b981;
-        }
-        button#lang-toggle:hover {
-            background: #34d399;
+        button#play-btn { background: #4b6584; }
+        button#play-btn:hover { background: #778ca3; }
+        button#pause-btn { background: #3867d6; }
+        button#pause-btn:hover { background: #4b7bec; }
+
+        button#lang-toggle { background: #10b981; }
+        button#lang-toggle:hover { background: #34d399; }
+
+        button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
         }
     </style>
 </head>
@@ -83,14 +88,14 @@
     <h1 id="main-title">🛹 Geometric Mean Skate-Lab</h1>
     <h2 id="sub-title">Altitude Theorem: Height = √(Segment 1 × Segment 2)</h2>
     
-    <!-- Canvas is now positioned directly near the top -->
     <canvas id="simCanvas"></canvas>
     <div id="stats">👉 PHASE 1: Click/Tap & Drag left-to-right to draw Segment 1 (p).</div>
     
-    <!-- Controls shifted safely to the bottom of the layout structure -->
     <div id="controls">
         <button id="clear-ramps">🧹 Clear Ramps</button>
         <button id="reset-skater">🔄 Reset Skater</button>
+        <button id="play-btn" disabled>▶️ Play</button>
+        <button id="pause-btn">⏸️ Pause</button>
         <button id="lang-toggle">🌐 EN / 中文</button>
     </div>
 
@@ -104,7 +109,6 @@ canvas.height = 450;
 const GROUND_Y = canvas.height - 50;
 const PIXELS_PER_CM = 25;
 
-// Translation System Dictionary
 let currentLang = 'en';
 const i18n = {
     en: {
@@ -112,6 +116,8 @@ const i18n = {
         subtitle: "Altitude Theorem: Height = √(Segment 1 × Segment 2)",
         clearRamps: "🧹 Clear Ramps",
         resetSkater: "🔄 Reset Skater",
+        play: "▶️ Play",
+        pause: "⏸️ Pause",
         phase1: "👉 PHASE 1: Click/Tap & Drag left-to-right to draw Segment 1 (p).",
         phase2: "📍 Segment 1 saved! Now tap/drag from the flashing green dot to the RIGHT for Segment 2 (q).",
         resetPhase: "🔄 Reset! 👉 PHASE 1: Drag left-to-right to draw Segment 1 (p).",
@@ -124,6 +130,8 @@ const i18n = {
         subtitle: "射影定理 (高定理): 高度 = √(线段 1 × 线段 2)",
         clearRamps: "🧹 清除滑道",
         resetSkater: "🔄 重置滑手",
+        play: "▶️ 播放",
+        pause: "⏸️ 暂停",
         phase1: "👉 阶段 1: 点击/按住并从左向右拖动来绘制线段 1 (p)。",
         phase2: "📍 线段 1 已保存！现在从闪烁的绿点向右拖动来绘制线段 2 (q)。",
         resetPhase: "🔄 已重置！👉 阶段 1: 从左向右拖动来绘制线段 1 (p)。",
@@ -133,10 +141,10 @@ const i18n = {
     }
 };
 
-// Simulation States
 let ramps = [];
 let currentDraft = null; 
 let isDrawing = false;
+let isPaused = false;
 let inputPhase = 1; 
 
 let skater = {
@@ -229,17 +237,16 @@ function stopDrawing() {
     }
 }
 
-// Language Switch Trigger Logic
 function toggleLanguage() {
     currentLang = currentLang === 'en' ? 'zh' : 'en';
     
-    // Update HTML layout texts
     document.getElementById('main-title').innerText = i18n[currentLang].title;
     document.getElementById('sub-title').innerText = i18n[currentLang].subtitle;
     document.getElementById('clear-ramps').innerText = i18n[currentLang].clearRamps;
     document.getElementById('reset-skater').innerText = i18n[currentLang].resetSkater;
+    document.getElementById('play-btn').innerText = i18n[currentLang].play;
+    document.getElementById('pause-btn').innerText = i18n[currentLang].pause;
     
-    // Dynamically safely adjust active status block context
     const statsEl = document.getElementById('stats');
     if (inputPhase === 1 && !currentDraft) {
         statsEl.innerText = i18n[currentLang].phase1;
@@ -248,7 +255,6 @@ function toggleLanguage() {
     }
 }
 
-// Bind Inputs
 canvas.addEventListener('mousedown', startDrawing);
 canvas.addEventListener('mousemove', moveDrawing);
 window.addEventListener('mouseup', stopDrawing);
@@ -272,8 +278,24 @@ document.getElementById('reset-skater').addEventListener('click', () => {
     skater.isAirborne = false; skater.isOnHypotenuse = false; skater.activeRampRef = null;
 });
 
-// Physics Engine
+const playBtn = document.getElementById('play-btn');
+const pauseBtn = document.getElementById('pause-btn');
+
+playBtn.addEventListener('click', () => {
+    isPaused = false;
+    playBtn.disabled = true;
+    pauseBtn.disabled = false;
+});
+
+pauseBtn.addEventListener('click', () => {
+    isPaused = true;
+    playBtn.disabled = false;
+    pauseBtn.disabled = true;
+});
+
 function update() {
+    if (isPaused) return;
+
     if (skater.isAirborne) {
         skater.isOnHypotenuse = false;
         skater.activeRampRef = null;
@@ -365,17 +387,15 @@ function draw() {
         ctx.strokeStyle = '#a855f7'; 
         ctx.beginPath(); ctx.moveTo(ramp.splitX, GROUND_Y); ctx.lineTo(ramp.x2, GROUND_Y); ctx.stroke();
 
-        // Canvas fallback fonts check for clean Chinese rendering layouts
-        ctx.font = 'bold 11px sans-serif';
+        ctx.font = 'bold 15px sans-serif';
         ctx.fillStyle = '#eab308';
-        ctx.fillText(`p: ${ramp.pCm.toFixed(1)} cm`, (ramp.x1 + ramp.splitX)/2 - 25, GROUND_Y + 18);
+        ctx.fillText(`p: ${ramp.pCm.toFixed(1)} cm`, (ramp.x1 + ramp.splitX)/2 - 30, GROUND_Y + 22);
         ctx.fillStyle = '#a855f7';
-        ctx.fillText(`q: ${ramp.qCm.toFixed(1)} cm`, (ramp.splitX + ramp.x2)/2 - 25, GROUND_Y + 18);
+        ctx.fillText(`q: ${ramp.qCm.toFixed(1)} cm`, (ramp.splitX + ramp.x2)/2 - 30, GROUND_Y + 22);
         ctx.fillStyle = '#ec4899';
-        ctx.fillText(`h: ${ramp.hCm.toFixed(1)} cm`, ramp.splitX + 6, (GROUND_Y + ramp.py)/2);
+        ctx.fillText(`h: ${ramp.hCm.toFixed(1)} cm`, ramp.splitX + 8, (GROUND_Y + ramp.py)/2);
     });
     
-    // Fixed Draft Render System
     if (currentDraft) {
         ctx.lineWidth = 4;
         
@@ -412,7 +432,6 @@ function draw() {
         }
     }
     
-    // HUD calculation view
     drawLiveHUD();
 
     // Render Skater
@@ -446,33 +465,36 @@ function drawLiveHUD() {
         isActive = true;
     }
 
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+    // Expanded HUD card width box boundary (from 330 to 380) to clean up layout presentation
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
     ctx.strokeStyle = isActive ? '#06b6d4' : '#4b5563';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 2.5;
     ctx.beginPath();
-    ctx.roundRect(canvas.width - 320, 20, 300, 95, 6);
+    ctx.roundRect(canvas.width - 400, 20, 380, 115, 8);
     ctx.fill();
     ctx.stroke();
 
     ctx.textAlign = 'left';
-    // Use sans-serif fallback alongside monospace to ensure correct rendering of custom system fonts on localized environments
-    ctx.font = 'bold 12px monospace, sans-serif';
+    // Scaled up calculations label font sizing
+    ctx.font = 'bold 15px monospace, sans-serif';
     ctx.fillStyle = '#9ca3af';
-    ctx.fillText(i18n[currentLang].hudHeader, canvas.width - 305, 40);
+    ctx.fillText(i18n[currentLang].hudHeader, canvas.width - 380, 45);
 
-    ctx.font = '14px monospace, sans-serif';
     if (isActive) {
-        ctx.fillStyle = '#eab308'; ctx.fillText(`p = ${pVal.toFixed(1)}cm`, canvas.width - 305, 63);
-        ctx.fillStyle = '#a855f7'; ctx.fillText(`q = ${qVal.toFixed(1)}cm`, canvas.width - 195, 63);
+        // Significantly scaled up formula outputs from 16px to 18px
+        ctx.font = 'bold 18px monospace, sans-serif';
+        ctx.fillStyle = '#eab308'; ctx.fillText(`p = ${pVal.toFixed(1)}cm`, canvas.width - 380, 75);
+        ctx.fillStyle = '#a855f7'; ctx.fillText(`q = ${qVal.toFixed(1)}cm`, canvas.width - 230, 75);
         
         ctx.fillStyle = '#ec4899';
-        ctx.font = 'bold 14px monospace, sans-serif';
-        ctx.fillText(`h = √(${pVal.toFixed(1)} × ${qVal.toFixed(1)}) = ${hVal.toFixed(1)}cm`, canvas.width - 305, 92);
+        ctx.font = 'bold 18px monospace, sans-serif';
+        ctx.fillText(`h = √(${pVal.toFixed(1)} × ${qVal.toFixed(1)}) = ${hVal.toFixed(1)}cm`, canvas.width - 380, 110);
     } else {
+        ctx.font = '18px monospace, sans-serif';
         ctx.fillStyle = '#6b7280';
-        ctx.fillText('h = √(p × q)', canvas.width - 305, 63);
-        ctx.font = '11px sans-serif';
-        ctx.fillText(i18n[currentLang].hudHint, canvas.width - 305, 90);
+        ctx.fillText('h = √(p × q)', canvas.width - 380, 75);
+        ctx.font = '14px sans-serif';
+        ctx.fillText(i18n[currentLang].hudHint, canvas.width - 380, 105);
     }
 }
 

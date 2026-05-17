@@ -63,7 +63,7 @@
             border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
-            transition: background 0.2s;
+            transition: background 0.2s, opacity 0.2s;
             touch-action: manipulation; 
         }
         button:hover { background: #ff6b81; }
@@ -71,6 +71,18 @@
         button#reset-skater:hover { background: #2bcbba; }
         button#lang-toggle { background: #10b981; }
         button#lang-toggle:hover { background: #34d399; }
+        
+        /* Pause & Play button custom styles */
+        button#pause-btn { background: #3867d6; }
+        button#pause-btn:hover { background: #4b7bec; }
+        button#play-btn { background: #4b6584; }
+        button#play-btn:hover { background: #778ca3; }
+        
+        /* Style for disabled state */
+        button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -87,6 +99,8 @@
     <div id="controls">
         <button id="clear-ramps">🧹 Clear Ramps</button>
         <button id="reset-skater">🔄 Reset Skater</button>
+        <button id="play-btn" disabled>▶️ Play</button>
+        <button id="pause-btn">⏸️ Pause</button>
         <button id="lang-toggle">🌐 EN / 中文</button>
     </div>
 
@@ -107,6 +121,8 @@ const i18n = {
         title: "🛹 Skatepark Geometry: Right Triangles",
         clearRamps: "🧹 Clear Ramps",
         resetSkater: "🔄 Reset Skater",
+        play: "▶️ Play",
+        pause: "⏸️ Pause",
         instructions: "Click/Tap & Drag from LEFT to RIGHT to build right-triangle ramps!",
         hypotenuse: "Hypotenuse",
         leg: "Leg",
@@ -116,6 +132,8 @@ const i18n = {
         title: "🛹 滑板几何学: 直角三角形",
         clearRamps: "🧹 清除滑道",
         resetSkater: "🔄 重置滑手",
+        play: "▶️ 播放",
+        pause: "⏸️ 暂停",
         instructions: "从左向右点击/按住并拖动来建造直角三角形滑道！",
         hypotenuse: "斜边 (弦)",
         leg: "直角边",
@@ -126,6 +144,7 @@ const i18n = {
 // Simulation State
 let ramps = [];
 let isDrawing = false;
+let isPaused = false;
 let startX = 0;
 let startY = 0;
 let currentX = 0;
@@ -221,6 +240,22 @@ document.getElementById('reset-skater').addEventListener('click', () => {
     skater.isOnHypotenuse = false;
 });
 
+// Dedicated Play & Pause Actions
+const playBtn = document.getElementById('play-btn');
+const pauseBtn = document.getElementById('pause-btn');
+
+playBtn.addEventListener('click', () => {
+    isPaused = false;
+    playBtn.disabled = true;
+    pauseBtn.disabled = false;
+});
+
+pauseBtn.addEventListener('click', () => {
+    isPaused = true;
+    playBtn.disabled = false;
+    pauseBtn.disabled = true;
+});
+
 // Language Switch Logic
 document.getElementById('lang-toggle').addEventListener('click', () => {
     currentLang = currentLang === 'en' ? 'zh' : 'en';
@@ -229,11 +264,16 @@ document.getElementById('lang-toggle').addEventListener('click', () => {
     document.getElementById('main-title').innerText = i18n[currentLang].title;
     document.getElementById('clear-ramps').innerText = i18n[currentLang].clearRamps;
     document.getElementById('reset-skater').innerText = i18n[currentLang].resetSkater;
+    playBtn.innerText = i18n[currentLang].play;
+    pauseBtn.innerText = i18n[currentLang].pause;
     document.getElementById('stats').innerText = i18n[currentLang].instructions;
 });
 
 // --- Physics Engine ---
 function update() {
+    // Stop physics processing if paused
+    if (isPaused) return;
+
     if (skater.isAirborne) {
         skater.isOnHypotenuse = false; 
         skater.vy += 0.25; 
@@ -348,26 +388,26 @@ function draw() {
         ctx.lineTo(ramp.px, ramp.py);
         ctx.stroke();
 
-        // --- Geometric Unit Text Labels ---
-        ctx.font = 'bold 12px sans-serif';
+        // --- Geometric Unit Text Labels (Increased font to 15px) ---
+        ctx.font = 'bold 15px sans-serif';
         
         // Hypotenuse Text
         ctx.fillStyle = '#00d2d3';
         let midX = (ramp.x1 + ramp.px) / 2;
         let midY = (GROUND_Y + ramp.py) / 2;
-        ctx.fillText(`${i18n[currentLang].hypotenuse} (${ramp.hypotenuseCm.toFixed(1)} cm)`, midX - 65, midY - 15);
+        ctx.fillText(`${i18n[currentLang].hypotenuse} (${ramp.hypotenuseCm.toFixed(1)} cm)`, midX - 75, midY - 15);
 
         // Vertical Leg Text
         ctx.fillStyle = '#ff9f43';
-        ctx.fillText(`${i18n[currentLang].leg} (${ramp.heightCm.toFixed(1)} cm)`, ramp.x2 + 8, (GROUND_Y + ramp.py) / 2);
+        ctx.fillText(`${i18n[currentLang].leg} (${ramp.heightCm.toFixed(1)} cm)`, ramp.x2 + 12, (GROUND_Y + ramp.py) / 2 + 5);
 
         // Base Leg Text
         ctx.fillStyle = '#f1c40f';
-        ctx.fillText(`${i18n[currentLang].leg} (${ramp.widthCm.toFixed(1)} cm)`, (ramp.x1 + ramp.x2) / 2 - 35, GROUND_Y + 20);
+        ctx.fillText(`${i18n[currentLang].leg} (${ramp.widthCm.toFixed(1)} cm)`, (ramp.x1 + ramp.x2) / 2 - 45, GROUND_Y + 25);
 
         // Right Angle Label
         ctx.fillStyle = '#ff4757';
-        ctx.fillText(i18n[currentLang].rightAngle, ramp.x2 - 110, GROUND_Y - 5);
+        ctx.fillText(i18n[currentLang].rightAngle, ramp.x2 - 130, GROUND_Y - 8);
     });
     
     // Preview Drawing State
