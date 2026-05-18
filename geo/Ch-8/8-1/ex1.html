@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Example 1: Geometric Mean</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        /* RESET & BASE SLIDE LAYOUT */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #1e293b;
+            font-family: 'Merriweather', serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Fixed 16:9 Aspect Ratio Display Frame matching your photo setup exactly */
+        .presentation-frame {
+            width: 1280px;
+            height: 720px;
+            background-color: #fcfcf9; /* Exact off-white textbook paper background tone */
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+        }
+
+        /* TEXTBOOK LEAF GREEN HEADER BAR */
+        .textbook-header {
+            background-color: #76a46a; 
+            display: flex;
+            align-items: stretch;
+            height: 75px;
+            border-bottom: 2px solid #cbd5e1;
+        }
+
+        .header-tag {
+            font-weight: 700;
+            font-size: 34px;
+            color: #000000;
+            display: flex;
+            align-items: center;
+            padding: 0 45px;
+            border-right: 2px solid rgba(0, 0, 0, 0.15);
+        }
+
+        .header-title {
+            font-weight: 400;
+            font-size: 34px;
+            color: #111111;
+            display: flex;
+            align-items: center;
+            padding-left: 35px;
+        }
+
+        /* MAIN CONTENT ROW (Gives maximum space to the mathematical problem) */
+        .workspace {
+            padding: 55px 75px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-problem-prompt {
+            font-size: 36px;
+            font-weight: 700;
+            color: #111111;
+            margin-bottom: 45px;
+            letter-spacing: -0.5px;
+        }
+
+        /* CUMULATIVE INCREMENTAL ALIGNMENT TABLE */
+        .derivation-table {
+            display: grid;
+            grid-template-columns: 480px 1fr;
+            gap: 14px 60px;
+            align-items: center;
+            margin-left: 5px;
+        }
+
+        /* Sequential steps start hidden and transition smoothly into view */
+        .derivation-row {
+            display: contents;
+        }
+
+        .derivation-row .math-element,
+        .derivation-row .annotation-element {
+            opacity: 0;
+            transform: translateY(4px);
+            transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+            visibility: hidden;
+        }
+
+        .derivation-row.revealed .math-element,
+        .derivation-row.revealed .annotation-element {
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
+        }
+
+        .math-element {
+            font-size: 44px;
+            color: #000000;
+            display: flex;
+            align-items: center;
+            min-height: 65px;
+        }
+
+        .annotation-element {
+            font-family: 'Roboto', sans-serif;
+            font-size: 26px;
+            color: #556270;
+            font-weight: 400;
+            padding-left: 5px;
+        }
+
+        /* REPLICATING THE TEXTBOOK'S RED BOLD EMPHASIS MARKERS */
+        .factor-focus {
+            color: #b91c1c;
+            font-weight: 700;
+        }
+
+        /* FIXED BOTTOM TERMINAL SUMMARY BOX */
+        .terminal-summary-line {
+            margin-top: auto;
+            font-size: 34px;
+            color: #111111;
+            padding-top: 30px;
+            opacity: 0;
+            transform: translateY(5px);
+            transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+        }
+
+        .terminal-summary-line.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* FLOATING PRESENTATION ACTION BUTTON */
+        .interactive-dock {
+            position: absolute;
+            bottom: 45px;
+            right: 55px;
+            z-index: 50;
+        }
+
+        .action-button {
+            background-color: #76a46a;
+            color: #ffffff;
+            border: none;
+            padding: 16px 36px;
+            font-family: 'Roboto', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .action-button:hover {
+            background-color: #638d58;
+        }
+
+        .action-button:active {
+            transform: scale(0.97);
+        }
+    </style>
+</head>
+<body>
+
+<div class="presentation-frame">
+    <div class="textbook-header">
+        <div class="header-tag">Example 1</div>
+        <div class="header-title">Geometric Mean</div>
+    </div>
+
+    <div class="workspace">
+        <h1 class="main-problem-prompt">Find the geometric mean between 8 and 10.</h1>
+
+        <div class="derivation-table">
+            <div class="derivation-row" id="row-step-1">
+                <div class="math-element">
+                    <math display="block">
+                        <mi>x</mi>
+                        <mo>=</mo>
+                        <msqrt>
+                            <mi>a</mi>
+                            <mi>b</mi>
+                        </msqrt>
+                    </math>
+                </div>
+                <div class="annotation-element">Definition of geometric mean</div>
+            </div>
+
+            <div class="derivation-row" id="row-step-2">
+                <div class="math-element">
+                    <math display="block">
+                        <mo>=</mo>
+                        <msqrt>
+                            <mn>8</mn>
+                            <mo>·</mo>
+                            <mn>10</mn>
+                        </msqrt>
+                    </math>
+                </div>
+                <div class="annotation-element">
+                    <math><mi>a</mi><mo>=</mo><mn>8</mn></math> and <math><mi>b</mi><mo>=</mo><mn>10</mn></math>
+                </div>
+            </div>
+
+            <div class="derivation-row" id="row-step-3">
+                <div class="math-element">
+                    <math display="block">
+                        <mo>=</mo>
+                        <msqrt>
+                            <mo>(</mo>
+                            <mn class="factor-focus">4</mn>
+                            <mo>·</mo>
+                            <mn class="factor-focus">2</mn>
+                            <mo>)</mo>
+                            <mo>·</mo>
+                            <mo>(</mo>
+                            <mn class="factor-focus">2</mn>
+                            <mo>·</mo>
+                            <mn>5</mn>
+                            <mo>)</mo>
+                        </msqrt>
+                    </math>
+                </div>
+                <div class="annotation-element">Factor.</div>
+            </div>
+
+            <div class="derivation-row" id="row-step-4">
+                <div class="math-element">
+                    <math display="block">
+                        <mo>=</mo>
+                        <msqrt>
+                            <mn class="factor-focus">16</mn>
+                            <mo>·</mo>
+                            <mn>5</mn>
+                        </msqrt>
+                    </math>
+                </div>
+                <div class="annotation-element">Associative Property</div>
+            </div>
+
+            <div class="derivation-row" id="row-step-5">
+                <div class="math-element">
+                    <math display="block">
+                        <mo>=</mo>
+                        <mn>4</mn>
+                        <msqrt>
+                            <mn>5</mn>
+                        </msqrt>
+                    </math>
+                </div>
+                <div class="annotation-element">Simplify.</div>
+            </div>
+        </div>
+
+        <div class="terminal-summary-line" id="slide-outcome-summary">
+            The geometric mean between 8 and 10 is <math><mn>4</mn><msqrt><mn>5</mn></msqrt></math> or about 8.9.
+        </div>
+    </div>
+
+    <div class="interactive-dock">
+        <button class="action-button" id="triggerBtn" onclick="advanceDerivationSequence()">
+            <span id="btn-text-content">Next Step</span>
+            <i class="fa-solid fa-chevron-right" id="btn-icon-marker"></i>
+        </button>
+    </div>
+</div>
+
+<script>
+    // SEQUENTIAL STEPPERS CONTROL CORE
+    let sequenceIndex = 0;
+    const maximumStepsCount = 6; // 5 explicit formula matrix lines + 1 outcome string line
+
+    function advanceDerivationSequence() {
+        sequenceIndex++;
+
+        if (sequenceIndex <= 5) {
+            // Unveil math statement lines sequentially down the track table matching image specs
+            document.getElementById(`row-step-${sequenceIndex}`).classList.add('revealed');
+        } else if (sequenceIndex === 6) {
+            // Display the final bottom structural summary evaluation line
+            document.getElementById('slide-outcome-summary').classList.add('revealed');
+            
+            // Adjust label indicators showing termination loop reset criteria choice
+            document.getElementById('btn-text-content').textContent = "Reset Slide";
+            document.getElementById('btn-icon-marker').className = "fa-solid fa-rotate-right";
+        } else {
+            // Clean slide workflow back initialization reset routine execution
+            for (let i = 1; i <= 5; i++) {
+                document.getElementById(`row-step-${i}`).classList.remove('revealed');
+            }
+            document.getElementById('slide-outcome-summary').classList.remove('revealed');
+            
+            sequenceIndex = 0;
+            document.getElementById('btn-text-content').textContent = "Next Step";
+            document.getElementById('btn-icon-marker').className = "fa-solid fa-chevron-right";
+        }
+    }
+</script>
+
+</body>
+</html>
