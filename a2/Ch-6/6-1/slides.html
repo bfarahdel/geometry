@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 6-1: Graphing Exponential Functions</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* CORE PRESENTATION ENGINE */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #0f172a;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Lato', sans-serif;
+            overflow: hidden;
+            gap: 20px;
+        }
+
+        .presentation-deck {
+            position: relative;
+            width: 1280px;
+            height: 720px;
+        }
+
+        .slide-container {
+            width: 100%;
+            height: 100%;
+            background-color: #1e293b;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: none;
+            flex-direction: column;
+            padding: 60px 80px;
+            border-top: 12px solid #3b82f6;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .slide-container.active {
+            display: flex;
+        }
+
+        /* DARK THEME GLASSMORPHISM & DECORATIONS */
+        .slide-container::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+            z-index: 0;
+        }
+
+        /* TYPOGRAPHY SYSTEM */
+        h1, h2, h3, h4 {
+            font-family: 'Poppins', sans-serif;
+            color: #f8fafc;
+            z-index: 1;
+        }
+
+        h1 { font-size: 76px; font-weight: 700; color: #3b82f6; line-height: 1.1; }
+        .slide-title { 
+            font-size: 40px; 
+            font-weight: 700; 
+            margin-bottom: 35px; 
+            border-left: 6px solid #3b82f6; 
+            padding-left: 20px; 
+            line-height: 1.2;
+        }
+        h3 { font-size: 28px; margin-bottom: 15px; color: #f8fafc; }
+        p, li { font-size: 21px; line-height: 1.6; color: #cbd5e1; z-index: 1; }
+        .subtitle { font-size: 34px; color: #94a3b8; font-weight: 400; margin-top: 10px; }
+
+        /* LAYOUT ARCHITECTURE */
+        .content-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            z-index: 1;
+            width: 100%;
+        }
+
+        .title-layout { text-align: center; align-items: center; justify-content: center; gap: 15px; }
+        .divider { width: 120px; height: 5px; background: #3b82f6; border-radius: 2px; margin-top: 20px; }
+        
+        .two-column { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 60px; width: 100%; align-items: center; }
+        .tiled-content { display: flex; gap: 25px; width: 100%; margin-top: 20px; }
+        
+        .tile { 
+            flex: 1; 
+            background: rgba(30, 41, 59, 0.7); 
+            backdrop-filter: blur(10px);
+            padding: 35px 25px; 
+            border-radius: 12px; 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .tile h4 { font-size: 24px; color: #3b82f6; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .tile h4 i { font-size: 22px; }
+
+        /* EQUATION SYSTEM */
+        .formula-container {
+            background: rgba(15, 23, 42, 0.6);
+            padding: 20px 35px;
+            border-radius: 8px;
+            display: inline-block;
+            margin: 20px 0;
+            border-left: 5px solid #3b82f6;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+        }
+        math { font-size: 1.5em; color: #f8fafc; }
+
+        /* SVG COMPONENT ENGINE */
+        .vector-graph { 
+            width: 100%; 
+            height: 450px; 
+            border-radius: 12px; 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #0f172a;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+        .vector-graph svg { width: 100%; height: 100%; }
+        .vector-graph .axis { stroke: #94a3b8; stroke-width: 2; fill: none; }
+        .vector-graph .grid { stroke: #334155; stroke-width: 1; }
+        .vector-graph .asymptote { stroke: #ef4444; stroke-width: 2; stroke-dasharray: 6,4; }
+        .vector-graph .plot-line { stroke: #3b82f6; stroke-width: 4; fill: none; stroke-linecap: round; }
+        .vector-graph .decay-line { stroke: #10b981; stroke-width: 4; fill: none; stroke-linecap: round; }
+        .vector-graph text { font-family: 'Poppins', sans-serif; font-size: 14px; fill: #cbd5e1; }
+
+        /* DATA DISPLAY STYLING */
+        .table-layout table { width: 100%; border-collapse: collapse; margin: 25px 0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2); }
+        .table-layout th, .table-layout td { padding: 14px; border: 1px solid #334155; text-align: center; font-size: 19px; }
+        .table-layout th { background: rgba(15, 23, 42, 0.8); color: #f8fafc; font-weight: 700; }
+        .table-layout tr:nth-child(even) { background: rgba(30, 41, 59, 0.5); }
+        .table-layout td { color: #cbd5e1; }
+
+        /* LIST FRAMEWORK */
+        .bullet-list { list-style: none; margin-top: 15px; }
+        .bullet-list li { margin-bottom: 12px; position: relative; padding-left: 30px; }
+        .bullet-list li::before { 
+            content: '→'; 
+            position: absolute; 
+            left: 0; 
+            color: #3b82f6; 
+            font-weight: 700;
+            font-size: 20px; 
+            top: -2px;
+        }
+
+        /* NAVIGATION CONTROLS */
+        .nav-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            z-index: 9999;
+        }
+
+        .nav-btn {
+            width: 55px;
+            height: 55px;
+            background: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+            transition: all 0.2s ease;
+            font-size: 20px;
+            user-select: none;
+        }
+
+        .nav-btn:hover { background: #2563eb; transform: scale(1.05); }
+        .nav-btn.disabled { background: #475569; cursor: not-allowed; box-shadow: none; transform: none; color: #1e293b; }
+
+        /* LANGUAGE TOGGLE SYSTEM */
+        .lang-control-panel {
+            position: absolute;
+            top: 25px;
+            right: 40px;
+            z-index: 10000;
+            display: flex;
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 4px;
+            border-radius: 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .lang-toggle-btn {
+            padding: 8px 18px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: #94a3b8;
+            background: transparent;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .lang-toggle-btn.active {
+            color: #ffffff;
+            background: #3b82f6;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="presentation-deck">
+        
+        <div class="lang-control-panel">
+            <button class="lang-toggle-btn active" id="lang-en" onclick="setLanguage('en')">
+                <i class="fa-solid fa-earth-americas"></i> EN
+            </button>
+            <button class="lang-toggle-btn" id="lang-zh" onclick="setLanguage('zh')">
+                <i class="fa-solid fa-earth-asia"></i> 中文
+            </button>
+        </div>
+        
+        <div class="slide-container active" id="slide1">
+            <div class="content-area title-layout">
+                <h1 data-en="Lesson 6-1" data-zh="第 6-1 课">Lesson 6-1</h1>
+                <p class="subtitle" data-en="Graphing Exponential Functions" data-zh="绘制指数函数图像">Graphing Exponential Functions</p>
+                <div class="divider"></div>
+            </div>
+        </div>
+
+        <div class="slide-container" id="slide2">
+            <h2 class="slide-title" data-en="Exponential Growth Introduction" data-zh="指数增长简介">Exponential Growth Introduction</h2>
+            <div class="content-area">
+                <div class="two-column">
+                    <div>
+                        <p data-en="An &lt;strong&gt;exponential function&lt;/strong&gt; features a constant base structural value paired with a variable exponent element." 
+                           data-zh="&lt;strong&gt;指数函数&lt;/strong&gt;的特征是拥有一个常数底数与一个变量指数相结合。">
+                            An <strong>exponential function</strong> features a constant base structural value paired with a variable exponent element.
+                        </p>
+                        
+                        <div class="formula-container">
+                            <math display="block">
+                                <mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><msup><mi>b</mi><mi>x</mi></msup>
+                                <mo>,</mo><mspace width="1em"/><mi>b</mi><mo>&gt;</mo><mn>1</mn>
+                            </math>
+                        </div>
+                        
+                        <ul class="bullet-list">
+                            <li data-en="&lt;strong&gt;Behavior:&lt;/strong&gt; Continuous and strictly increasing" data-zh="&lt;strong&gt;性态：&lt;/strong&gt;连续且严格单调递增"><strong>Behavior:</strong> Continuous and strictly increasing</li>
+                            <li data-en="&lt;strong&gt;Domain:&lt;/strong&gt; All real numbers &lt;math&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mo&gt;-&lt;/mo&gt;&lt;mo&gt;&amp;#8734;&lt;/mo&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mo&gt;&amp;#8734;&lt;/mo&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/math&gt;" data-zh="&lt;strong&gt;定义域：&lt;/strong&gt;所有实数 &lt;math&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mo&gt;-&lt;/mo&gt;&lt;mo&gt;&amp;#8734;&lt;/mo&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mo&gt;&amp;#8734;&lt;/mo&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/math&gt;"><strong>Domain:</strong> All real numbers <math><mo>(</mo><mo>-</mo><mo>&#8734;</mo><mo>,</mo><mo>&#8734;</mo><mo>)</mo></math></li>
+                            <li data-en="&lt;strong&gt;Range:&lt;/strong&gt; All positive real numbers &lt;math&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;&amp;gt;&lt;/mo&gt;&lt;mn&gt;0&lt;/mn&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/math&gt;" data-zh="&lt;strong&gt;值域：&lt;/strong&gt;所有正实数 &lt;math&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;&amp;gt;&lt;/mo&gt;&lt;mn&gt;0&lt;/mn&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/math&gt;"><strong>Range:</strong> All positive real numbers <math><mo>(</mo><mi>y</mi><mo>&gt;</mo><mn>0</mn><mo>)</mo></math></li>
+                            <li data-en="&lt;strong&gt;Asymptote:&lt;/strong&gt; x-axis &lt;math&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mn&gt;0&lt;/mn&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/math&gt;" data-zh="&lt;strong&gt;渐近线：&lt;/strong&gt;x 轴 &lt;math&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mn&gt;0&lt;/mn&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/math&gt;"><strong>Asymptote:</strong> x-axis <math><mo>(</mo><mi>y</mi><mo>=</mo><mn>0</mn><mo>)</mo></math></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="vector-graph">
+                        <svg viewBox="0 0 400 400">
+                            <path class="grid" d="M 50,0 V 400 M 100,0 V 400 M 150,0 V 400 M 250,0 V 400 M 300,0 V 400 M 350,0 V 400 M 0,50 H 400 M 0,100 H 400 M 0,150 H 400 M 0,250 H 400 M 0,300 H 400 M 0,350 H 400" />
+                            <line class="axis" x1="10" y1="200" x2="390" y2="200" />
+                            <line class="axis" x1="200" y1="390" x2="200" y2="10" />
+                            
+                            <line class="asymptote" x1="10" y1="202" x2="390" y2="202" />
+                            
+                            <path class="plot-line" d="M 20,195 Q 160,190 200,150 T 280,30" />
+                            <circle cx="200" cy="150" r="6" fill="#3b82f6" />
+                            <text x="215" y="155" font-weight="600">(0, 1)</text>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-container" id="slide3">
+            <h2 class="slide-title" data-en="Example 1: Graphing y = 3&lt;sup&gt;x&lt;/sup&gt;" data-zh="示例 1：绘制 y = 3&lt;sup&gt;x&lt;/sup&gt; 的图像">Example 1: Graphing y = 3<sup>x</sup></h2>
+            <div class="content-area">
+                <div class="two-column">
+                    <div class="table-layout">
+                        <p style="margin-bottom: 15px;" data-en="Graph the function &lt;strong&gt;y = 3&lt;sup&gt;x&lt;/sup&gt;&lt;/strong&gt;. Identify its key metrics." data-zh="绘制函数 &lt;strong&gt;y = 3&lt;sup&gt;x&lt;/sup&gt;&lt;/strong&gt; 的图像。确定其关键指标。">Graph the function <strong>y = 3<sup>x</sup></strong>. Identify its key metrics.</p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>x</th>
+                                    <th>-2</th>
+                                    <th>-1</th>
+                                    <th>0</th>
+                                    <th>1</th>
+                                    <th>2</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong data-en="y" data-zh="y">y</strong></td>
+                                    <td>1/9</td>
+                                    <td>1/3</td>
+                                    <td>1</td>
+                                    <td>3</td>
+                                    <td>9</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div style="margin-top: 25px; background: rgba(15, 23, 42, 0.4); padding: 20px; border-radius: 8px; border: 1px dashed #475569;">
+                            <p><strong data-en="Domain:" data-zh="定义域：">Domain:</strong> <span data-en="All Real Numbers" data-zh="所有实数">All Real Numbers</span> <math><mo>(</mo><mo>-</mo><mo>&#8734;</mo><mo>,</mo><mo>&#8734;</mo><mo>)</mo></math></p>
+                            <p><strong data-en="Range:" data-zh="值域：">Range:</strong> <span data-en="Positive Outputs" data-zh="正值输出">Positive Outputs</span> <math><mo>(</mo><mn>0</mn><mo>,</mo><mo>&#8734;</mo><mo>)</mo></math></p>
+                        </div>
+                    </div>
+                    
+                    <div class="vector-graph">
+                        <svg viewBox="0 0 400 400">
+                            <path class="grid" d="M 50,0 V 400 M 100,0 V 400 M 150,0 V 400 M 250,0 V 400 M 300,0 V 400 M 350,0 V 400 M 0,50 H 400 M 0,100 H 400 M 0,150 H 400 M 0,250 H 400 M 0,300 H 400 M 0,350 H 400" />
+                            <line class="axis" x1="10" y1="200" x2="390" y2="200" />
+                            <line class="axis" x1="200" y1="390" x2="200" y2="10" />
+                            
+                            <path class="plot-line" d="M 50,195 C 120,190 170,180 200,150 C 220,130 240,75 250,50" />
+                            
+                            <circle cx="200" cy="150" r="5" fill="#f8fafc" />
+                            <circle cx="250" cy="50" r="5" fill="#f8fafc" />
+                            
+                            <text x="215" y="155" font-weight="600">(0, 1)</text>
+                            <text x="265" y="55" font-weight="600">(1, 3)</text>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-container" id="slide4">
+            <h2 class="slide-title" data-en="Transformations Introduction" data-zh="函数变换简介">Transformations Introduction</h2>
+            <div class="content-area">
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <div class="formula-container" style="padding: 20px 50px;">
+                        <math><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mi>a</mi><msup><mi>b</mi><mrow><mi>x</mi><mo>-</mo><mi>h</mi></mrow></msup><mo>+</mo><mi>k</mi></math>
+                    </div>
+                </div>
+                <div class="tiled-content">
+                    <div class="tile">
+                        <h4><i class="fa-solid fa-arrows-left-right"></i> <span data-en="h-value" data-zh="h 值">h-value</span></h4>
+                        <p data-en="&lt;strong&gt;Horizontal Shift&lt;/strong&gt;&lt;br&gt;Moves right if subtraction &lt;math&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;-&lt;/mo&gt;&lt;mi style=&quot;color:#3b82f6&quot;&gt;h&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/math&gt;, and left if addition." 
+                           data-zh="&lt;strong&gt;水平平移&lt;/strong&gt;&lt;br&gt;若为减法 &lt;math&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;-&lt;/mo&gt;&lt;mi style=&quot;color:#3b82f6&quot;&gt;h&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/math&gt; 向右平移，若为加法则向左平移。">
+                            <strong>Horizontal Shift</strong><br>Moves right if subtraction <math><mo>(</mo><mi>x</mi><mo>-</mo><mi style="color:#3b82f6">h</mi><mo>)</mo></math>, and left if addition.
+                        </p>
+                    </div>
+                    <div class="tile">
+                        <h4><i class="fa-solid fa-arrows-up-down"></i> <span data-en="k-value" data-zh="k 值">k-value</span></h4>
+                        <p data-en="&lt;strong&gt;Vertical Shift&lt;/strong&gt;&lt;br&gt;Shifts everything up or down. Explicitly changes the horizontal asymptote location." 
+                           data-zh="&lt;strong&gt;垂直平移&lt;/strong&gt;&lt;br&gt;整体向上或向下平移。直接改变水平渐近线的位置。">
+                            <strong>Vertical Shift</strong><br>Shifts everything up or down. Explicitly changes the horizontal asymptote location.
+                        </p>
+                    </div>
+                    <div class="tile">
+                        <h4><i class="fa-solid fa-compress"></i> <span data-en="a-value" data-zh="a 值">a-value</span></h4>
+                        <p data-en="&lt;strong&gt;Orientation & Scale&lt;/strong&gt;&lt;br&gt;Controls vertical scaling stretch, compression, or reflections across the x-axis." 
+                           data-zh="&lt;strong&gt;方向与拉伸&lt;/strong&gt;&lt;br&gt;控制垂直方向的拉伸、压缩或关于 x 轴的反射对称。">
+                            <strong>Orientation & Scale</strong><br>Controls vertical scaling stretch, compression, or reflections across the x-axis.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-container" id="slide5">
+            <h2 class="slide-title" data-en="Example 2: Vertical Shift" data-zh="示例 2：垂直平移">Example 2: Vertical Shift</h2>
+            <div class="content-area">
+                <div class="two-column">
+                    <div>
+                        <h3 data-en="Graphing: y = 2&lt;sup&gt;x&lt;/sup&gt; + 1" data-zh="作图：y = 2&lt;sup&gt;x&lt;/sup&gt; + 1">Graphing: y = 2<sup>x</sup> + 1</h3>
+                        <p data-en="Shifts the baseline parents structural graph of y = 2&lt;sup&gt;x&lt;/sup&gt; vertically &lt;strong&gt;up 1 full unit&lt;/strong&gt;." 
+                           data-zh="将母函数 y = 2&lt;sup&gt;x&lt;/sup&gt; 的基础图像整体垂直&lt;strong&gt;向上平移 1 个单位&lt;/strong&gt;。">
+                            Shifts the baseline parents structural graph of y = 2<sup>x</sup> vertically <strong>up 1 full unit</strong>.
+                        </p>
+                        <ul class="bullet-list" style="margin-top: 25px;">
+                            <li data-en="&lt;strong&gt;Asymptote:&lt;/strong&gt; Displaces upwards to &lt;math&gt;&lt;mi style=&quot;color:#ef4444&quot;&gt;y&lt;/mi&gt;&lt;mo style=&quot;color:#ef4444&quot;&gt;=&lt;/mo&gt;&lt;mn style=&quot;color:#ef4444&quot;&gt;1&lt;/mn&gt;&lt;/math&gt;" data-zh="&lt;strong&gt;渐近线：&lt;/strong&gt;向上移动至 &lt;math&gt;&lt;mi style=&quot;color:#ef4444&quot;&gt;y&lt;/mi&gt;&lt;mo style=&quot;color:#ef4444&quot;&gt;=&lt;/mo&gt;&lt;mn style=&quot;color:#ef4444&quot;&gt;1&lt;/mn&gt;&lt;/math&gt;"><strong>Asymptote:</strong> Displaces upwards to <math><mi style="color:#ef4444">y</mi><mo style="color:#ef4444">=</mo><mn style="color:#ef4444">1</mn></math></li>
+                            <li data-en="&lt;strong&gt;Domain:&lt;/strong&gt; Unchanged &lt;math&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mo&gt;-&lt;/mo&gt;&lt;mo&gt;&amp;#8734;&lt;/mo&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mo&gt;&amp;#8734;&lt;/mo&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/math&gt;" data-zh="&lt;strong&gt;定义域：&lt;/strong&gt;保持不变 &lt;math&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mo&gt;-&lt;/mo&gt;&lt;mo&gt;&amp;#8734;&lt;/mo&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mo&gt;&amp;#8734;&lt;/mo&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/math&gt;"><strong>Domain:</strong> Unchanged <math><mo>(</mo><mo>-</mo><mo>&#8734;</mo><mo>,</mo><mo>&#8734;</mo><mo>)</mo></math></li>
+                            <li data-en="&lt;strong&gt;Range:&lt;/strong&gt; Shifts upward with boundary &lt;math&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mn&gt;1&lt;/mn&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mo&gt;&amp;#8734;&lt;/mo&gt;&lt;mo&gt;)&lt;/math&gt;" data-zh="&lt;strong&gt;值域：&lt;/strong&gt;向上平移，边界变为 &lt;math&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mn&gt;1&lt;/mn&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mo&gt;&amp;#8734;&lt;/mo&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/math&gt;"><strong>Range:</strong> Shifts upward with boundary <math><mo>(</mo><mn>1</mn><mo>,</mo><mo>&#8734;</mo><mo>)</mo></math></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="vector-graph">
+                        <svg viewBox="0 0 400 400">
+                            <path class="grid" d="M 50,0 V 400 M 100,0 V 400 M 150,0 V 400 M 250,0 V 400 M 300,0 V 400 M 350,0 V 400 M 0,50 H 400 M 0,100 H 400 M 0,150 H 400 M 0,250 H 400 M 0,300 H 400 M 0,350 H 400" />
+                            <line class="axis" x1="10" y1="200" x2="390" y2="200" />
+                            <line class="axis" x1="200" y1="390" x2="200" y2="10" />
+                            
+                            <line class="asymptote" x1="10" y1="150" x2="390" y2="150" />
+                            
+                            <path class="plot-line" d="M 40,146 C 130,143 170,130 200,100 C 230,70 245,45 260,10" />
+                            <circle cx="200" cy="100" r="5" fill="#f8fafc" />
+                            <text x="215" y="105" font-weight="600">(0, 2)</text>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-container" id="slide6">
+            <h2 class="slide-title" data-en="Exponential Decay Functions" data-zh="指数衰减函数">Exponential Decay Functions</h2>
+            <div class="content-area">
+                <div class="two-column">
+                    <div>
+                        <p data-en="When the base value falls inside fractional limits, the system drops rapidly rather than escalating." 
+                           data-zh="当底数位于分数区间内时，体系数值会快速下降而不是急剧上升。">
+                            When the base value falls inside fractional limits, the system drops rapidly rather than escalating.
+                        </p>
+                        
+                        <div class="formula-container">
+                            <math display="block">
+                                <mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><msup><mi>b</mi><mi>x</mi></msup>
+                                <mo>,</mo><mspace width="1em"/><mn>0</mn><mo>&lt;</mo><mi>b</mi><mo>&lt;</mo><mn>1</mn>
+                            </math>
+                        </div>
+                        
+                        <ul class="bullet-list">
+                            <li data-en="&lt;strong&gt;Behavior:&lt;/strong&gt; Continuous and strictly decreasing" data-zh="&lt;strong&gt;性态：&lt;/strong&gt;连续且严格单调递减"><strong>Behavior:</strong> Continuous and strictly decreasing</li>
+                            <li data-en="&lt;strong&gt;Domain:&lt;/strong&gt; All real numbers &lt;math&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mo&gt;-&lt;/mo&gt;&lt;mo&gt;&amp;#8734;&lt;/mo&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mo&gt;&amp;#8734;&lt;/mo&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/math&gt;" data-zh="&lt;strong&gt;定义域：&lt;/strong&gt;所有实数 &lt;math&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mo&gt;-&lt;/mo&gt;&lt;mo&gt;&amp;#8734;&lt;/mo&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mo&gt;&amp;#8734;&lt;/mo&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/math&gt;"><strong>Domain:</strong> All real numbers <math><mo>(</mo><mo>-</mo><mo>&#8734;</mo><mo>,</mo><mo>&#8734;</mo><mo>)</mo></math></li>
+                            <li data-en="&lt;strong&gt;Range:&lt;/strong&gt; All positive real numbers &lt;math&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;&amp;gt;&lt;/mo&gt;&lt;mn&gt;0&lt;/mn&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/math&gt;" data-zh="&lt;strong&gt;值域：&lt;/strong&gt;所有正实数 &lt;math&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;&amp;gt;&lt;/mo&gt;&lt;mn&gt;0&lt;/mn&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/math&gt;"><strong>Range:</strong> All positive real numbers <math><mo>(</mo><mi>y</mi><mo>&gt;</mo><mn>0</mn><mo>)</mo></math></li>
+                            <li data-en="&lt;strong&gt;Y-Intercept:&lt;/strong&gt; Retains standard baseline at (0, 1)" data-zh="&lt;strong&gt;y 轴截距：&lt;/strong&gt;保持在标准基准点 (0, 1)"><strong>Y-Intercept:</strong> Retains standard baseline at (0, 1)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="vector-graph">
+                        <svg viewBox="0 0 400 400">
+                            <path class="grid" d="M 50,0 V 400 M 100,0 V 400 M 150,0 V 400 M 250,0 V 400 M 300,0 V 400 M 350,0 V 400 M 0,50 H 400 M 0,100 H 400 M 0,150 H 400 M 0,250 H 400 M 0,300 H 400 M 0,350 H 400" />
+                            <line class="axis" x1="10" y1="200" x2="390" y2="200" />
+                            <line class="axis" x1="200" y1="390" x2="200" y2="10" />
+                            
+                            <line class="asymptote" x1="10" y1="202" x2="390" y2="202" />
+                            
+                            <path class="decay-line" d="M 150,50 C 160,75 180,130 200,150 C 220,170 235,180 250,183.3 C 280,190 320,195 370,198" />
+                            
+                            <circle cx="150" cy="50" r="5" fill="#10b981" />
+                            <circle cx="200" cy="150" r="5" fill="#10b981" />
+                            <circle cx="250" cy="183.3" r="5" fill="#10b981" />
+                            
+                            <text x="75" y="55" font-weight="600">(-1, 1/b)</text>
+                            <text x="215" y="142" font-weight="600">(0, 1)</text>
+                            <text x="265" y="180" font-weight="600">(1, b)</text>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-container" id="slide7">
+            <h2 class="slide-title" data-en="Example 3: Graphing y = (1/3)&lt;sup&gt;x&lt;/sup&gt;" data-zh="示例 3：绘制 y = (1/3)&lt;sup&gt;x&lt;/sup&gt; 的图像">Example 3: Graphing y = (1/3)<sup>x</sup></h2>
+            <div class="content-area">
+                <div class="two-column">
+                    <div>
+                        <p data-en="Plot coordinates across inverse powers to clearly map out the structural decay trend line." 
+                           data-zh="通过绘制负指数幂的坐标点，从而清晰地描绘出结构性衰减趋势线。">
+                            Plot coordinates across inverse powers to clearly map out the structural decay trend line.
+                        </p>
+                        
+                        <div class="formula-container" style="background: rgba(15, 23, 42, 0.6); border-left-color: #10b981;">
+                            <p style="font-family: 'Poppins', sans-serif; font-size: 20px; color: #f8fafc;">
+                                <strong data-en="Key Coordinates:" data-zh="关键坐标点：">Key Coordinates:</strong><br>
+                                (-1, 3), &nbsp; (0, 1), &nbsp; (1, 1/3)
+                            </p>
+                        </div>
+                        
+                        <ul class="bullet-list">
+                            <li data-en="As x values turn positive, fractional multiplications force outputs closer to zero." data-zh="随着 x 值变为正数，分数的连续乘法迫使输出值无限接近于零。">As x values turn positive, fractional multiplications force outputs closer to zero.</li>
+                            <li data-en="The x-axis line &lt;math&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi style=&quot;color:#ef4444&quot;&gt;y&lt;/mi&gt;&lt;mo style=&quot;color:#ef4444&quot;&gt;=&lt;/mo&gt;&lt;mn style=&quot;color:#ef4444&quot;&gt;0&lt;/mn&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/math&gt; remains the boundary ceiling limit." data-zh="x 轴线条 &lt;math&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi style=&quot;color:#ef4444&quot;&gt;y&lt;/mi&gt;&lt;mo style=&quot;color:#ef4444&quot;&gt;=&lt;/mo&gt;&lt;mn style=&quot;color:#ef4444&quot;&gt;0&lt;/mn&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/math&gt; 仍为不可逾越的下确界边界。">The x-axis line <math><mo>(</mo><mi style="color:#ef4444">y</mi><mo style="color:#ef4444">=</mo><mn style="color:#ef4444">0</mn><mo>)</mo></math> remains the boundary ceiling limit.</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="vector-graph">
+                        <svg viewBox="0 0 400 400">
+                            <path class="grid" d="M 50,0 V 400 M 100,0 V 400 M 150,0 V 400 M 250,0 V 400 M 300,0 V 400 M 350,0 V 400 M 0,50 H 400 M 0,100 H 400 M 0,150 H 400 M 0,250 H 400 M 0,300 H 400 M 0,350 H 400" />
+                            <line class="axis" x1="10" y1="200" x2="390" y2="200" />
+                            <line class="axis" x1="200" y1="390" x2="200" y2="10" />
+                            
+                            <path class="decay-line" d="M 150,50 C 160,75 180,130 200,150 C 220,170 235,180 250,183.3 C 280,190 320,195 370,198" />
+                            
+                            <circle cx="150" cy="50" r="5" fill="#f8fafc" />
+                            <circle cx="200" cy="150" r="5" fill="#f8fafc" />
+                            <circle cx="250" cy="183.3" r="5" fill="#f8fafc" />
+                            
+                            <text x="95" y="55" font-weight="600">(-1, 3)</text>
+                            <text x="215" y="142" font-weight="600">(0, 1)</text>
+                            <text x="265" y="180" font-weight="600">(1, 1/3)</text>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="nav-controls">
+        <div class="nav-btn disabled" id="prevBtn" onclick="navigateSlide(-1)">
+            <i class="fa-solid fa-chevron-left"></i>
+        </div>
+        <div class="nav-btn" id="nextBtn" onclick="navigateSlide(1)">
+            <i class="fa-solid fa-chevron-right"></i>
+        </div>
+    </div>
+
+    <script>
+        let currentSlideIndex = 1;
+        const totalSlidesCount = 7;
+        let activeLanguage = 'en';
+
+        function updateSlideUI() {
+            // Hide all decks safely
+            document.querySelectorAll('.slide-container').forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            // Activate target view frame
+            document.getElementById(`slide${currentSlideIndex}`).classList.add('active');
+
+            // Handle navigation button bounds rendering state
+            const prevButton = document.getElementById('prevBtn');
+            const nextButton = document.getElementById('nextBtn');
+
+            if (currentSlideIndex === 1) {
+                prevButton.classList.add('disabled');
+            } else {
+                prevButton.classList.remove('disabled');
+            }
+
+            if (currentSlideIndex === totalSlidesCount) {
+                nextButton.classList.add('disabled');
+            } else {
+                nextButton.classList.remove('disabled');
+            }
+        }
+
+        function navigateSlide(direction) {
+            const nextTarget = currentSlideIndex + direction;
+            if (nextTarget >= 1 && nextTarget <= totalSlidesCount) {
+                currentSlideIndex = nextTarget;
+                updateSlideUI();
+            }
+        }
+
+        function setLanguage(langCode) {
+            activeLanguage = langCode;
+            
+            // Toggle active panel layout style colors
+            document.getElementById('lang-en').classList.toggle('active', langCode === 'en');
+            document.getElementById('lang-zh').classList.toggle('active', langCode === 'zh');
+
+            // Parse all multi-language strings on localized data fields
+            document.querySelectorAll('[data-en], [data-zh]').forEach(element => {
+                const updatedContent = element.getAttribute(`data-${langCode}`);
+                if (updatedContent) {
+                    element.innerHTML = updatedContent;
+                }
+            });
+        }
+
+        // Global hotkey events interface for seamless presentation workflow
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowRight' || event.key === 'Space') {
+                navigateSlide(1);
+            } else if (event.key === 'ArrowLeft') {
+                navigateSlide(-1);
+            }
+        });
+    </script>
+</body>
+</html>
