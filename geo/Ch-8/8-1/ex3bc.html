@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Example 3: Parts B & C - Finding y and z</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #1e293b;
+            font-family: 'Merriweather', serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .presentation-frame {
+            width: 1280px;
+            height: 720px;
+            background-color: #fcfcf9;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+        }
+
+        .textbook-header {
+            background-color: #76a46a; 
+            display: flex;
+            align-items: stretch;
+            height: 75px;
+            border-bottom: 2px solid #cbd5e1;
+        }
+
+        .header-tag {
+            font-weight: 700;
+            font-size: 34px;
+            color: #000000;
+            display: flex;
+            align-items: center;
+            padding: 0 45px;
+            border-right: 2px solid rgba(0, 0, 0, 0.15);
+        }
+
+        .header-title {
+            font-weight: 400;
+            font-size: 34px;
+            color: #111111;
+            display: flex;
+            align-items: center;
+            padding-left: 35px;
+        }
+
+        .workspace {
+            padding: 40px 80px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .main-problem-prompt {
+            font-size: 32px;
+            font-weight: 700;
+            color: #111111;
+            margin-bottom: 25px;
+            letter-spacing: -0.5px;
+        }
+
+        .problem-explanation {
+            font-size: 19px;
+            line-height: 1.5;
+            color: #222222;
+            margin-bottom: 12px;
+            opacity: 0;
+            transform: translateY(4px);
+            transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+            visibility: hidden;
+        }
+
+        .problem-explanation.revealed {
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
+        }
+
+        .derivation-table {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 10px 50px;
+            align-items: center;
+            margin-left: 5px;
+            margin-bottom: 30px;
+        }
+
+        .derivation-row {
+            display: contents;
+        }
+
+        .derivation-row .math-element,
+        .derivation-row .annotation-element {
+            opacity: 0;
+            transform: translateY(4px);
+            transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+            visibility: hidden;
+        }
+
+        .derivation-row.revealed .math-element,
+        .derivation-row.revealed .annotation-element {
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
+        }
+
+        .math-element {
+            font-size: 36px;
+            color: #000000;
+            display: flex;
+            align-items: center;
+            min-height: 55px;
+        }
+
+        .annotation-element {
+            font-family: 'Roboto', sans-serif;
+            font-size: 22px;
+            color: #556270;
+            font-weight: 400;
+            padding-left: 5px;
+        }
+
+        .interactive-dock {
+            position: absolute;
+            bottom: 45px;
+            right: 55px;
+            z-index: 50;
+        }
+
+        .action-button {
+            background-color: #76a46a;
+            color: #ffffff;
+            border: none;
+            padding: 16px 36px;
+            font-family: 'Roboto', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .action-button:hover {
+            background-color: #638d58;
+        }
+
+        .action-button:active {
+            transform: scale(0.97);
+        }
+    </style>
+</head>
+<body>
+
+<div class="presentation-frame">
+    <div class="textbook-header">
+        <div class="header-tag">Example 3</div>
+        <div class="header-title">Use Geometric Mean with Right Triangles</div>
+    </div>
+
+    <div class="workspace">
+        <h1 class="main-problem-prompt">Find y and z.</h1>
+
+        <div id="block-y">
+            <p class="problem-explanation" id="exp-y">
+                Since <i>y</i> is the measure of leg <i>JL</i>, <i>y</i> is the geometric mean of <i>JM</i>, the measure of the segment adjacent to this leg, and <i>JK</i>, the measure of the hypotenuse.
+            </p>
+            <div class="derivation-table">
+                <div class="derivation-row" id="row-y-1">
+                    <div class="math-element">
+                        <math display="block">
+                            <mi>y</mi><mo>=</mo><sqrt><mi>JM</mi><mo>&middot;</mo><mi>JK</mi></msqrt>
+                        </math>
+                    </div>
+                    <div class="annotation-element">Geometric Mean (Leg) Theorem</div>
+                </div>
+                <div class="derivation-row" id="row-y-2">
+                    <div class="math-element">
+                        <math display="block">
+                            <mo>=</mo><sqrt><mn>5</mn><mo>&middot;</mo><mo>(</mo><mn>20</mn><mo>+</mo><mn>5</mn><mo>)</mo></msqrt>
+                        </math>
+                    </div>
+                    <div class="annotation-element">Substitution</div>
+                </div>
+                <div class="derivation-row" id="row-y-3">
+                    <div class="math-element">
+                        <math display="block">
+                            <mo>=</mo><sqrt><mn>125</mn></msqrt><mtext>&nbsp;or about&nbsp;</mtext><mn>11.2</mn>
+                        </math>
+                    </div>
+                    <div class="annotation-element">Use a calculator to simplify.</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="block-z" style="display: none;">
+            <p class="problem-explanation" id="exp-z">
+                Since <i>z</i> is the measure of leg <i>KL</i>, <i>z</i> is the geometric mean of <i>MK</i>, the measure of the segment adjacent to <i>KL</i>, and <i>JK</i>, the measure of the hypotenuse.
+            </p>
+            <div class="derivation-table">
+                <div class="derivation-row" id="row-z-1">
+                    <div class="math-element">
+                        <math display="block">
+                            <mi>z</mi><mo>=</mo><sqrt><mi>MK</mi><mo>&middot;</mo><mi>JK</mi></msqrt>
+                        </math>
+                    </div>
+                    <div class="annotation-element">Geometric Mean (Leg) Theorem</div>
+                </div>
+                <div class="derivation-row" id="row-z-2">
+                    <div class="math-element">
+                        <math display="block">
+                            <mo>=</mo><sqrt><mn>20</mn><mo>&middot;</mo><mo>(</mo><mn>20</mn><mo>+</mo><mn>5</mn><mo>)</mo></msqrt>
+                        </math>
+                    </div>
+                    <div class="annotation-element">Substitution</div>
+                </div>
+                <div class="derivation-row" id="row-z-3">
+                    <div class="math-element">
+                        <math display="block">
+                            <mo>=</mo><sqrt><mn>500</mn></msqrt><mtext>&nbsp;or about&nbsp;</mtext><mn>22.4</mn>
+                        </math>
+                    </div>
+                    <div class="annotation-element">Use a calculator to simplify.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="interactive-dock">
+        <button class="action-button" id="triggerBtn" onclick="advanceSequence()">
+            <span id="btn-text-content">Next Step</span>
+            <i class="fa-solid fa-chevron-right" id="btn-icon-marker"></i>
+        </button>
+    </div>
+</div>
+
+<script>
+    let step = 0;
+    const expY = document.getElementById('exp-y');
+    const expZ = document.getElementById('exp-z');
+    const blockY = document.getElementById('block-y');
+    const blockZ = document.getElementById('block-z');
+    const btnText = document.getElementById('btn-text-content');
+    const btnIcon = document.getElementById('btn-icon-marker');
+
+    function advanceSequence() {
+        step++;
+
+        // --- FINDING Y ---
+        if (step === 1) {
+            expY.classList.add('revealed');
+        } else if (step === 2) {
+            document.getElementById('row-y-1').classList.add('revealed');
+        } else if (step === 3) {
+            document.getElementById('row-y-2').classList.add('revealed');
+        } else if (step === 4) {
+            document.getElementById('row-y-3').classList.add('revealed');
+        } 
+        // --- FINDING Z ---
+        else if (step === 5) {
+            blockY.style.display = 'none';
+            blockZ.style.display = 'block';
+            setTimeout(() => expZ.classList.add('revealed'), 50);
+        } else if (step === 6) {
+            document.getElementById('row-z-1').classList.add('revealed');
+        } else if (step === 7) {
+            document.getElementById('row-z-2').classList.add('revealed');
+        } else if (step === 8) {
+            document.getElementById('row-z-3').classList.add('revealed');
+            btnText.textContent = "Reset Slide";
+            btnIcon.className = "fa-solid fa-rotate-right";
+        } 
+        // --- RESET ---
+        else {
+            blockZ.style.display = 'none';
+            blockY.style.display = 'block';
+
+            const lines = ['row-y-1', 'row-y-2', 'row-y-3', 'row-z-1', 'row-z-2', 'row-z-3'];
+            lines.forEach(id => document.getElementById(id).classList.remove('revealed'));
+            
+            expY.classList.remove('revealed');
+            expZ.classList.remove('revealed');
+
+            step = 0;
+            btnText.textContent = "Next Step";
+            btnIcon.className = "fa-solid fa-chevron-right";
+        }
+    }
+</script>
+
+</body>
+</html>
