@@ -20,7 +20,7 @@
             }
         };
     </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <script id="MathJax-script" defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
     
     <style>
         * {
@@ -92,31 +92,38 @@
             letter-spacing: -0.5px;
         }
 
-        /* HARD RENDERING GUARD: Pre-rendered components are structural hidden */
+        /* HARD IFRAME RENDERING SHIELD: If a math container doesn't have its completed SVG yet, 
+           force it to remain absolutely invisible. No code leaks under any circumstances. */
+        .math-element:not(:has(svg)) {
+            opacity: 0 !important;
+            visibility: hidden !important;
+        }
+
+        /* STRUCTURAL LAYOUT LOCK */
         .problem-explanation,
         .derivation-row .math-element,
         .derivation-row .annotation-element {
-            display: none;
+            display: none !important;
             opacity: 0;
             transform: translateY(4px);
             transition: opacity 0.35s ease-out, transform 0.35s ease-out;
         }
 
-        /* REVEAL STATES: Invoked dynamically strictly AFTER compile loops complete */
+        /* SAFE TRANSITION STATES */
         .problem-explanation.revealed {
-            display: block;
+            display: block !important;
             opacity: 1;
             transform: translateY(0);
         }
 
         .derivation-row.revealed .math-element {
-            display: flex;
+            display: flex !important;
             opacity: 1;
             transform: translateY(0);
         }
 
         .derivation-row.revealed .annotation-element {
-            display: block;
+            display: block !important;
             opacity: 1;
             transform: translateY(0);
         }
@@ -245,20 +252,21 @@
     const btnText = document.getElementById('btn-text-content');
     const btnIcon = document.getElementById('btn-icon-marker');
 
-    // Safe reveal function that waits for MathJax compilation confirmation before making components visible
+    // IFRAME-READY REVEAL LOOP: Checks if script has completed downloading over iframe pipe, then triggers transitions
     function safeReveal(elementId) {
         const target = document.getElementById(elementId);
         if (!target) return;
 
         if (window.MathJax && window.MathJax.typesetPromise) {
-            // Force MathJax to scan the specific DOM structure first while it is structurally un-rendered
             window.MathJax.typesetPromise([target]).then(() => {
-                // Instantly make it active only after conversion code is converted into native mathematical SVGs
+                target.classList.add('revealed');
+            }).catch((err) => {
+                console.log("Iframe rendering catch sequence invoked:", err);
                 target.classList.add('revealed');
             });
         } else {
-            // Fallback alternative if MathJax hasn't fully booted up yet
-            target.classList.add('revealed');
+            // If the parent frame context is choking out the child window, wait 80ms and try again
+            setTimeout(() => safeReveal(elementId), 80);
         }
     }
 
