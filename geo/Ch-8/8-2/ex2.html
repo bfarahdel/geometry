@@ -142,6 +142,7 @@
             display: flex;
             align-items: center;
             min-height: 52px;
+            white-space: nowrap; /* Keeps math cleanly on its row */
         }
 
         .color-red { color: #dc2626; }
@@ -202,42 +203,32 @@
 
         <div id="block-x">
             <p class="problem-explanation" id="exp-x">
-                Notice that <span class="color-red">15</span> and <span class="color-blue">12</span> are both multiples of 3, because $\color{#dc2626}{15}\color{#222222}{ = 3 \cdot }\color{#dc2626}{5}$ and $\color{#2563eb}{12}\color{#222222}{ = 3 \cdot }\color{#2563eb}{4}$.
+                Notice that <span class="color-red">15</span> and <span class="color-blue">12</span> are both multiples of 3, because $\color{#dc2626}{15} = 3 \cdot \color{#dc2626}{5}$ and $\color{#2563eb}{12} = 3 \cdot \color{#2563eb}{4}$.
             </p>
             
             <div class="derivation-table">
                 <div class="derivation-row" id="row-x-1">
-                    <div class="math-element">
-                        $\displaystyle \color{#16a34a}{3}, \color{#2563eb}{4}, \color{#dc2626}{5}$
-                    </div>
+                    <div class="math-element">$\displaystyle \color{#16a34a}{3}, \color{#2563eb}{4}, \color{#dc2626}{5}$</div>
                     <div class="annotation-element">Core Pythagorean triple base.</div>
                 </div>
                 
                 <div class="derivation-row" id="row-x-2">
-                    <div class="math-element">
-                        $\displaystyle x = 3 \cdot \color{#16a34a}{3}$
-                    </div>
+                    <div class="math-element">$\displaystyle x = 3 \cdot \color{#16a34a}{3}$</div>
                     <div class="annotation-element">Scale the missing leg length by the common factor of 3.</div>
                 </div>
                 
                 <div class="derivation-row" id="row-x-3">
-                    <div class="math-element">
-                        $\displaystyle x = \color{#16a34a}{9}$
-                    </div>
+                    <div class="math-element">$\displaystyle x = \color{#16a34a}{9}$</div>
                     <div class="annotation-element">Simplify.</div>
                 </div>
                 
                 <div class="derivation-row" id="row-x-4">
-                    <div class="math-element">
-                        $\displaystyle \color{#2563eb}{12}^2 + \color{#16a34a}{9}^2 \stackrel{?}{=} \color{#dc2626}{15}^2$
-                    </div>
+                    <div class="math-element">$\displaystyle \color{#2563eb}{12}^2 + \color{#16a34a}{9}^2 \stackrel{?}{=} \color{#dc2626}{15}^2$</div>
                     <div class="annotation-element">CHECK: Substitute back into the Pythagorean Theorem.</div>
                 </div>
                 
                 <div class="derivation-row" id="row-x-5">
-                    <div class="math-element">
-                        $\displaystyle 225 = 225 \quad \checkmark$
-                    </div>
+                    <div class="math-element">$\displaystyle 225 = 225 \quad \checkmark$</div>
                     <div class="annotation-element">Simplify and confirm accuracy.</div>
                 </div>
             </div>
@@ -282,6 +273,11 @@
             step = 0;
             btnText.textContent = "Next Step";
             btnIcon.className = "fa-solid fa-chevron-right";
+        }
+
+        // CRITICAL ENGINE TRIGGER: Forces MathJax to instantly process the newly revealed elements
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise();
         }
     }
 </script>
