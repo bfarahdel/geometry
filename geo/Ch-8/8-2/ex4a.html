@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Example 4a: Classify Triangles</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #1e293b;
+            font-family: 'Merriweather', serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .presentation-frame {
+            width: 1280px;
+            height: 720px;
+            background-color: #fcfcf9;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+        }
+
+        .textbook-header {
+            background-color: #76a46a; 
+            display: flex;
+            align-items: stretch;
+            height: 75px;
+            border-bottom: 2px solid #cbd5e1;
+        }
+
+        .header-tag {
+            font-weight: 700;
+            font-size: 34px;
+            color: #000000;
+            display: flex;
+            align-items: center;
+            padding: 0 45px;
+            border-right: 2px solid rgba(0, 0, 0, 0.15);
+        }
+
+        .header-title {
+            font-weight: 400;
+            font-size: 34px;
+            color: #111111;
+            display: flex;
+            align-items: center;
+            padding-left: 35px;
+        }
+
+        .workspace {
+            padding: 40px 80px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .main-problem-prompt {
+            font-size: 26px;
+            font-weight: 700;
+            color: #111111;
+            margin-bottom: 25px;
+            line-height: 1.4;
+            letter-spacing: -0.5px;
+        }
+
+        /* Improved Static Layout System */
+        .step-layer {
+            width: 100%;
+            transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+        }
+
+        .step-heading {
+            font-family: 'Roboto', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #ffffff;
+            background-color: #5c3a21;
+            padding: 3px 10px;
+            display: inline-block;
+            margin-right: 12px;
+            border-radius: 3px;
+        }
+
+        .problem-explanation {
+            font-size: 21px;
+            line-height: 1.5;
+            color: #222222;
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(4px);
+            transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+            visibility: hidden;
+        }
+
+        .problem-explanation.revealed {
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
+        }
+
+        .derivation-table {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 8px 50px;
+            align-items: center;
+            margin-left: 5px;
+        }
+
+        .derivation-row {
+            display: contents;
+        }
+
+        .derivation-row .math-element,
+        .derivation-row .annotation-element {
+            opacity: 0;
+            transform: translateY(4px);
+            transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+            visibility: hidden;
+        }
+
+        .derivation-row.revealed .math-element,
+        .derivation-row.revealed .annotation-element {
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
+        }
+
+        .math-element {
+            font-size: 26px;
+            color: #000000;
+            display: flex;
+            align-items: center;
+            min-height: 48px;
+        }
+
+        .color-red { color: #dc2626; }
+        .color-blue { color: #2563eb; }
+        .color-green { color: #16a34a; }
+
+        .annotation-element {
+            font-family: 'Roboto', sans-serif;
+            font-size: 19px;
+            color: #556270;
+            font-weight: 400;
+            padding-left: 5px;
+        }
+
+        .conclusion-block {
+            font-size: 24px;
+            font-weight: 700;
+            color: #111111;
+            margin-top: 25px;
+            opacity: 0;
+            transform: translateY(4px);
+            transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+            visibility: hidden;
+        }
+
+        .conclusion-block.revealed {
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
+        }
+
+        /* Clean State Switches for Multi-stage Workspace */
+        .stage-hidden {
+            display: none !important;
+        }
+        
+        .stage-visible {
+            display: block !important;
+        }
+
+        .interactive-dock {
+            position: absolute;
+            bottom: 35px;
+            right: 55px;
+            z-index: 100;
+        }
+
+        .action-button {
+            background-color: #76a46a;
+            color: #ffffff;
+            border: none;
+            padding: 14px 32px;
+            font-family: 'Roboto', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .action-button:hover {
+            background-color: #638d58;
+        }
+
+        .action-button:active {
+            transform: scale(0.97);
+        }
+    </style>
+</head>
+<body>
+
+<div class="presentation-frame">
+    <div class="textbook-header">
+        <div class="header-tag">Example 4</div>
+        <div class="header-title">Classify Triangles</div>
+    </div>
+
+    <div class="workspace">
+        <h1 class="main-problem-prompt">
+            Determine whether the set of numbers <span class="color-blue">7, 14, 16</span> can be the measures of the sides of a triangle. If so, classify the triangle as <i>acute</i>, <i>right</i>, or <i>obtuse</i>. Justify your answer.
+        </h1>
+
+        <div id="step1-layer" class="step-layer stage-visible">
+            <p class="problem-explanation" id="exp-step1">
+                <span class="step-heading">Step 1</span> Determine whether the measures can form a triangle using the Triangle Inequality Theorem.
+            </p>
+            
+            <div class="derivation-table">
+                <div class="derivation-row" id="row-s1-1">
+                    <div class="math-element">
+                        $$7 + 14 > 16 \quad \color{#16a34a}{\checkmark}$$
+                    </div>
+                    <div class="annotation-element">Check combination 1: $a + b > c$</div>
+                </div>
+                
+                <div class="derivation-row" id="row-s1-2">
+                    <div class="math-element">
+                        $$14 + 16 > 7 \quad \color{#16a34a}{\checkmark}$$
+                    </div>
+                    <div class="annotation-element">Check combination 2: $b + c > a$</div>
+                </div>
+                
+                <div class="derivation-row" id="row-s1-3">
+                    <div class="math-element">
+                        $$7 + 16 > 14 \quad \color{#16a34a}{\checkmark}$$
+                    </div>
+                    <div class="annotation-element">Check combination 3: $a + c > b$</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="step2-layer" class="step-layer stage-hidden">
+            <p class="problem-explanation" id="exp-step2">
+                <span class="step-heading">Step 2</span> Classify the triangle by comparing the square of the longest side to the sum of the squares of the other two sides.
+            </p>
+            
+            <div class="derivation-table">
+                <div class="derivation-row" id="row-s2-1">
+                    <div class="math-element">
+                        $$\color{#dc2626}{c^2} \stackrel{?}{=} \color{#2563eb}{a^2} + \color{#16a34a}{b^2}$$
+                    </div>
+                    <div class="annotation-element">Compare $c^2$ and $a^2 + b^2$ (where $c$ is the longest side).</div>
+                </div>
+                
+                <div class="derivation-row" id="row-s2-2">
+                    <div class="math-element">
+                        $$\color{#dc2626}{16^2} \stackrel{?}{=} \color{#2563eb}{7^2} + \color{#16a34a}{14^2}$$
+                    </div>
+                    <div class="annotation-element">Substitution ($a=7, b=14, c=16$).</div>
+                </div>
+                
+                <div class="derivation-row" id="row-s2-3">
+                    <div class="math-element">
+                        $$256 > 245$$
+                    </div>
+                    <div class="annotation-element">Simplify and compare ($256$ vs $49 + 196$).</div>
+                </div>
+            </div>
+
+            <div class="conclusion-block" id="final-conclusion">
+                Because $\color{#dc2626}{c^2} > \color{#2563eb}{a^2} + \color{#16a34a}{b^2}$, the triangle is <span class="color-red">obtuse</span>.
+            </div>
+        </div>
+    </div>
+
+    <div class="interactive-dock">
+        <button class="action-button" id="triggerBtn" onclick="advanceSequence()">
+            <span id="btn-text-content">Next Step</span>
+            <i class="fa-solid fa-chevron-right" id="btn-icon-marker"></i>
+        </button>
+    </div>
+</div>
+
+<script>
+    let step = 0;
+    const btnText = document.getElementById('btn-text-content');
+    const btnIcon = document.getElementById('btn-icon-marker');
+
+    function advanceSequence() {
+        step++;
+        
+        switch(step) {
+            case 1:
+                document.getElementById('exp-step1').classList.add('revealed');
+                break;
+            case 2:
+                document.getElementById('row-s1-1').classList.add('revealed');
+                document.getElementById('row-s1-2').classList.add('revealed');
+                document.getElementById('row-s1-3').classList.add('revealed');
+                break;
+            case 3:
+                // Exchange display properties smoothly to ensure safe, zero-cutoff margins
+                document.getElementById('step1-layer').className = "step-layer stage-hidden";
+                document.getElementById('step2-layer').className = "step-layer stage-visible";
+                
+                // Animate entry layout context
+                setTimeout(() => {
+                    document.getElementById('exp-step2').classList.add('revealed');
+                }, 20);
+                break;
+            case 4:
+                document.getElementById('row-s2-1').classList.add('revealed');
+                break;
+            case 5:
+                document.getElementById('row-s2-2').classList.add('revealed');
+                break;
+            case 6:
+                document.getElementById('row-s2-3').classList.add('revealed');
+                break;
+            case 7:
+                document.getElementById('final-conclusion').classList.add('revealed');
+                btnText.textContent = "Reset Slide";
+                btnIcon.className = "fa-solid fa-rotate-right";
+                break;
+            default:
+                resetSlide();
+        }
+    }
+
+    function resetSlide() {
+        step = 0;
+        btnText.textContent = "Next Step";
+        btnIcon.className = "fa-solid fa-chevron-right";
+
+        document.getElementById('step1-layer').className = "step-layer stage-visible";
+        document.getElementById('step2-layer').className = "step-layer stage-hidden";
+
+        const itemsToClear = [
+            'exp-step1', 'row-s1-1', 'row-s1-2', 'row-s1-3',
+            'exp-step2', 'row-s2-1', 'row-s2-2', 'row-s2-3', 'final-conclusion'
+        ];
+        itemsToClear.forEach(id => document.getElementById(id).classList.remove('revealed'));
+    }
+</script>
+
+</body>
+</html>
