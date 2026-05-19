@@ -92,15 +92,13 @@
             letter-spacing: -0.5px;
         }
 
-        /* IFRAME ANTI-FLICKER SHIELD: Hide raw text strings if MathJax hasn't appended an SVG yet */
+        /* ANTI-FLICKER SHIELD: Conceal raw LaTeX strings until MathJax injects the SVGs */
         .math-element:not(:has(svg)) {
             opacity: 0 !important;
             visibility: hidden !important;
         }
 
-        /* NO MORE DISPLAY NONE! Elements exist inside the DOM layout engine natively 
-           so MathJax calculates widths perfectly inside the iframe loop.
-        */
+        /* Elements maintain physical layout space so MathJax can compute geometry on load */
         .problem-explanation,
         .derivation-row .math-element,
         .derivation-row .annotation-element {
@@ -110,19 +108,9 @@
             transition: opacity 0.35s ease-out, transform 0.35s ease-out;
         }
 
-        /* REVEAL SEQUENCE TRIGGER */
-        .problem-explanation.revealed {
-            visibility: visible;
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .derivation-row.revealed .math-element {
-            visibility: visible;
-            opacity: 1;
-            transform: translateY(0);
-        }
-
+        /* REVEAL STATES */
+        .problem-explanation.revealed,
+        .derivation-row.revealed .math-element,
         .derivation-row.revealed .annotation-element {
             visibility: visible;
             opacity: 1;
@@ -254,21 +242,11 @@
     const btnText = document.getElementById('btn-text-content');
     const btnIcon = document.getElementById('btn-icon-marker');
 
-    // STABLE CONTAINER REVEALER: Promises resolve instantly because target containers maintain an active DOM size state
+    // Instant execution layer — removes all layout throttling and frame lags
     function safeReveal(elementId) {
         const target = document.getElementById(elementId);
-        if (!target) return;
-
-        if (window.MathJax && window.MathJax.typesetPromise) {
-            window.MathJax.typesetPromise([target]).then(() => {
-                target.classList.add('revealed');
-            }).catch((err) => {
-                console.log("Iframe error fallthrough triggered:", err);
-                target.classList.add('revealed');
-            });
-        } else {
-            // Polling backup loop for slow initialization speeds over iframe window bounds
-            setTimeout(() => safeReveal(elementId), 50);
+        if (target) {
+            target.classList.add('revealed');
         }
     }
 
