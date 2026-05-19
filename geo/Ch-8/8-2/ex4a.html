@@ -95,7 +95,6 @@
 
         .step-layer {
             width: 100%;
-            transition: opacity 0.35s ease-out, transform 0.35s ease-out;
         }
 
         .step-heading {
@@ -111,21 +110,35 @@
             border-radius: 3px;
         }
 
-        .problem-explanation {
-            font-size: 21px;
-            line-height: 1.5;
-            color: #222222;
-            margin-bottom: 20px;
+        /* HARD LAYOUT PROTECTION: Hidden initially to prevent miscalculated dimensions */
+        .problem-explanation,
+        .derivation-row .math-element,
+        .derivation-row .annotation-element,
+        .conclusion-block {
+            display: none !important;
             opacity: 0;
             transform: translateY(4px);
             transition: opacity 0.35s ease-out, transform 0.35s ease-out;
-            visibility: hidden;
         }
 
-        .problem-explanation.revealed {
+        /* STABLE VISIBILITY TRANSITIONS */
+        .problem-explanation.revealed,
+        .conclusion-block.revealed {
+            display: block !important;
             opacity: 1;
             transform: translateY(0);
-            visibility: visible;
+        }
+
+        .derivation-row.revealed .math-element {
+            display: flex !important;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .derivation-row.revealed .annotation-element {
+            display: block !important;
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .derivation-table {
@@ -140,25 +153,9 @@
             display: contents;
         }
 
-        .derivation-row .math-element,
-        .derivation-row .annotation-element {
-            opacity: 0;
-            transform: translateY(4px);
-            transition: opacity 0.35s ease-out, transform 0.35s ease-out;
-            visibility: hidden;
-        }
-
-        .derivation-row.revealed .math-element,
-        .derivation-row.revealed .annotation-element {
-            opacity: 1;
-            transform: translateY(0);
-            visibility: visible;
-        }
-
         .math-element {
             font-size: 26px;
             color: #000000;
-            display: flex;
             align-items: center;
             min-height: 48px;
             white-space: nowrap;
@@ -174,23 +171,6 @@
             color: #556270;
             font-weight: 400;
             padding-left: 5px;
-        }
-
-        .conclusion-block {
-            font-size: 24px;
-            font-weight: 700;
-            color: #111111;
-            margin-top: 25px;
-            opacity: 0;
-            transform: translateY(4px);
-            transition: opacity 0.35s ease-out, transform 0.35s ease-out;
-            visibility: hidden;
-        }
-
-        .conclusion-block.revealed {
-            opacity: 1;
-            transform: translateY(0);
-            visibility: visible;
         }
 
         .stage-hidden {
@@ -311,47 +291,55 @@
     const btnText = document.getElementById('btn-text-content');
     const btnIcon = document.getElementById('btn-icon-marker');
 
+    function safeReveal(elementId) {
+        const target = document.getElementById(elementId);
+        if (!target) return;
+
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise([target]).then(() => {
+                target.classList.add('revealed');
+            });
+        } else {
+            target.classList.add('revealed');
+        }
+    }
+
     function advanceSequence() {
         step++;
         
         switch(step) {
             case 1:
-                document.getElementById('exp-step1').classList.add('revealed');
+                safeReveal('exp-step1');
                 break;
             case 2:
-                document.getElementById('row-s1-1').classList.add('revealed');
-                document.getElementById('row-s1-2').classList.add('revealed');
-                document.getElementById('row-s1-3').classList.add('revealed');
+                safeReveal('row-s1-1');
+                safeReveal('row-s1-2');
+                safeReveal('row-s1-3');
                 break;
             case 3:
                 document.getElementById('step1-layer').className = "step-layer stage-hidden";
                 document.getElementById('step2-layer').className = "step-layer stage-visible";
                 
                 setTimeout(() => {
-                    document.getElementById('exp-step2').classList.add('revealed');
+                    safeReveal('exp-step2');
                 }, 20);
                 break;
             case 4:
-                document.getElementById('row-s2-1').classList.add('revealed');
+                safeReveal('row-s2-1');
                 break;
             case 5:
-                document.getElementById('row-s2-2').classList.add('revealed');
+                safeReveal('row-s2-2');
                 break;
             case 6:
-                document.getElementById('row-s2-3').classList.add('revealed');
+                safeReveal('row-s2-3');
                 break;
             case 7:
-                document.getElementById('final-conclusion').classList.add('revealed');
+                safeReveal('final-conclusion');
                 btnText.textContent = "Reset Slide";
                 btnIcon.className = "fa-solid fa-rotate-right";
                 break;
             default:
                 resetSlide();
-        }
-
-        // FORCE RENDER KICK: Tells MathJax to immediately fix layout elements that just became active
-        if (window.MathJax && window.MathJax.typesetPromise) {
-            window.MathJax.typesetPromise();
         }
     }
 
