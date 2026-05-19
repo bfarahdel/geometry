@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Example 2: Use a Pythagorean Triple</title>
+    <title>Example 4a: Classify Triangles</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
@@ -72,18 +72,36 @@
         }
 
         .main-problem-prompt {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 700;
             color: #111111;
             margin-bottom: 25px;
+            line-height: 1.4;
             letter-spacing: -0.5px;
         }
 
+        .step-layer {
+            width: 100%;
+        }
+
+        .step-heading {
+            font-family: 'Roboto', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #ffffff;
+            background-color: #5c3a21;
+            padding: 3px 10px;
+            display: inline-block;
+            margin-right: 12px;
+            border-radius: 3px;
+        }
+
         .problem-explanation {
-            font-size: 22px;
-            line-height: 1.6;
+            font-size: 20px;
+            line-height: 1.5;
             color: #222222;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             opacity: 0;
             transform: translateY(4px);
             transition: opacity 0.35s ease-out, transform 0.35s ease-out;
@@ -98,8 +116,8 @@
 
         .derivation-table {
             display: grid;
-            grid-template-columns: 320px 1fr;
-            gap: 12px 50px;
+            grid-template-columns: 360px 1fr;
+            gap: 10px 50px;
             align-items: center;
             margin-left: 5px;
         }
@@ -124,31 +142,55 @@
         }
 
         .math-element {
-            font-size: 32px;
+            font-size: 30px;
             color: #000000;
             display: flex;
             align-items: center;
-            min-height: 55px;
+            min-height: 52px;
         }
 
-        /* Standard Color Tokens matching native classes */
         .color-red { color: #dc2626; }
         .color-blue { color: #2563eb; }
         .color-green { color: #16a34a; }
 
         .annotation-element {
             font-family: 'Roboto', sans-serif;
-            font-size: 22px;
+            font-size: 20px;
             color: #556270;
             font-weight: 400;
             padding-left: 5px;
+        }
+
+        .conclusion-block {
+            font-size: 26px;
+            margin-top: 30px;
+            font-weight: 700;
+            color: #111111;
+            opacity: 0;
+            transform: translateY(4px);
+            transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+            visibility: hidden;
+        }
+
+        .conclusion-block.revealed {
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
+        }
+
+        .stage-hidden {
+            display: none;
+        }
+        
+        .stage-visible {
+            display: block;
         }
 
         .interactive-dock {
             position: absolute;
             bottom: 45px;
             right: 55px;
-            z-index: 50;
+            z-index: 100;
         }
 
         .action-button {
@@ -181,71 +223,107 @@
 
 <div class="presentation-frame">
     <div class="textbook-header">
-        <div class="header-tag">Example 2</div>
-        <div class="header-title">Use a Pythagorean Triple</div>
+        <div class="header-tag">Example 4</div>
+        <div class="header-title">Classify Triangles</div>
     </div>
 
     <div class="workspace">
-        <h1 class="main-problem-prompt">Use a Pythagorean triple to find <i>x</i>. Explain your reasoning.</h1>
+        <h1 class="main-problem-prompt">
+            Determine whether the set of numbers <span class="color-blue">7, 14, 16</span> can be the measures of the sides of a triangle. If so, classify the triangle as <i>acute</i>, <i>right</i>, or <i>obtuse</i>. Justify your answer.
+        </h1>
 
-        <div id="block-x">
-            <p class="problem-explanation" id="exp-x">
-                Notice that <span class="color-red">15</span> and <span class="color-blue">12</span> are both multiples of 3, because 
-                <math display="inline"><span class="color-red">15</span><mo>=</mo><mn>3</mn><mo>·</mo><span class="color-red">5</span></math> and 
-                <math display="inline"><span class="color-blue">12</span><mo>=</mo><mn>3</mn><mo>·</mo><span class="color-blue">4</span></math>.
+        <div id="step1-layer" class="step-layer stage-visible">
+            <p class="problem-explanation" id="exp-step1">
+                <span class="step-heading">Step 1</span> Determine whether the measures can form a triangle using the Triangle Inequality Theorem.
             </p>
             
             <div class="derivation-table">
-                <div class="derivation-row" id="row-x-1">
+                <div class="derivation-row" id="row-s1-1">
                     <div class="math-element">
                         <math display="block">
-                            <span class="color-green">3</span><mo>,</mo>
-                            <span class="color-blue">4</span><mo>,</mo>
-                            <span class="color-red">5</span>
+                            <mn>7</mn><mo>+</mo><mn>14</mn><mo>&gt;</mo><mn>16</mn><mspace width="0.5em"></mspace><span class="color-green">✓</span>
                         </math>
                     </div>
-                    <div class="annotation-element">Core Pythagorean triple base.</div>
+                    <div class="annotation-element">
+                        Check combination 1: <math display="inline"><mi>a</mi><mo>+</mo><mi>b</mi><mo>&gt;</mo><mi>c</mi></math>
+                    </div>
                 </div>
                 
-                <div class="derivation-row" id="row-x-2">
+                <div class="derivation-row" id="row-s1-2">
                     <div class="math-element">
                         <math display="block">
-                            <mi>x</mi><mo>=</mo><mn>3</mn><mo>·</mo><span class="color-green">3</span>
+                            <mn>14</mn><mo>+</mo><mn>16</mn><mo>&gt;</mo><mn>7</mn><mspace width="0.5em"></mspace><span class="color-green">✓</span>
                         </math>
                     </div>
-                    <div class="annotation-element">Scale the missing leg length by the common factor of 3.</div>
+                    <div class="annotation-element">
+                        Check combination 2: <math display="inline"><mi>b</mi><mo>+</mo><mi>c</mi><mo>&gt;</mo><mi>a</mi></math>
+                    </div>
                 </div>
                 
-                <div class="derivation-row" id="row-x-3">
+                <div class="derivation-row" id="row-s1-3">
                     <div class="math-element">
                         <math display="block">
-                            <mi>x</mi><mo>=</mo><span class="color-green">9</span>
+                            <mn>7</mn><mo>+</mo><mn>16</mn><mo>&gt;</mo><mn>14</mn><mspace width="0.5em"></mspace><span class="color-green">✓</span>
                         </math>
                     </div>
-                    <div class="annotation-element">Simplify.</div>
+                    <div class="annotation-element">
+                        Check combination 3: <math display="inline"><mi>a</mi><mo>+</mo><mi>c</mi><mo>&gt;</mo><mi>b</mi></math>
+                    </div>
                 </div>
-                
-                <div class="derivation-row" id="row-x-4">
+            </div>
+        </div>
+
+        <div id="step2-layer" class="step-layer stage-hidden">
+            <p class="problem-explanation" id="exp-step2">
+                <span class="step-heading">Step 2</span> Classify the triangle by comparing the square of the longest side to the sum of the squares of the other two sides.
+            </p>
+            
+            <div class="derivation-table">
+                <div class="derivation-row" id="row-s2-1">
                     <div class="math-element">
                         <math display="block">
-                            <msup><mn class="color-blue">12</mn><mn>2</mn></msup>
+                            <msup><mi class="color-red">c</mi><mn>2</mn></msup>
+                            <mo>≟</mo>
+                            <msup><mi class="color-blue">a</mi><mn>2</mn></msup>
                             <mo>+</mo>
-                            <msup><mn class="color-green">9</mn><mn>2</mn></msup>
-                            <mo class="mo-question">≟</mo>
-                            <msup><mn class="color-red">15</mn><mn>2</mn></msup>
+                            <msup><mi class="color-green">b</mi><mn>2</mn></msup>
                         </math>
                     </div>
-                    <div class="annotation-element">CHECK: Substitute back into the Pythagorean Theorem.</div>
+                    <div class="annotation-element">
+                        Compare <math display="inline"><msup><mi>c</mi><mn>2</mn></msup></math> and <math display="inline"><msup><mi>a</mi><mn>2</mn></msup><mo>+</mo><msup><mi>b</mi><mn>2</mn></msup></math> (where <math display="inline"><mi>c</mi></math> is the longest side).
+                    </div>
                 </div>
                 
-                <div class="derivation-row" id="row-x-5">
+                <div class="derivation-row" id="row-s2-2">
                     <div class="math-element">
                         <math display="block">
-                            <mn>225</mn><mo>=</mo><mn>225</mn><mspace width="0.5em"></mspace><mo>✓</mo>
+                            <msup><mn class="color-red">16</mn><mn>2</mn></msup>
+                            <mo>≟</mo>
+                            <msup><mn class="color-blue">7</mn><mn>2</mn></msup>
+                            <mo>+</mo>
+                            <msup><mn class="color-green">14</mn><mn>2</mn></msup>
                         </math>
                     </div>
-                    <div class="annotation-element">Simplify and confirm accuracy.</div>
+                    <div class="annotation-element">
+                        Substitution (<math display="inline"><mi>a</mi><mo>=</mo><mn>7</mn></math>, <math display="inline"><mi>b</mi><mo>=</mo><mn>14</mn></math>, <math display="inline"><mi>c</mi><mo>=</mo><mn>16</mn></math>).
+                    </div>
                 </div>
+                
+                <div class="derivation-row" id="row-s2-3">
+                    <div class="math-element">
+                        <math display="block">
+                            <mn>256</mn><mo>&gt;</mo><mn>245</mn>
+                        </math>
+                    </div>
+                    <div class="annotation-element">Simplify and compare (256 vs 49 + 196).</div>
+                </div>
+            </div>
+
+            <div class="conclusion-block" id="final-conclusion">
+                Because 
+                <math display="inline">
+                    <msup><mi class="color-red">c</mi><mn>2</mn></msup><mo>&gt;</mo><msup><mi class="color-blue">a</mi><mn>2</mn></msup><mo>+</mo><msup><mi class="color-green">b</mi><mn>2</mn></msup>
+                </math>, the triangle is <span class="color-red">obtuse</span>.
             </div>
         </div>
     </div>
@@ -260,35 +338,71 @@
 
 <script>
     let step = 0;
-    const totalSteps = 5;
     const btnText = document.getElementById('btn-text-content');
     const btnIcon = document.getElementById('btn-icon-marker');
 
+    function safeReveal(elementId) {
+        const target = document.getElementById(elementId);
+        if (target) {
+            target.classList.add('revealed');
+        }
+    }
+
     function advanceSequence() {
         step++;
-        if (step === 1) {
-            document.getElementById('exp-x').classList.add('revealed');
-        } else if (step === 2) {
-            document.getElementById('row-x-1').classList.add('revealed');
-        } else if (step === 3) {
-            document.getElementById('row-x-2').classList.add('revealed');
-        } else if (step === 4) {
-            document.getElementById('row-x-3').classList.add('revealed');
-        } else if (step === 5) {
-            document.getElementById('row-x-4').classList.add('revealed');
-        } else if (step === 6) {
-            document.getElementById('row-x-5').classList.add('revealed');
-            btnText.textContent = "Reset Slide";
-            btnIcon.className = "fa-solid fa-rotate-right";
-        } else {
-            document.getElementById('exp-x').classList.remove('revealed');
-            for(let i = 1; i <= totalSteps; i++) {
-                document.getElementById(`row-x-${i}`).classList.remove('revealed');
-            }
-            step = 0;
-            btnText.textContent = "Next Step";
-            btnIcon.className = "fa-solid fa-chevron-right";
+        
+        switch(step) {
+            case 1:
+                safeReveal('exp-step1');
+                break;
+            case 2:
+                safeReveal('row-s1-1');
+                safeReveal('row-s1-2');
+                safeReveal('row-s1-3');
+                break;
+            case 3:
+                document.getElementById('step1-layer').className = "step-layer stage-hidden";
+                document.getElementById('step2-layer').className = "step-layer stage-visible";
+                
+                setTimeout(() => {
+                    safeReveal('exp-step2');
+                }, 20);
+                break;
+            case 4:
+                safeReveal('row-s2-1');
+                break;
+            case 5:
+                safeReveal('row-s2-2');
+                break;
+            case 6:
+                safeReveal('row-s2-3');
+                break;
+            case 7:
+                safeReveal('final-conclusion');
+                btnText.textContent = "Reset Slide";
+                btnIcon.className = "fa-solid fa-rotate-right";
+                break;
+            default:
+                resetSlide();
         }
+    }
+
+    function resetSlide() {
+        step = 0;
+        btnText.textContent = "Next Step";
+        btnIcon.className = "fa-solid fa-chevron-right";
+
+        document.getElementById('step1-layer').className = "step-layer stage-visible";
+        document.getElementById('step2-layer').className = "step-layer stage-hidden";
+
+        const itemsToClear = [
+            'exp-step1', 'row-s1-1', 'row-s1-2', 'row-s1-3',
+            'exp-step2', 'row-s2-1', 'row-s2-2', 'row-s2-3', 'final-conclusion'
+        ];
+        itemsToClear.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.classList.remove('revealed');
+        });
     }
 </script>
 
