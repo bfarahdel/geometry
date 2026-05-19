@@ -20,7 +20,7 @@
             }
         };
     </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <script id="MathJax-script" defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
     
     <style>
         * {
@@ -110,7 +110,13 @@
             border-radius: 3px;
         }
 
-        /* HARD LAYOUT PROTECTION: Hidden initially to prevent miscalculated dimensions */
+        /* HARD IFRAME RENDERING SHIELD: Raw code remains hidden until MathJax replaces it with an SVG */
+        .math-element:not(:has(svg)) {
+            opacity: 0 !important;
+            visibility: hidden !important;
+        }
+
+        /* STRUCTURAL LAYOUT LOCK */
         .problem-explanation,
         .derivation-row .math-element,
         .derivation-row .annotation-element,
@@ -121,7 +127,7 @@
             transition: opacity 0.35s ease-out, transform 0.35s ease-out;
         }
 
-        /* STABLE VISIBILITY TRANSITIONS */
+        /* SAFE VISIBILITY TRANSITIONS */
         .problem-explanation.revealed,
         .conclusion-block.revealed {
             display: block !important;
@@ -291,6 +297,7 @@
     const btnText = document.getElementById('btn-text-content');
     const btnIcon = document.getElementById('btn-icon-marker');
 
+    // IFRAME POLLING REVEAL LOOP: Confirms MathJax has rendered the target before animating it to visible
     function safeReveal(elementId) {
         const target = document.getElementById(elementId);
         if (!target) return;
@@ -298,9 +305,13 @@
         if (window.MathJax && window.MathJax.typesetPromise) {
             window.MathJax.typesetPromise([target]).then(() => {
                 target.classList.add('revealed');
+            }).catch((err) => {
+                console.log("Iframe parsing fallback triggered: ", err);
+                target.classList.add('revealed');
             });
         } else {
-            target.classList.add('revealed');
+            // Delay rendering pass if iframe script frame is choked out
+            setTimeout(() => safeReveal(elementId), 80);
         }
     }
 
